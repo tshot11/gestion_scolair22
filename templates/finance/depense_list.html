@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dépenses - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-chart-line me-2 text-danger"></i>
+            Gestion des dépenses
+        </h1>
+        <a href="{% url 'finance:depense-create' %}" class="btn btn-danger">
+            <i class="fas fa-plus me-2"></i>Nouvelle dépense
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-danger">Liste des dépenses</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Catégorie</th>
+                            <th>Montant</th>
+                            <th>Justificatif</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for depense in depenses %}
+                        <tr>
+                            <td>{{ depense.date|date:"d/m/Y" }}</td>
+                            <td>{{ depense.description }}</td>
+                            <td>{{ depense.categorie|default:"-" }}</td>
+                            <td class="fw-bold text-danger">{{ depense.montant|floatformat:0 }} FC</td>
+                            <td>
+                                {% if depense.justificatif %}
+                                    <a href="{{ depense.justificatif.url }}" class="btn btn-sm btn-info" target="_blank">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </a>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'finance:depense-update' depense.pk %}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'finance:depense-delete' depense.pk %}" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <i class="fas fa-chart-line fa-3x text-gray-400 mb-3"></i>
+                                <p class="text-muted">Aucune dépense enregistrée</p>
+                                <a href="{% url 'finance:depense-create' %}" class="btn btn-danger">
+                                    <i class="fas fa-plus me-2"></i>Ajouter une dépense
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

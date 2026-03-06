@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mon Profil - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-gradient-primary text-white py-4">
+                    <h4 class="mb-0 fw-bold">
+                        <i class="fas fa-id-card me-2"></i>
+                        Mon Profil
+                    </h4>
+                </div>
+                
+                <div class="card-body p-5">
+                    <!-- En-tête du profil -->
+                    <div class="text-center mb-5">
+                        <div class="avatar-circle mx-auto mb-4 position-relative">
+                            {% if user.photo %}
+                                <img src="{{ user.photo.url }}" class="rounded-circle" width="120" height="120" style="object-fit: cover;">
+                            {% else %}
+                                <i class="fas fa-user-circle fa-6x text-primary"></i>
+                            {% endif %}
+                            {% if user.is_authenticated %}
+                                <span class="position-absolute bottom-0 end-0 translate-middle p-2 bg-success border border-light rounded-circle">
+                                    <span class="visually-hidden">En ligne</span>
+                                </span>
+                            {% endif %}
+                        </div>
+                        <h3 class="fw-bold">{{ user.get_full_name|default:user.username }}</h3>
+                        <p class="text-muted">{{ user.email|default:"Email non renseigné" }}</p>
+                        
+                        <!-- Badges des groupes -->
+                        <div class="mt-3">
+                            {% for group in user.groups.all %}
+                                <span class="badge bg-primary me-1 p-2">
+                                    <i class="fas fa-tag me-1"></i>{{ group.name }}
+                                </span>
+                            {% empty %}
+                                <span class="badge bg-secondary me-1 p-2">
+                                    <i class="fas fa-user me-1"></i>Utilisateur
+                                </span>
+                            {% endfor %}
+                            {% if user.is_superuser %}
+                                <span class="badge bg-danger me-1 p-2">
+                                    <i class="fas fa-crown me-1"></i>Super Administrateur
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Informations selon le type d'utilisateur -->
+                    <div class="row g-4">
+                        <!-- Si c'est un parent -->
+                        {% if parent %}
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h5 class="fw-bold mb-4">
+                                        <i class="fas fa-children me-2 text-primary"></i>
+                                        Mes enfants
+                                    </h5>
+                                    <div class="list-group">
+                                        {% for enfant in enfants %}
+                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <i class="fas fa-user-graduate me-2 text-success"></i>
+                                                {{ enfant.nom }} {{ enfant.prenom }}
+                                                <br>
+                                                <small class="text-muted">{{ enfant.classe.nom }}</small>
+                                            </div>
+                                            <a href="{% url 'parents:enfant-detail' enfant.pk %}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
+                                        {% empty %}
+                                        <p class="text-muted text-center py-3">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            Aucun enfant associé
+                                        </p>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Si c'est un enseignant -->
+                        {% if enseignant %}
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h5 class="fw-bold mb-4">
+                                        <i class="fas fa-chalkboard-teacher me-2 text-success"></i>
+                                        Mes informations professionnelles
+                                    </h5>
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <th>Matricule :</th>
+                                            <td>{{ enseignant.matricule }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Spécialité :</th>
+                                            <td>{{ enseignant.specialite }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Téléphone :</th>
+                                            <td>{{ enseignant.telephone }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Email :</th>
+                                            <td>{{ enseignant.email }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Date d'embauche :</th>
+                                            <td>{{ enseignant.date_embauche|date:"d/m/Y" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Statut :</th>
+                                            <td>
+                                                <span class="badge bg-info">{{ enseignant.get_statut_display }}</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Si c'est un élève -->
+                        {% if eleve %}
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h5 class="fw-bold mb-4">
+                                        <i class="fas fa-graduation-cap me-2 text-warning"></i>
+                                        Ma scolarité
+                                    </h5>
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <th>Matricule :</th>
+                                            <td>{{ eleve.matricule }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Classe :</th>
+                                            <td>{{ eleve.classe.nom }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Date d'inscription :</th>
+                                            <td>{{ eleve.date_inscription|date:"d/m/Y" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Téléphone parent :</th>
+                                            <td>{{ eleve.telephone }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Statistiques générales (pour tous) -->
+                        <div class="col-md-{% if parent or enseignant or eleve %}6{% else %}12{% endif %}">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h5 class="fw-bold mb-4">
+                                        <i class="fas fa-chart-pie me-2 text-info"></i>
+                                        Statistiques
+                                    </h5>
+                                    <div class="row g-3">
+                                        <div class="col-6">
+                                            <div class="text-center p-3 bg-primary bg-opacity-10 rounded-3">
+                                                <i class="fas fa-calendar-check fa-2x text-primary mb-2"></i>
+                                                <h6>Dernière connexion</h6>
+                                                <p class="small">{{ user.last_login|date:"d/m/Y H:i"|default:"Jamais" }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-center p-3 bg-success bg-opacity-10 rounded-3">
+                                                <i class="fas fa-user-clock fa-2x text-success mb-2"></i>
+                                                <h6>Membre depuis</h6>
+                                                <p class="small">{{ user.date_joined|date:"d/m/Y" }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions du compte -->
+                    <div class="border-top pt-4 mt-5">
+                        <h5 class="fw-bold mb-4">
+                            <i class="fas fa-cog me-2"></i>
+                            Paramètres du compte
+                        </h5>
+                        <div class="d-flex flex-wrap gap-3 justify-content-center">
+                            <a href="{% url 'password_change' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-key me-2"></i>Changer le mot de passe
+                            </a>
+                            <a href="#" class="btn btn-outline-info">
+                                <i class="fas fa-bell me-2"></i>Préférences de notification
+                            </a>
+                            <a href="#" class="btn btn-outline-secondary">
+                                <i class="fas fa-palette me-2"></i>Thème et apparence
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Activité récente -->
+                    <div class="mt-5">
+                        <h5 class="fw-bold mb-4">
+                            <i class="fas fa-history me-2"></i>
+                            Activité récente
+                        </h5>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-success"></div>
+                                <div class="timeline-content">
+                                    <h6>Connexion</h6>
+                                    <p class="text-muted small">{{ user.last_login|date:"d/m/Y H:i" }}</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-primary"></div>
+                                <div class="timeline-content">
+                                    <h6>Inscription</h6>
+                                    <p class="text-muted small">{{ user.date_joined|date:"d/m/Y" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 25px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -30px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    top: 5px;
+}
+
+.timeline-item:not(:last-child):before {
+    content: '';
+    position: absolute;
+    left: -23px;
+    top: 20px;
+    bottom: 0;
+    width: 2px;
+    background: #e9ecef;
+    height: calc(100% - 15px);
+}
+
+.timeline-content {
+    padding-left: 5px;
+}
+
+.timeline-content h6 {
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.timeline-content p {
+    margin-bottom: 0;
+}
+</style>
+{% endblock %}

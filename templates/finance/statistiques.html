@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Statistiques financières - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête avec bouton retour -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-chart-pie me-2 text-info"></i>
+            Statistiques financières
+        </h1>
+        <div>
+            <a href="{% url 'finance:accueil' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Retour au tableau de bord
+            </a>
+        </div>
+    </div>
+
+    <!-- Cartes récapitulatives -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Total paiements</h6>
+                            <h2 class="mb-0">{{ total_paiements.total|default:0|floatformat:0 }} FC</h2>
+                        </div>
+                        <i class="fas fa-credit-card fa-3x opacity-50"></i>
+                    </div>
+                    <hr class="bg-white">
+                    <div class="d-flex justify-content-between">
+                        <span>Nombre:</span>
+                        <span>{{ total_paiements.nombre|default:0 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Moyenne:</span>
+                        <span>{{ total_paiements.moyenne|default:0|floatformat:0 }} FC</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Total dépenses</h6>
+                            <h2 class="mb-0">{{ total_depenses.total|default:0|floatformat:0 }} FC</h2>
+                        </div>
+                        <i class="fas fa-chart-line fa-3x opacity-50"></i>
+                    </div>
+                    <hr class="bg-white">
+                    <div class="d-flex justify-content-between">
+                        <span>Nombre:</span>
+                        <span>{{ total_depenses.nombre|default:0 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Moyenne:</span>
+                        <span>{{ total_depenses.moyenne|default:0|floatformat:0 }} FC</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Solde</h6>
+                            <h2 class="mb-0">{{ total_paiements.total|default:0|add:total_depenses.total|default:0|floatformat:0 }} FC</h2>
+                        </div>
+                        <i class="fas fa-wallet fa-3x opacity-50"></i>
+                    </div>
+                    <hr class="bg-white">
+                    <div class="d-flex justify-content-between">
+                        <span>Paiements - Dépenses:</span>
+                        <span>{{ total_paiements.total|default:0|add:total_depenses.total|default:0|floatformat:0 }} FC</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Transactions</h6>
+                            <h2 class="mb-0">{{ total_paiements.nombre|default:0|add:total_depenses.nombre|default:0 }}</h2>
+                        </div>
+                        <i class="fas fa-exchange-alt fa-3x opacity-50"></i>
+                    </div>
+                    <hr class="bg-white">
+                    <div class="d-flex justify-content-between">
+                        <span>Paiements:</span>
+                        <span>{{ total_paiements.nombre|default:0 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Dépenses:</span>
+                        <span>{{ total_depenses.nombre|default:0 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphiques -->
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Évolution mensuelle des paiements
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="evolutionChart" style="height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-pie me-2"></i>
+                        Répartition
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="repartitionChart" style="height: 250px;"></canvas>
+                    <hr>
+                    <div class="text-center small">
+                        <span class="me-2">
+                            <i class="fas fa-circle text-primary"></i> Paiements
+                        </span>
+                        <span class="me-2">
+                            <i class="fas fa-circle text-danger"></i> Dépenses
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableau détaillé par mois -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        Détail par mois
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered datatable">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Mois</th>
+                                    <th class="text-end">Total paiements</th>
+                                    <th class="text-end">Nombre de paiements</th>
+                                    <th class="text-end">Moyenne par paiement</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for mois in paiements_par_mois %}
+                                <tr>
+                                    <td>{{ mois.mois|date:"F Y"|default:"-" }}</td>
+                                    <td class="text-end">{{ mois.total|floatformat:0 }} FC</td>
+                                    <td class="text-end">{{ mois.nombre|default:"-" }}</td>
+                                    <td class="text-end">
+                                        {% if mois.nombre %}
+                                            {{ mois.total|divisibleby:mois.nombre|floatformat:0 }} FC
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">Aucune donnée disponible</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Graphique d'évolution
+    const ctx1 = document.getElementById('evolutionChart').getContext('2d');
+    const paiementsData = {{ paiements_par_mois|safe }};
+    
+    // Préparer les données
+    const labels = paiementsData.map(p => {
+        if (p.mois) {
+            const date = new Date(p.mois);
+            return date.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' });
+        }
+        return '';
+    });
+    
+    const data = paiementsData.map(p => p.total || 0);
+    
+    new Chart(ctx1, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Paiements (FC)',
+                data: data,
+                borderColor: '#4e73df',
+                backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                tension: 0.3,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString('fr-FR') + ' FC';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Graphique de répartition (camembert)
+    const ctx2 = document.getElementById('repartitionChart').getContext('2d');
+    const totalPaiements = {{ total_paiements.total|default:0 }};
+    const totalDepenses = {{ total_depenses.total|default:0 }};
+    
+    if (totalPaiements > 0 || totalDepenses > 0) {
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: ['Paiements', 'Dépenses'],
+                datasets: [{
+                    data: [totalPaiements, totalDepenses],
+                    backgroundColor: ['#4e73df', '#e74a3b'],
+                    hoverBackgroundColor: ['#2e59d9', '#be2617'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${label}: ${value.toLocaleString('fr-FR')} FC (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

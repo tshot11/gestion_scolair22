@@ -1,0 +1,324 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Détails de l'élève - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-user-graduate me-2 text-primary"></i>
+            Fiche de l'élève
+        </h1>
+        <div>
+            <a href="{% url 'eleve-list' %}" class="btn btn-secondary me-2">
+                <i class="fas fa-arrow-left me-2"></i>Retour
+            </a>
+            <a href="{% url 'eleve-update' eleve.pk %}" class="btn btn-warning me-2">
+                <i class="fas fa-edit me-2"></i>Modifier
+            </a>
+            <a href="{% url 'eleve-delete' eleve.pk %}" class="btn btn-danger">
+                <i class="fas fa-trash me-2"></i>Supprimer
+            </a>
+        </div>
+    </div>
+
+    <!-- Profil et informations -->
+    <div class="row">
+        <!-- Colonne gauche - Photo et infos de base -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Photo d'identité</h6>
+                </div>
+                <div class="card-body text-center">
+                    {% if eleve.photo %}
+                        <img src="{{ eleve.photo.url }}" class="img-fluid rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;" alt="Photo">
+                    {% else %}
+                        <i class="fas fa-user-circle fa-6x text-gray-400 mb-3"></i>
+                    {% endif %}
+                    <h4 class="mb-1">{{ eleve.nom }} {{ eleve.prenom }}</h4>
+                    <p class="text-muted">
+                        <i class="fas fa-id-card me-1"></i>Matricule: {{ eleve.matricule }}
+                    </p>
+                    <div class="mb-3">
+                        {% if eleve.est_orphelin %}
+                            <span class="badge bg-secondary me-1">Orphelin</span>
+                        {% endif %}
+                        {% if eleve.est_boursier %}
+                            <span class="badge bg-success me-1">Boursier</span>
+                        {% endif %}
+                        {% if eleve.est_handicape %}
+                            <span class="badge bg-warning text-dark me-1">Handicapé</span>
+                        {% endif %}
+                        {% if eleve.est_pris_en_charge %}
+                            <span class="badge bg-info me-1">Pris en charge</span>
+                        {% endif %}
+                        {% if eleve.est_cas_social %}
+                            <span class="badge bg-danger me-1">Cas social</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informations de contact -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Contact</h6>
+                </div>
+                <div class="card-body">
+                    <p><i class="fas fa-phone me-2 text-primary"></i> {{ eleve.telephone|default:"Non renseigné" }}</p>
+                    <p><i class="fas fa-envelope me-2 text-primary"></i> {{ eleve.email_parent|default:"Non renseigné" }}</p>
+                    <p><i class="fas fa-map-marker-alt me-2 text-primary"></i> {{ eleve.adresse|default:"Non renseignée" }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne droite - Informations détaillées -->
+        <div class="col-xl-8 col-lg-7">
+            <!-- Informations personnelles -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Informations personnelles</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Nom complet</label>
+                            <p class="fw-bold">{{ eleve.nom }} {{ eleve.prenom }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Date de naissance</label>
+                            <p class="fw-bold">{{ eleve.date_naissance|date:"d/m/Y" }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Lieu de naissance</label>
+                            <p class="fw-bold">{{ eleve.lieu_naissance }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Sexe</label>
+                            <p class="fw-bold">
+                                {% if eleve.sexe == 'M' %}
+                                    <i class="fas fa-mars text-primary"></i> Masculin
+                                {% else %}
+                                    <i class="fas fa-venus text-danger"></i> Féminin
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Classe</label>
+                            <p class="fw-bold">{{ eleve.classe.nom }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Date d'inscription</label>
+                            <p class="fw-bold">{{ eleve.date_inscription|date:"d/m/Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Onglets pour les modules liés -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="finance-tab" data-bs-toggle="tab" data-bs-target="#finance" type="button" role="tab">
+                                <i class="fas fa-money-bill me-2"></i>Finance
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="presence-tab" data-bs-toggle="tab" data-bs-target="#presence" type="button" role="tab">
+                                <i class="fas fa-calendar-check me-2"></i>Présences
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="resultats-tab" data-bs-toggle="tab" data-bs-target="#resultats" type="button" role="tab">
+                                <i class="fas fa-chart-line me-2"></i>Résultats
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="discipline-tab" data-bs-toggle="tab" data-bs-target="#discipline" type="button" role="tab">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Discipline
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="myTabContent">
+                        <!-- Onglet Finance -->
+                        <div class="tab-pane fade show active" id="finance" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="fw-bold">Historique des paiements</h6>
+                                <a href="{% url 'finance:paiements' %}?eleve={{ eleve.pk }}" class="btn btn-sm btn-primary">
+                                    Voir tout <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Frais</th>
+                                            <th>Montant</th>
+                                            <th>Statut</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for paiement in paiements_recents %}
+                                        <tr>
+                                            <td>{{ paiement.date_paiement|date:"d/m/Y" }}</td>
+                                            <td>{{ paiement.frais.nom }}</td>
+                                            <td>{{ paiement.montant_paye }} FC</td>
+                                            <td>
+                                                {% if paiement.montant_paye >= paiement.frais.montant %}
+                                                    <span class="badge bg-success">Payé</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning">Partiel</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted py-3">
+                                                Aucun paiement enregistré
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Onglet Présences -->
+                        <div class="tab-pane fade" id="presence" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="fw-bold">Présences récentes</h6>
+                                <a href="{% url 'presence:liste' %}?eleve={{ eleve.pk }}" class="btn btn-sm btn-primary">
+                                    Voir tout <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Cours</th>
+                                            <th>Statut</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for presence in presences_recents %}
+                                        <tr>
+                                            <td>{{ presence.date|date:"d/m/Y" }}</td>
+                                            <td>{{ presence.seance.cours.nom }}</td>
+                                            <td>
+                                                {% if presence.statut == 'present' %}
+                                                    <span class="badge bg-success">Présent</span>
+                                                {% elif presence.statut == 'absent' %}
+                                                    <span class="badge bg-danger">Absent</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning">Retard</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="3" class="text-center text-muted py-3">
+                                                Aucune présence enregistrée
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Onglet Résultats -->
+                        <div class="tab-pane fade" id="resultats" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="fw-bold">Derniers résultats</h6>
+                                <a href="{% url 'resultats:liste' %}?eleve={{ eleve.pk }}" class="btn btn-sm btn-primary">
+                                    Voir tout <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Période</th>
+                                            <th>Cours</th>
+                                            <th>Note</th>
+                                            <th>Appréciation</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for resultat in resultats_recents %}
+                                        <tr>
+                                            <td>{{ resultat.periode.nom }}</td>
+                                            <td>{{ resultat.cours.nom }}</td>
+                                            <td>
+                                                <span class="badge {% if resultat.note >= 10 %}bg-success{% else %}bg-danger{% endif %}">
+                                                    {{ resultat.note }}/20
+                                                </span>
+                                            </td>
+                                            <td>{{ resultat.appreciation|truncatechars:20 }}</td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted py-3">
+                                                Aucun résultat enregistré
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Onglet Discipline -->
+                        <div class="tab-pane fade" id="discipline" role="tabpanel">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="fw-bold">Incidents disciplinaires</h6>
+                                <a href="{% url 'discipline:liste' %}?eleve={{ eleve.pk }}" class="btn btn-sm btn-primary">
+                                    Voir tout <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Type</th>
+                                            <th>Description</th>
+                                            <th>Sanction</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for incident in incidents_recents %}
+                                        <tr>
+                                            <td>{{ incident.date|date:"d/m/Y" }}</td>
+                                            <td>
+                                                <span class="badge bg-warning">{{ incident.type }}</span>
+                                            </td>
+                                            <td>{{ incident.description|truncatechars:30 }}</td>
+                                            <td>{{ incident.sanction|default:"-" }}</td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted py-3">
+                                                Aucun incident enregistré
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

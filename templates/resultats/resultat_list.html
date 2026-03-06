@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestion des Résultats - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-chart-line me-2 text-danger"></i>
+            Gestion des Résultats
+        </h1>
+        <a href="{% url 'resultats:resultat-create' %}" class="btn btn-danger">
+            <i class="fas fa-plus me-2"></i>Nouveau Résultat
+        </a>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="row mb-4">
+        <div class="col-xl-6 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Moyenne générale</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ moyenne_generale|floatformat:2 }}/20</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Total des notes</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_resultats }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-star fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-danger">Filtres</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <select class="form-control" id="classeFilter">
+                        <option value="">Toutes les classes</option>
+                        {% for classe in classes %}
+                        <option value="{{ classe.id }}">{{ classe.nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-control" id="periodeFilter">
+                        <option value="">Toutes les périodes</option>
+                        {% for periode in periodes %}
+                        <option value="{{ periode.id }}">{{ periode.nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-secondary w-100" onclick="resetFilters()">
+                        <i class="fas fa-redo me-2"></i>Réinitialiser
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableau des résultats -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-danger">Liste des résultats</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Élève</th>
+                            <th>Classe</th>
+                            <th>Cours</th>
+                            <th>Période</th>
+                            <th>Note/20</th>
+                            <th>Appréciation</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for resultat in resultats %}
+                        <tr>
+                            <td><strong>{{ resultat.eleve.nom }} {{ resultat.eleve.prenom }}</strong></td>
+                            <td>{{ resultat.eleve.classe.nom }}</td>
+                            <td>{{ resultat.cours.nom }}</td>
+                            <td>{{ resultat.periode.nom }}</td>
+                            <td>
+                                <span class="badge {% if resultat.note >= 10 %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ resultat.note }}
+                                </span>
+                            </td>
+                            <td>{{ resultat.appreciation|truncatechars:30 }}</td>
+                            <td>{{ resultat.date_saisie|date:"d/m/Y" }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'resultats:resultat-update' resultat.pk %}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'resultats:resultat-delete' resultat.pk %}" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <i class="fas fa-chart-line fa-3x text-gray-400 mb-3"></i>
+                                <p class="text-muted">Aucun résultat enregistré pour le moment.</p>
+                                <a href="{% url 'resultats:resultat-create' %}" class="btn btn-danger">
+                                    <i class="fas fa-plus me-2"></i>Ajouter un résultat
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $("#classeFilter, #periodeFilter").on("change", function() {
+        var classe = $("#classeFilter").val();
+        var periode = $("#periodeFilter").val();
+        
+        $("table tbody tr").each(function() {
+            var show = true;
+            if (classe && !$(this).find("td:nth-child(2)").text().includes($("#classeFilter option:selected").text())) {
+                show = false;
+            }
+            if (periode && !$(this).find("td:nth-child(4)").text().includes($("#periodeFilter option:selected").text())) {
+                show = false;
+            }
+            $(this).toggle(show);
+        });
+    });
+});
+
+function resetFilters() {
+    $("#classeFilter").val("");
+    $("#periodeFilter").val("");
+    $("table tbody tr").show();
+}
+</script>
+{% endblock %}

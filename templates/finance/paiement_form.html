@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}Modifier{% else %}Ajouter{% endif %} un paiement - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-credit-card me-2 text-primary"></i>
+            {% if object %}Modifier{% else %}Ajouter{% endif %} un paiement
+        </h1>
+        <div>
+            <a href="{% url 'finance:accueil' %}" class="btn btn-secondary me-2">
+                <i class="fas fa-arrow-left me-2"></i>Retour
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">
+                {% if object %}Modifier le paiement{% else %}Nouveau paiement{% endif %}
+            </h6>
+            <span class="badge bg-info">{{ total_eleves }} élèves | {{ total_frais }} frais</span>
+        </div>
+        <div class="card-body">
+            {% if messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {% for message in messages %}
+                {{ message }}
+                {% endfor %}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+
+            <form method="post" id="paiementForm">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Élève <span class="text-danger">*</span></label>
+                        <select name="eleve" class="form-control select2" required>
+                            <option value="">Sélectionner un élève</option>
+                            {% for eleve in eleves %}
+                            <option value="{{ eleve.id }}" {% if eleve.id == eleve_selected %}selected{% endif %}>
+                                {{ eleve.nom }} {{ eleve.prenom }} - {{ eleve.classe.nom|default:"Aucune classe" }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% if not eleves %}
+                        <small class="text-danger">Aucun élève actif trouvé</small>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Frais <span class="text-danger">*</span></label>
+                        <select name="frais" class="form-control" required id="fraisSelect">
+                            <option value="">Sélectionner un frais</option>
+                            {% for frais_item in frais %}
+                            <option value="{{ frais_item.id }}" data-montant="{{ frais_item.montant }}">
+                                {{ frais_item.nom }} - {{ frais_item.montant|floatformat:0 }} FC
+                                {% if frais_item.categorie %}({{ frais_item.categorie.nom }}){% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% if not frais %}
+                        <small class="text-danger">Aucun frais trouvé</small>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Montant payé <span class="text-danger">*</span></label>
+                        <input type="number" name="montant_paye" class="form-control" 
+                               value="{{ form.montant_paye.value|default:'' }}" 
+                               step="0.01" min="0" required id="montantPaye">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i> 
+                            Montant du frais sélectionné: <span id="montantFrais">0</span> FC
+                        </small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Référence</label>
+                        <input type="text" name="reference" class="form-control" 
+                               value="{{ form.reference.value|default:'' }}"
+                               placeholder="N° de reçu, transaction, etc.">
+                        <small class="text-muted">Optionnel</small>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                        <i class="fas fa-save me-2"></i>
+                        {% if object %}Modifier{% else %}Enregistrer{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Select2 CSS (pour de meilleurs selects) -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialisation de Select2 pour une meilleure recherche d'élèves
+    if (typeof $ !== 'undefined' && $.fn.select2) {
+        $('.select2').select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            placeholder: 'Rechercher un élève...',
+            allowClear: true
+        });
+    }
+
+    const fraisSelect = document.getElementById('fraisSelect');
+    const montantFraisSpan = document.getElementById('montantFrais');
+    const montantPayeInput = document.getElementById('montantPaye');
+
+    function updateMontantFrais() {
+        const selectedOption = fraisSelect.options[fraisSelect.selectedIndex];
+        const montant = selectedOption.getAttribute('data-montant');
+        if (montant) {
+            montantFraisSpan.textContent = parseFloat(montant).toFixed(0);
+            montantPayeInput.max = montant;
+            montantPayeInput.placeholder = `Max: ${parseFloat(montant).toFixed(0)} FC`;
+        } else {
+            montantFraisSpan.textContent = '0';
+            montantPayeInput.removeAttribute('max');
+            montantPayeInput.placeholder = 'Saisir le montant';
+        }
+    }
+
+    fraisSelect.addEventListener('change', updateMontantFrais);
+    
+    // Déclencher une fois au chargement si une valeur est déjà sélectionnée
+    if (fraisSelect.selectedIndex > 0) {
+        updateMontantFrais();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}Modifier{% else %}Ajouter{% endif %} un incident - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
+            {% if object %}Modifier{% else %}Ajouter{% endif %} un incident
+        </h1>
+        <a href="{% url 'discipline:incident-list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-warning">
+                {% if object %}Modifier l'incident{% else %}Nouvel incident{% endif %}
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="post" id="incidentForm">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <!-- Colonne 1 : Informations de base -->
+                    <div class="col-md-6">
+                        <h5 class="mb-3 text-warning">Informations de base</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Élève <span class="text-danger">*</span></label>
+                            <select name="eleve" class="form-control" required>
+                                <option value="">Sélectionner un élève</option>
+                                {% for eleve in eleves %}
+                                <option value="{{ eleve.id }}" {% if form.eleve.value|stringformat:"s" == eleve.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ eleve.nom }} {{ eleve.prenom }} - {{ eleve.classe.nom }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.eleve.errors %}
+                                <div class="text-danger small">{{ form.eleve.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Type d'incident <span class="text-danger">*</span></label>
+                            <select name="type" class="form-control" required>
+                                <option value="">Sélectionner un type</option>
+                                <option value="avertissement" {% if form.type.value == 'avertissement' %}selected{% endif %}>Avertissement</option>
+                                <option value="blâme" {% if form.type.value == 'blâme' %}selected{% endif %}>Blâme</option>
+                                <option value="exclusion_temporaire" {% if form.type.value == 'exclusion_temporaire' %}selected{% endif %}>Exclusion temporaire</option>
+                                <option value="exclusion_definitive" {% if form.type.value == 'exclusion_definitive' %}selected{% endif %}>Exclusion définitive</option>
+                                <option value="autre" {% if form.type.value == 'autre' %}selected{% endif %}>Autre</option>
+                            </select>
+                            {% if form.type.errors %}
+                                <div class="text-danger small">{{ form.type.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description <span class="text-danger">*</span></label>
+                            <textarea name="description" class="form-control" rows="4" required>{{ form.description.value|default:'' }}</textarea>
+                            {% if form.description.errors %}
+                                <div class="text-danger small">{{ form.description.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Colonne 2 : Sanctions et résolution -->
+                    <div class="col-md-6">
+                        <h5 class="mb-3 text-warning">Sanctions et résolution</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">Sanction appliquée</label>
+                            <textarea name="sanction" class="form-control" rows="3">{{ form.sanction.value|default:'' }}</textarea>
+                            {% if form.sanction.errors %}
+                                <div class="text-danger small">{{ form.sanction.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">Décrire la sanction donnée</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Durée d'exclusion (jours)</label>
+                            <input type="number" name="duree_exclusion" class="form-control" value="{{ form.duree_exclusion.value|default:'' }}" min="1" max="365">
+                            {% if form.duree_exclusion.errors %}
+                                <div class="text-danger small">{{ form.duree_exclusion.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">À remplir uniquement pour une exclusion</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Date de clôture</label>
+                            <input type="date" name="date_cloture" class="form-control" value="{{ form.date_cloture.value|date:'Y-m-d'|default:'' }}">
+                            {% if form.date_cloture.errors %}
+                                <div class="text-danger small">{{ form.date_cloture.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">Date à laquelle l'incident est résolu</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Rapporté par</label>
+                            <input type="text" name="rapporte_par" class="form-control" value="{{ form.rapporte_par.value|default:'' }}" placeholder="Nom de l'enseignant ou du personnel">
+                            {% if form.rapporte_par.errors %}
+                                <div class="text-danger small">{{ form.rapporte_par.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Boutons de soumission -->
+                <div class="mt-4 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-warning btn-lg px-5">
+                        <i class="fas fa-save me-2"></i>
+                        {% if object %}Enregistrer les modifications{% else %}Enregistrer l'incident{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Styliser les champs
+    $('#incidentForm input, #incidentForm select, #incidentForm textarea').addClass('form-control');
+    
+    // Validation
+    $('#incidentForm').on('submit', function(e) {
+        let isValid = true;
+        let firstError = null;
+        
+        $(this).find('[required]').each(function() {
+            if (!$(this).val()) {
+                isValid = false;
+                $(this).addClass('is-invalid');
+                if (!firstError) firstError = $(this);
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Veuillez remplir tous les champs obligatoires (*)');
+            if (firstError) firstError.focus();
+        }
+    });
+});
+</script>
+{% endblock %}

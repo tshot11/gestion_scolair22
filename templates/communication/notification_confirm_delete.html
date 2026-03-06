@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Supprimer une notification - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-danger">Confirmation de suppression</h6>
+                </div>
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-exclamation-triangle fa-4x text-danger mb-4"></i>
+                    <h4 class="mb-3">Êtes-vous sûr ?</h4>
+                    <p>Voulez-vous vraiment supprimer cette notification ?</p>
+                    <p class="text-muted">{{ object.message }}</p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <a href="{% url 'communication:notification-detail' object.pk %}" class="btn btn-secondary">Annuler</a>
+                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

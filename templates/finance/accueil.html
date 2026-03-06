@@ -1,0 +1,527 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Finance - Tableau de bord{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête avec titre et boutons statistiques et rapports -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-money-bill-wave me-2 text-success"></i>
+            Tableau de bord financier
+        </h1>
+        <div>
+            <a href="{% url 'finance:statistiques' %}" class="btn btn-info me-2">
+                <i class="fas fa-chart-pie me-2"></i>Statistiques
+            </a>
+            <a href="{% url 'finance:rapport' %}" class="btn btn-primary">
+                <i class="fas fa-file-pdf me-2"></i>Rapports
+            </a>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SÉLECTEUR DE MOIS AMÉLIORÉ (NOUVEAU) -->
+    <!-- ============================================ -->
+    <div class="card shadow mb-4 border-left-primary">
+        <div class="card-body">
+            <form method="get" class="row align-items-end" id="monthSelectorForm">
+                <div class="col-md-5">
+                    <label class="form-label fw-bold text-primary">
+                        <i class="fas fa-calendar-alt me-2"></i>Sélectionner un mois
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-primary text-white">
+                            <i class="fas fa-calendar"></i>
+                        </span>
+                        <select name="mois" class="form-select form-select-lg" id="monthSelect" onchange="this.form.submit()">
+                            {% for option in mois_options %}
+                            <option value="{{ option.mois }}" data-annee="{{ option.annee }}" 
+                                    {% if option.selected %}selected{% endif %}>
+                                {{ option.nom }} {{ option.annee }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <input type="hidden" name="annee" id="anneeInput" value="{{ annee_selectionnee }}">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold text-primary">
+                        <i class="fas fa-info-circle me-2"></i>Période affichée
+                    </label>
+                    <div class="alert alert-info py-2 mb-0">
+                        <i class="fas fa-calendar-check me-2"></i>
+                        <strong>{{ date_debut|date:"d/m/Y" }}</strong> au <strong>{{ date_fin|date:"d/m/Y" }}</strong>
+                    </div>
+                </div>
+                <div class="col-md-3 text-end">
+                    <label class="form-label fw-bold text-primary">
+                        <i class="fas fa-chart-line me-2"></i>Mois en cours
+                    </label>
+                    <div class="d-grid">
+                        <a href="?" class="btn btn-outline-primary">
+                            <i class="fas fa-calendar me-2"></i>Mois actuel
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- CARTES STATISTIQUES PRINCIPALES (AMÉLIORÉES AVEC MOIS) -->
+    <!-- ============================================ -->
+    <div class="row g-4 mb-4">
+        <!-- Total Paiements (Global + Mois) -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                <i class="fas fa-credit-card me-1"></i>Total Paiements
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_paiements_montant|floatformat:0 }} FC</div>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>{{ mois_selectionne }}: {{ paiements_mois|floatformat:0 }} FC
+                            </small>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-credit-card fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Dépenses (Global + Mois) -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                <i class="fas fa-chart-line me-1"></i>Total Dépenses
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_depenses_montant|floatformat:0 }} FC</div>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>{{ mois_selectionne }}: {{ depenses_mois|floatformat:0 }} FC
+                            </small>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Solde (Global + Mois) -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                <i class="fas fa-wallet me-1"></i>Solde
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ solde|floatformat:0 }} FC</div>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>{{ mois_selectionne }}: {{ solde_mois|floatformat:0 }} FC
+                            </small>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-wallet fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transactions (Global + Mois) -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                <i class="fas fa-exchange-alt me-1"></i>Transactions
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_paiements|add:total_depenses }}</div>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>{{ mois_selectionne }}: {{ nb_paiements_mois|add:nb_depenses_mois }}
+                            </small>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exchange-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu des sections finance (inchangé) -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <a href="{% url 'finance:categorie-frais-list' %}" class="text-decoration-none">
+                <div class="card bg-primary text-white h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-tags fa-3x mb-3"></i>
+                        <h5>Catégories</h5>
+                        <p class="display-6">{{ total_categories }}</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'finance:frais-list' %}" class="text-decoration-none">
+                <div class="card bg-success text-white h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-money-bill-wave fa-3x mb-3"></i>
+                        <h5>Frais</h5>
+                        <p class="display-6">{{ total_frais }}</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'finance:paiement-list' %}" class="text-decoration-none">
+                <div class="card bg-info text-white h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-credit-card fa-3x mb-3"></i>
+                        <h5>Paiements</h5>
+                        <p class="display-6">{{ total_paiements }}</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'finance:depense-list' %}" class="text-decoration-none">
+                <div class="card bg-danger text-white h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-line fa-3x mb-3"></i>
+                        <h5>Dépenses</h5>
+                        <p class="display-6">{{ total_depenses }}</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Derniers paiements et dépenses du mois sélectionné -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-success">
+                        <i class="fas fa-credit-card me-2"></i>
+                        Derniers paiements - {{ mois_selectionne }} {{ annee_selectionnee }}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for paiement in derniers_paiements %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ paiement.eleve.nom }} {{ paiement.eleve.prenom }}</strong>
+                                <br>
+                                <small>{{ paiement.frais.nom }} - {{ paiement.date_paiement|date:"d/m/Y" }}</small>
+                            </div>
+                            <span class="badge bg-success rounded-pill">{{ paiement.montant_paye|floatformat:0 }} FC</span>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted text-center">Aucun paiement en {{ mois_selectionne }} {{ annee_selectionnee }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-danger">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Dernières dépenses - {{ mois_selectionne }} {{ annee_selectionnee }}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for depense in dernieres_depenses %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ depense.description }}</strong>
+                                <br>
+                                <small>{{ depense.date|date:"d/m/Y" }}</small>
+                            </div>
+                            <span class="badge bg-danger rounded-pill">{{ depense.montant|floatformat:0 }} FC</span>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted text-center">Aucune dépense en {{ mois_selectionne }} {{ annee_selectionnee }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- STATISTIQUES DES PAIEMENTS DES ÉLÈVES (inchangé) -->
+    <!-- ============================================ -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-pie me-2"></i>
+                        Aperçu des paiements des élèves
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body">
+                                    <h5>{{ total_eleves }}</h5>
+                                    <small>Total élèves</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body">
+                                    <h5>{{ eleves_a_jour }}</h5>
+                                    <small>À jour</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body">
+                                    <h5>{{ eleves_partiels }}</h5>
+                                    <small>Paiement partiel</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-danger text-white">
+                                <div class="card-body">
+                                    <h5>{{ eleves_retard_count }}</h5>
+                                    <small>Aucun paiement</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- LISTE COMPLÈTE DES ÉLÈVES (inchangée) -->
+    <!-- ============================================ -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-users me-2"></i>
+                        Liste des élèves et statut des paiements
+                    </h6>
+                    <div>
+                        <button class="btn btn-sm btn-outline-primary" onclick="$('#elevesTable').DataTable().page.len(25).draw();">
+                            <i class="fas fa-list"></i> 25
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary" onclick="$('#elevesTable').DataTable().page.len(50).draw();">
+                            50
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary" onclick="$('#elevesTable').DataTable().page.len(100).draw();">
+                            100
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered datatable" id="elevesTable">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Matricule</th>
+                                    <th>Nom & Prénom</th>
+                                    <th>Classe</th>
+                                    <th>Total payé</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for eleve in tous_eleves %}
+                                <tr>
+                                    <td>{{ eleve.matricule }}</td>
+                                    <td>{{ eleve.nom }} {{ eleve.prenom }}</td>
+                                    <td>{{ eleve.classe.nom|default:"-" }}</td>
+                                    <td class="text-end">{{ eleve.total_paye|floatformat:0 }} FC</td>
+                                    <td>
+                                        <span class="badge bg-{{ eleve.statut_class }} fs-6 p-2">
+                                            <i class="fas fa-{% if eleve.statut_class == 'success' %}check-circle{% elif eleve.statut_class == 'warning' %}exclamation-triangle{% else %}times-circle{% endif %} me-1"></i>
+                                            {{ eleve.statut_label }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'finance:paiement-create' %}?eleve={{ eleve.id }}" 
+                                           class="btn btn-sm btn-success">
+                                            <i class="fas fa-plus"></i> Paiement
+                                        </a>
+                                        <a href="{% url 'eleves:eleve-detail' eleve.id %}" 
+                                           class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center">Aucun élève trouvé</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ÉLÈVES EN RETARD (inchangé) -->
+    <!-- ============================================ -->
+    {% if eleves_retard %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4 border-left-warning">
+                <div class="card-header py-3 bg-warning text-white">
+                    <h6 class="m-0 font-weight-bold">⚠️ Élèves en retard de paiement (aucun paiement)</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Matricule</th>
+                                    <th>Nom & Prénom</th>
+                                    <th>Classe</th>
+                                    <th>Contact</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for eleve in eleves_retard %}
+                                <tr>
+                                    <td>{{ eleve.matricule }}</td>
+                                    <td>{{ eleve.nom }} {{ eleve.prenom }}</td>
+                                    <td>{{ eleve.classe.nom }}</td>
+                                    <td>{{ eleve.telephone|default:"-" }}</td>
+                                    <td>
+                                        <a href="{% url 'finance:paiement-create' %}?eleve={{ eleve.id }}" class="btn btn-sm btn-success">
+                                            <i class="fas fa-plus"></i> Paiement
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">Aucun élève en retard</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Actions rapides (inchangé) -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">Résumé du mois</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 text-center">
+                            <h5>Paiements</h5>
+                            <h3 class="text-success">{{ paiements_mois|floatformat:0 }} FC</h3>
+                            <small>{{ mois_selectionne }} {{ annee_selectionnee }}</small>
+                        </div>
+                        <div class="col-6 text-center">
+                            <h5>Dépenses</h5>
+                            <h3 class="text-danger">{{ depenses_mois|floatformat:0 }} FC</h3>
+                            <small>{{ mois_selectionne }} {{ annee_selectionnee }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Actions rapides</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'finance:paiement-create' %}" class="btn btn-success">
+                            <i class="fas fa-plus-circle me-2"></i>Nouveau paiement
+                        </a>
+                        <a href="{% url 'finance:depense-create' %}" class="btn btn-danger">
+                            <i class="fas fa-minus-circle me-2"></i>Nouvelle dépense
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Script pour mettre à jour l'année quand le mois change
+document.addEventListener('DOMContentLoaded', function() {
+    const monthSelect = document.getElementById('monthSelect');
+    const anneeInput = document.getElementById('anneeInput');
+    
+    if (monthSelect) {
+        monthSelect.addEventListener('change', function() {
+            var selectedOption = this.options[this.selectedIndex];
+            var annee = selectedOption.getAttribute('data-annee');
+            anneeInput.value = annee;
+            this.form.submit();
+        });
+    }
+});
+</script>
+
+<style>
+/* Styles supplémentaires */
+.border-left-primary {
+    border-left: 4px solid #4e73df !important;
+}
+
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 2rem rgba(0,0,0,0.15) !important;
+}
+
+#monthSelect {
+    cursor: pointer;
+    font-weight: 500;
+}
+
+#monthSelect option {
+    padding: 10px;
+}
+</style>
+{% endblock %}

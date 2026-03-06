@@ -1,0 +1,261 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pointage journalier - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-clipboard-list me-2 text-success"></i>
+            Pointage journalier
+        </h1>
+    </div>
+
+    <!-- Formulaire de sélection -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-success">Sélectionner une classe et une date</h6>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row">
+                <div class="col-md-5 mb-3">
+                    <label class="form-label">Classe <span class="text-danger">*</span></label>
+                    <select name="classe" class="form-control" required>
+                        <option value="">Sélectionner une classe</option>
+                        {% for classe in classes %}
+                        <option value="{{ classe.id }}" {% if presence_jour.classe.id == classe.id %}selected{% endif %}>
+                            {{ classe.nom }} - {{ classe.niveau.get_categorie_display }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-5 mb-3">
+                    <label class="form-label">Date <span class="text-danger">*</span></label>
+                    <input type="date" name="date" class="form-control" value="{{ date_selectionnee|date:'Y-m-d' }}" required>
+                </div>
+                <div class="col-md-2 mb-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-2"></i>Charger
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if presence_jour %}
+    <!-- Statistiques du jour -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Présents</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.present }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Absents</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.absent }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Retards</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.retard }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Autres</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.exclu|add:stats.malade|add:stats.autorise }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-question-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- En-tête de la classe -->
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>{{ presence_jour.classe.nom }}</strong> - 
+        {{ presence_jour.date|date:"l d F Y" }}
+        {% if presence_jour.est_verrouille %}
+            <span class="badge bg-secondary ms-2">Verrouillé</span>
+        {% endif %}
+    </div>
+
+    <!-- Formulaire de pointage -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-success">Liste des élèves</h6>
+            {% if not presence_jour.est_verrouille %}
+            <div>
+                <button type="button" class="btn btn-sm btn-success" onclick="setAllStatus('present')">
+                    <i class="fas fa-check-circle me-1"></i>Tous présents
+                </button>
+                <button type="button" class="btn btn-sm btn-danger" onclick="setAllStatus('absent')">
+                    <i class="fas fa-times-circle me-1"></i>Tous absents
+                </button>
+            </div>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            <form method="post" id="pointageForm">
+                {% csrf_token %}
+                <input type="hidden" name="presence_id" value="{{ presence_jour.id }}">
+                
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>N°</th>
+                                <th>Matricule</th>
+                                <th>Nom & Prénom</th>
+                                <th>Statut</th>
+                                <th>Motif</th>
+                                <th>Couleur</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pointage in pointages %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ pointage.eleve.matricule }}</td>
+                                <td>
+                                    <strong>{{ pointage.eleve.nom }} {{ pointage.eleve.prenom }}</strong>
+                                </td>
+                                <td>
+                                    <select name="statut_{{ pointage.eleve.id }}" class="form-control statut-select" 
+                                            data-row="{{ forloop.counter }}" {% if presence_jour.est_verrouille %}disabled{% endif %}>
+                                        <option value="present" {% if pointage.statut == 'present' %}selected{% endif %}>Présent</option>
+                                        <option value="absent" {% if pointage.statut == 'absent' %}selected{% endif %}>Absent</option>
+                                        <option value="retard" {% if pointage.statut == 'retard' %}selected{% endif %}>En retard</option>
+                                        <option value="exclu" {% if pointage.statut == 'exclu' %}selected{% endif %}>Exclu</option>
+                                        <option value="malade" {% if pointage.statut == 'malade' %}selected{% endif %}>Malade</option>
+                                        <option value="autorise" {% if pointage.statut == 'autorise' %}selected{% endif %}>Absence autorisée</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="text" name="motif_{{ pointage.eleve.id }}" class="form-control" 
+                                           value="{{ pointage.motif }}" placeholder="Motif..." 
+                                           {% if presence_jour.est_verrouille %}disabled{% endif %}>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-{{ pointage.couleur }}" id="badge_{{ forloop.counter }}">
+                                        {{ pointage.get_statut_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if not presence_jour.est_verrouille %}
+                <div class="mt-4 d-flex justify-content-between">
+                    <button type="submit" class="btn btn-success btn-lg px-5">
+                        <i class="fas fa-save me-2"></i>Enregistrer le pointage
+                    </button>
+                    <form method="post" action="{% url 'presence:verrouiller-pointage' presence_jour.pk %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-secondary btn-lg px-5" onclick="return confirm('Voulez-vous verrouiller ce pointage ? Il ne pourra plus être modifié.')">
+                            <i class="fas fa-lock me-2"></i>Verrouiller
+                        </button>
+                    </form>
+                </div>
+                {% else %}
+                <div class="alert alert-secondary mt-4">
+                    <i class="fas fa-lock me-2"></i>
+                    Ce pointage a été verrouillé le {{ presence_jour.date_verrouillage|date:"d/m/Y H:i" }}. Il ne peut plus être modifié.
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Mettre à jour le badge de couleur en fonction du statut
+function updateBadge(select, rowNum) {
+    var badge = document.getElementById('badge_' + rowNum);
+    var value = select.value;
+    var text = select.options[select.selectedIndex].text;
+    
+    // Supprimer toutes les classes de couleur
+    badge.className = 'badge';
+    
+    // Ajouter la nouvelle classe de couleur
+    if (value === 'present') {
+        badge.classList.add('bg-success');
+    } else if (value === 'retard') {
+        badge.classList.add('bg-warning');
+    } else if (value === 'absent' || value === 'exclu') {
+        badge.classList.add('bg-danger');
+    } else {
+        badge.classList.add('bg-info');
+    }
+    
+    badge.textContent = text;
+}
+
+// Attacher les événements aux selects
+document.querySelectorAll('.statut-select').forEach(function(select) {
+    var rowNum = select.getAttribute('data-row');
+    select.addEventListener('change', function() {
+        updateBadge(this, rowNum);
+    });
+});
+
+// Fonction pour définir tous les statuts
+function setAllStatus(status) {
+    if (confirm('Voulez-vous appliquer ce statut à tous les élèves ?')) {
+        document.querySelectorAll('.statut-select').forEach(function(select) {
+            select.value = status;
+            var rowNum = select.getAttribute('data-row');
+            updateBadge(select, rowNum);
+        });
+    }
+}
+</script>
+{% endblock %}

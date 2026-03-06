@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Niveaux scolaires - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-layer-group me-2 text-secondary"></i>
+            Gestion des Niveaux
+        </h1>
+        <a href="{% url 'parametres:niveau-create' %}" class="btn btn-secondary">
+            <i class="fas fa-plus me-2"></i>Nouveau Niveau
+        </a>
+    </div>
+
+    <!-- Tableau des niveaux -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-secondary">Liste des niveaux scolaires</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Nom</th>
+                            <th>Catégorie</th>
+                            <th>Ordre</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for niveau in niveaux %}
+                        <tr>
+                            <td><strong>{{ niveau.nom }}</strong></td>
+                            <td>{{ niveau.get_categorie_display }}</td>
+                            <td>{{ niveau.ordre }}</td>
+                            <td>{{ niveau.description|truncatechars:50|default:"-" }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'parametres:niveau-update' niveau.pk %}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'parametres:niveau-delete' niveau.pk %}" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4">
+                                <i class="fas fa-layer-group fa-3x text-gray-400 mb-3"></i>
+                                <p class="text-muted">Aucun niveau enregistré.</p>
+                                <a href="{% url 'parametres:niveau-create' %}" class="btn btn-secondary">
+                                    <i class="fas fa-plus me-2"></i>Ajouter un niveau
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

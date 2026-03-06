@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Liste des Cours - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-book me-2 text-warning"></i>
+            Gestion des Cours
+        </h1>
+        <a href="{% url 'cours:cours-create' %}" class="btn btn-warning">
+            <i class="fas fa-plus me-2"></i>Nouveau Cours
+        </a>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Total Cours</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_cours }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-book fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableau des cours -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-warning">Liste des cours</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Code</th>
+                            <th>Nom</th>
+                            <th>Coefficient</th>
+                            <th>Enseignant</th>
+                            <th>Classes</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cours in cours %}
+                        <tr>
+                            <td><span class="badge bg-warning">{{ cours.code }}</span></td>
+                            <td>{{ cours.nom }}</td>
+                            <td>{{ cours.coefficient }}</td>
+                            <td>
+                                {% if cours.enseignant %}
+                                    {{ cours.enseignant.nom }} {{ cours.enseignant.prenom }}
+                                {% else %}
+                                    <span class="text-muted">Non assigné</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% for classe in cours.classes.all %}
+                                    <span class="badge bg-info">{{ classe.nom }}</span>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                <a href="{% url 'cours:cours-detail' cours.pk %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'cours:cours-update' cours.pk %}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'cours:cours-delete' cours.pk %}" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <i class="fas fa-book fa-3x text-gray-400 mb-3"></i>
+                                <p class="text-muted">Aucun cours enregistré</p>
+                                <a href="{% url 'cours:cours-create' %}" class="btn btn-warning">
+                                    <i class="fas fa-plus me-2"></i>Ajouter un cours
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

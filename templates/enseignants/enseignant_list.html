@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Liste des Enseignants - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-chalkboard-teacher me-2 text-success"></i>
+            Gestion des Enseignants
+        </h1>
+        <a href="{% url 'enseignants:enseignant-create' %}" class="btn btn-success">
+            <i class="fas fa-plus me-2"></i>Nouvel Enseignant
+        </a>
+    </div>
+
+    <!-- Filtres et recherche -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-success">Filtres de recherche</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <input type="text" class="form-control" id="searchInput" placeholder="Rechercher par nom, prénom, matricule ou spécialité...">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <select class="form-control" id="statutFilter">
+                        <option value="">Tous les statuts</option>
+                        <option value="titulaire">Titulaires</option>
+                        <option value="adjoint">Adjoints</option>
+                        <option value="professeur">Professeurs</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <button class="btn btn-secondary w-100" onclick="resetFilters()">
+                        <i class="fas fa-redo me-2"></i>Réinitialiser
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques rapides -->
+    <div class="row mb-4">
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Total Enseignants</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_enseignants }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chalkboard-teacher fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Hommes</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ hommes }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-mars fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Femmes</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ femmes }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-venus fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableau des enseignants -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-success">Liste des enseignants</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="enseignantsTable">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Matricule</th>
+                            <th>Photo</th>
+                            <th>Nom & Prénom</th>
+                            <th>Sexe</th>
+                            <th>Statut</th>
+                            <th>Spécialité</th>
+                            <th>Contact</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enseignant in enseignants %}
+                        <tr>
+                            <td>
+                                <span class="badge bg-success">{{ enseignant.matricule }}</span>
+                            </td>
+                            <td class="text-center">
+                                {% if enseignant.photo %}
+                                    <img src="{{ enseignant.photo.url }}" class="rounded-circle" width="40" height="40" style="object-fit: cover;">
+                                {% else %}
+                                    <i class="fas fa-user-circle fa-2x text-gray-400"></i>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>{{ enseignant.nom }} {{ enseignant.prenom }}</strong>
+                            </td>
+                            <td>
+                                {% if enseignant.sexe == 'M' %}
+                                    <i class="fas fa-mars text-primary"></i> M
+                                {% else %}
+                                    <i class="fas fa-venus text-danger"></i> F
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ enseignant.get_statut_display }}</span>
+                            </td>
+                            <td>{{ enseignant.specialite|default:"-" }}</td>
+                            <td>
+                                <small><i class="fas fa-phone me-1"></i>{{ enseignant.telephone }}</small><br>
+                                <small><i class="fas fa-envelope me-1"></i>{{ enseignant.email }}</small>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'enseignants:enseignant-detail' enseignant.pk %}" class="btn btn-sm btn-info" title="Voir">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'enseignants:enseignant-update' enseignant.pk %}" class="btn btn-sm btn-warning" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'enseignants:enseignant-delete' enseignant.pk %}" class="btn btn-sm btn-danger" title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <i class="fas fa-chalkboard-teacher fa-3x text-gray-400 mb-3"></i>
+                                <p class="text-muted">Aucun enseignant enregistré pour le moment.</p>
+                                <a href="{% url 'enseignants:enseignant-create' %}" class="btn btn-success">
+                                    <i class="fas fa-plus me-2"></i>Ajouter un enseignant
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Filtrage du tableau
+    $("#searchInput").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#enseignantsTable tbody tr").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
+
+    $("#statutFilter").on("change", function() {
+        var value = $(this).val().toLowerCase();
+        if (value === "") {
+            $("#enseignantsTable tbody tr").show();
+        } else {
+            $("#enseignantsTable tbody tr").filter(function() {
+                var statutText = $(this).find("td:eq(4)").text().toLowerCase();
+                return statutText.includes(value);
+            }).show();
+            $("#enseignantsTable tbody tr").filter(function() {
+                var statutText = $(this).find("td:eq(4)").text().toLowerCase();
+                return !statutText.includes(value);
+            }).hide();
+        }
+    });
+});
+
+function resetFilters() {
+    $("#searchInput").val("");
+    $("#statutFilter").val("");
+    $("#enseignantsTable tbody tr").show();
+}
+</script>
+{% endblock %}

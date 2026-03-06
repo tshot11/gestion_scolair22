@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestion des Présences - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-calendar-check me-2 text-success"></i>
+            Gestion des Présences
+        </h1>
+        <div>
+            <a href="{% url 'presence:pointage-journalier' %}" class="btn btn-primary me-2">
+                <i class="fas fa-clipboard-list me-2"></i>Pointage journalier
+            </a>
+            <a href="{% url 'presence:historique-pointage' %}" class="btn btn-info">
+                <i class="fas fa-history me-2"></i>Historique
+            </a>
+        </div>
+    </div>
+
+    <!-- Sélecteur de classe et date -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-success">Pointage rapide</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-5 mb-3">
+                    <select class="form-control" id="classeSelect">
+                        <option value="">Sélectionner une classe</option>
+                        {% for classe in classes %}
+                        <option value="{{ classe.id }}">{{ classe.nom }} - {{ classe.niveau.get_categorie_display }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-5 mb-3">
+                    <input type="date" class="form-control" id="dateSelect" value="{{ aujourd_hui|date:'Y-m-d' }}">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <a href="#" id="btnPointage" class="btn btn-success w-100">
+                        <i class="fas fa-arrow-right me-2"></i>Pointer
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques du jour (si une classe est sélectionnée) -->
+    {% if presence_jour %}
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Présents aujourd'hui</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.present }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Absents</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.absent }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Retards</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.retard }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Autres</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.exclu|add:stats.malade|add:stats.autorise }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-question-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- En-tête de la classe -->
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>{{ presence_jour.classe.nom }}</strong> - 
+        {{ presence_jour.date|date:"l d F Y" }}
+        {% if presence_jour.est_verrouille %}
+            <span class="badge bg-secondary ms-2">Verrouillé</span>
+        {% else %}
+            <span class="badge bg-success ms-2">Modifiable</span>
+        {% endif %}
+        <a href="{% url 'presence:pointage-journalier' %}?classe={{ presence_jour.classe.id }}&date={{ presence_jour.date|date:'Y-m-d' }}" class="btn btn-sm btn-primary float-end">
+            <i class="fas fa-edit me-1"></i>Modifier
+        </a>
+    </div>
+
+    <!-- Tableau des pointages du jour -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-success">Pointages du {{ presence_jour.date|date:"d/m/Y" }}</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Matricule</th>
+                            <th>Nom & Prénom</th>
+                            <th>Statut</th>
+                            <th>Motif</th>
+                            <th>Couleur</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pointage in pointages %}
+                        <tr>
+                            <td>{{ pointage.eleve.matricule }}</td>
+                            <td><strong>{{ pointage.eleve.nom }} {{ pointage.eleve.prenom }}</strong></td>
+                            <td>{{ pointage.get_statut_display }}</td>
+                            <td>{{ pointage.motif|default:"-" }}</td>
+                            <td class="text-center">
+                                <span class="badge bg-{{ pointage.couleur }}">
+                                    {{ pointage.get_statut_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4">
+                                <i class="fas fa-calendar-check fa-3x text-gray-400 mb-3"></i>
+                                <p class="text-muted">Aucun pointage pour cette classe aujourd'hui</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Récapitulatif des pointages récents (toutes classes) -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-success">Pointages récents</h6>
+            <a href="{% url 'presence:historique-pointage' %}" class="btn btn-sm btn-info">
+                Voir tout l'historique
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Élève</th>
+                            <th>Classe</th>
+                            <th>Statut</th>
+                            <th>Motif</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pointage in pointages_recents %}
+                        <tr>
+                            <td>{{ pointage.date|date:"d/m/Y" }}</td>
+                            <td><strong>{{ pointage.eleve.nom }} {{ pointage.eleve.prenom }}</strong></td>
+                            <td>{{ pointage.eleve.classe.nom }}</td>
+                            <td>
+                                <span class="badge bg-{{ pointage.couleur }}">
+                                    {{ pointage.get_statut_display }}
+                                </span>
+                            </td>
+                            <td>{{ pointage.motif|default:"-" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4">
+                                <i class="fas fa-calendar-check fa-3x text-gray-400 mb-3"></i>
+                                <p class="text-muted">Aucun pointage récent</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Redirection vers le pointage journalier
+    $('#btnPointage').on('click', function(e) {
+        e.preventDefault();
+        var classeId = $('#classeSelect').val();
+        var date = $('#dateSelect').val();
+        
+        if (!classeId) {
+            alert('Veuillez sélectionner une classe');
+            return;
+        }
+        
+        window.location.href = "{% url 'presence:pointage-journalier' %}?classe=" + classeId + "&date=" + date;
+    });
+
+    // Filtrage du tableau (si vous utilisez encore l'ancien système)
+    function filterTable() {
+        var date = $("#dateFilter").val();
+        var classe = $("#classeFilter").val();
+        var statut = $("#statutFilter").val();
+        
+        $("table tbody tr").each(function() {
+            var show = true;
+            var rowDate = $(this).find("td:first").text().split('/').reverse().join('-');
+            var rowClasse = $(this).find("td:nth-child(3)").text();
+            var rowStatut = $(this).find("td:nth-child(5)").text().trim();
+            
+            if (date && rowDate != date) show = false;
+            if (classe && !rowClasse.includes($("#classeFilter option:selected").text())) show = false;
+            if (statut && !rowStatut.includes(statut)) show = false;
+            
+            $(this).toggle(show);
+        });
+    }
+    
+    $("#dateFilter, #classeFilter, #statutFilter").on("change", filterTable);
+});
+
+function resetFilters() {
+    $("#dateFilter").val('{{ aujourd_hui|date:"Y-m-d" }}');
+    $("#classeFilter").val("");
+    $("#statutFilter").val("");
+    $("table tbody tr").show();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}Modifier{% else %}Ajouter{% endif %} une classe - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-door-open me-2 text-info"></i>
+            {% if object %}Modifier{% else %}Ajouter{% endif %} une classe
+        </h1>
+        <a href="{% url 'classes:classe-list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-info">
+                {% if object %}Modifier les informations{% else %}Nouvelle classe{% endif %}
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="post" id="classeForm">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <!-- Colonne 1 : Informations générales -->
+                    <div class="col-md-6">
+                        <h5 class="mb-3 text-info">Informations générales</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Nom de la classe <span class="text-danger">*</span></label>
+                            <input type="text" name="nom" class="form-control" value="{{ form.nom.value|default:'' }}" placeholder="Ex: 6ème A, 1ère MP" required>
+                            {% if form.nom.errors %}
+                                <div class="text-danger small">{{ form.nom.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Année scolaire -->
+                        <div class="mb-3">
+                            <label class="form-label">Année scolaire <span class="text-danger">*</span></label>
+                            <select name="annee_scolaire" class="form-control" required>
+                                <option value="">Sélectionner une année</option>
+                                {% for annee in annees %}
+                                <option value="{{ annee.id }}" {% if annee.active %}selected{% endif %} {% if form.annee_scolaire.value|stringformat:"s" == annee.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ annee.nom }} {% if annee.active %}(Active){% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.annee_scolaire.errors %}
+                                <div class="text-danger small">{{ form.annee_scolaire.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Niveau scolaire -->
+                        <div class="mb-3">
+                            <label class="form-label">Niveau scolaire <span class="text-danger">*</span></label>
+                            <select name="niveau" class="form-control" required id="niveauScolaire">
+                                <option value="">Sélectionner un niveau</option>
+                                {% for niveau in niveaux %}
+                                <option value="{{ niveau.id }}" 
+                                        data-categorie="{{ niveau.categorie }}"
+                                        {% if form.niveau.value|stringformat:"s" == niveau.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ niveau.get_categorie_display }} - {{ niveau.nom }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.niveau.errors %}
+                                <div class="text-danger small">{{ form.niveau.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Colonne 2 : Options et capacité -->
+                    <div class="col-md-6">
+                        <h5 class="mb-3 text-info">Options et capacité</h5>
+
+                        <!-- Option - visible seulement pour Base et Humanités -->
+                        <div class="mb-3" id="optionField" style="{% if object and object.niveau and object.niveau.categorie in 'base,humanite' %}display:block;{% else %}display:none;{% endif %}">
+                            <label class="form-label">Option</label>
+                            <select name="option" class="form-control" id="option">
+                                <option value="">Sélectionner une option</option>
+                                {% for option in options %}
+                                <option value="{{ option.id }}" {% if form.option.value|stringformat:"s" == option.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ option.code }} - {{ option.nom }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.option.errors %}
+                                <div class="text-danger small">{{ form.option.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">Uniquement pour Base et Humanités</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Capacité maximale <span class="text-danger">*</span></label>
+                            <input type="number" name="capacite" class="form-control" value="{{ form.capacite.value|default:'30' }}" min="1" max="100" required>
+                            {% if form.capacite.errors %}
+                                <div class="text-danger small">{{ form.capacite.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Professeur principal</label>
+                            <select name="professeur_principal" class="form-control">
+                                <option value="">Non assigné</option>
+                                {% for enseignant in enseignants %}
+                                <option value="{{ enseignant.id }}" {% if form.professeur_principal.value|stringformat:"s" == enseignant.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ enseignant.nom }} {{ enseignant.prenom }} - {{ enseignant.get_statut_display }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.professeur_principal.errors %}
+                                <div class="text-danger small">{{ form.professeur_principal.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Résumé et aperçu -->
+                {% if object %}
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Informations actuelles :</strong><br>
+                            Effectif : {{ object.eleves.count }} élèves sur {{ object.capacite }} places
+                            (Taux d'occupation : {{ object.taux_occupation|floatformat:1 }}%)
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Boutons de soumission -->
+                <div class="mt-4 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-info btn-lg px-5">
+                        <i class="fas fa-save me-2"></i>
+                        {% if object %}Enregistrer les modifications{% else %}Créer la classe{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Gestion de l'affichage du champ option en fonction du niveau
+    $('#niveauScolaire').on('change', function() {
+        var categorie = $(this).find('option:selected').data('categorie');
+        
+        if (categorie === 'base' || categorie === 'humanite') {
+            $('#optionField').show();
+            $('#option').prop('disabled', false);
+        } else {
+            $('#optionField').hide();
+            $('#option').prop('disabled', true).val('');
+        }
+    });
+
+    // Validation du formulaire
+    $('#classeForm').on('submit', function(e) {
+        let isValid = true;
+        let firstError = null;
+        
+        $(this).find('[required]').each(function() {
+            if (!$(this).val()) {
+                isValid = false;
+                $(this).addClass('is-invalid');
+                if (!firstError) firstError = $(this);
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Veuillez remplir tous les champs obligatoires (*)');
+            if (firstError) firstError.focus();
+        }
+    });
+});
+</script>
+{% endblock %}

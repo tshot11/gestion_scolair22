@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}Modifier{% else %}Ajouter{% endif %} un frais - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête avec bouton retour -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-money-bill-wave me-2 text-success"></i>
+            {% if object %}Modifier{% else %}Ajouter{% endif %} un frais
+        </h1>
+        <a href="{% url 'finance:frais-list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-success">
+                <i class="fas fa-{% if object %}edit{% else %}plus-circle{% endif %} me-2"></i>
+                {% if object %}Modifier le frais{% else %}Nouveau frais{% endif %}
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="post" id="fraisForm">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <!-- Nom du frais -->
+                    <div class="col-md-6 mb-3">
+                        <label for="id_nom" class="form-label">Nom du frais <span class="text-danger">*</span></label>
+                        <input type="text" name="nom" id="id_nom" class="form-control {% if form.nom.errors %}is-invalid{% endif %}" 
+                               value="{{ form.nom.value|default:'' }}" placeholder="Ex: Frais de scolarité" required>
+                        {% if form.nom.errors %}
+                        <div class="invalid-feedback">{{ form.nom.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Catégorie -->
+                    <div class="col-md-6 mb-3">
+                        <label for="id_categorie" class="form-label">Catégorie <span class="text-danger">*</span></label>
+                        <select name="categorie" id="id_categorie" class="form-control {% if form.categorie.errors %}is-invalid{% endif %}" required>
+                            <option value="">Sélectionner une catégorie</option>
+                            {% for categorie in form.fields.categorie.queryset %}
+                            <option value="{{ categorie.id }}" {% if form.categorie.value|stringformat:"s" == categorie.id|stringformat:"s" %}selected{% endif %}>
+                                {{ categorie.nom }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% if form.categorie.errors %}
+                        <div class="invalid-feedback">{{ form.categorie.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Montant -->
+                    <div class="col-md-6 mb-3">
+                        <label for="id_montant" class="form-label">Montant <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="number" name="montant" id="id_montant" class="form-control {% if form.montant.errors %}is-invalid{% endif %}" 
+                                   value="{{ form.montant.value|default:'' }}" step="0.01" min="0" required>
+                            <span class="input-group-text">FC</span>
+                        </div>
+                        {% if form.montant.errors %}
+                        <div class="invalid-feedback">{{ form.montant.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Échéance -->
+                    <div class="col-md-6 mb-3">
+                        <label for="id_echeance" class="form-label">Date d'échéance <span class="text-danger">*</span></label>
+                        <input type="date" name="echeance" id="id_echeance" class="form-control {% if form.echeance.errors %}is-invalid{% endif %}" 
+                               value="{{ form.echeance.value|date:'Y-m-d'|default:'' }}" required>
+                        {% if form.echeance.errors %}
+                        <div class="invalid-feedback">{{ form.echeance.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Période -->
+                    <div class="col-md-6 mb-3">
+                        <label for="id_periode" class="form-label">Période <span class="text-danger">*</span></label>
+                        <select name="periode" id="id_periode" class="form-control {% if form.periode.errors %}is-invalid{% endif %}" required>
+                            <option value="">Sélectionner une période</option>
+                            {% for periode in form.fields.periode.queryset %}
+                            <option value="{{ periode.id }}" {% if form.periode.value|stringformat:"s" == periode.id|stringformat:"s" %}selected{% endif %}>
+                                {{ periode.nom }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% if form.periode.errors %}
+                        <div class="invalid-feedback">{{ form.periode.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Obligatoire -->
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check mt-4">
+                            <input type="checkbox" name="obligatoire" id="id_obligatoire" class="form-check-input" 
+                                   {% if form.obligatoire.value %}checked{% endif %}>
+                            <label for="id_obligatoire" class="form-check-label">Frais obligatoire</label>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="col-12 mb-3">
+                        <label for="id_description" class="form-label">Description</label>
+                        <textarea name="description" id="id_description" class="form-control {% if form.description.errors %}is-invalid{% endif %}" 
+                                  rows="3">{{ form.description.value|default:'' }}</textarea>
+                        {% if form.description.errors %}
+                        <div class="invalid-feedback">{{ form.description.errors.0 }}</div>
+                        {% endif %}
+                        <small class="text-muted">Description détaillée du frais (optionnel)</small>
+                    </div>
+                </div>
+
+                <!-- Boutons d'action -->
+                <div class="mt-4 d-flex justify-content-end">
+                    <a href="{% url 'finance:frais-list' %}" class="btn btn-secondary me-2">
+                        <i class="fas fa-times me-2"></i>Annuler
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save me-2"></i>
+                        {% if object %}Enregistrer{% else %}Créer{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Validation supplémentaire si nécessaire
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('fraisForm');
+    const montantInput = document.getElementById('id_montant');
+    
+    form.addEventListener('submit', function(e) {
+        if (montantInput.value <= 0) {
+            e.preventDefault();
+            alert('Le montant doit être supérieur à 0');
+        }
+    });
+});
+</script>
+{% endblock %}

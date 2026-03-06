@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Messages - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-envelope me-2 text-info"></i>
+            Messages
+        </h1>
+        <a href="{% url 'communication:message-create' %}" class="btn btn-info">
+            <i class="fas fa-plus me-2"></i>Nouveau Message
+        </a>
+    </div>
+
+    <!-- Tableau des messages -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-info">Boîte de réception</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Expéditeur</th>
+                            <th>Sujet</th>
+                            <th>Destinataires</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for message in messages %}
+                        <tr>
+                            <td>{{ message.date_envoi|date:"d/m/Y H:i" }}</td>
+                            <td><strong>{{ message.expediteur.nom }} {{ message.expediteur.prenom }}</strong></td>
+                            <td>
+                                {% if message.important %}
+                                    <i class="fas fa-exclamation-circle text-danger me-1"></i>
+                                {% endif %}
+                                {{ message.sujet }}
+                            </td>
+                            <td>{{ message.destinataires.count }} élève(s)</td>
+                            <td>
+                                {% if message.lu %}
+                                    <span class="badge bg-success">Lu</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Non lu</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'communication:message-detail' message.pk %}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'communication:message-update' message.pk %}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'communication:message-delete' message.pk %}" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <i class="fas fa-envelope fa-3x text-gray-400 mb-3"></i>
+                                <p class="text-muted">Aucun message pour le moment.</p>
+                                <a href="{% url 'communication:message-create' %}" class="btn btn-info">
+                                    <i class="fas fa-plus me-2"></i>Envoyer un message
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

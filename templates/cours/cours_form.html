@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}Modifier{% else %}Ajouter{% endif %} un cours - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-book me-2 text-warning"></i>
+            {% if object %}Modifier{% else %}Ajouter{% endif %} un cours
+        </h1>
+        <a href="{% url 'cours:cours-list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-warning">
+                {% if object %}Modifier les informations{% else %}Nouveau cours{% endif %}
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="post" id="coursForm">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <!-- Colonne 1 : Informations générales -->
+                    <div class="col-md-6">
+                        <h5 class="mb-3 text-warning">Informations générales</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Nom du cours <span class="text-danger">*</span></label>
+                            <input type="text" name="nom" class="form-control" value="{{ form.nom.value|default:'' }}" required>
+                            {% if form.nom.errors %}
+                                <div class="text-danger small">{{ form.nom.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Code <span class="text-danger">*</span></label>
+                            <input type="text" name="code" class="form-control" value="{{ form.code.value|default:'' }}" required>
+                            {% if form.code.errors %}
+                                <div class="text-danger small">{{ form.code.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">Code unique du cours (ex: MATH101)</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Coefficient</label>
+                            <input type="number" name="coefficient" class="form-control" value="{{ form.coefficient.value|default:'1' }}" min="1" max="10">
+                            {% if form.coefficient.errors %}
+                                <div class="text-danger small">{{ form.coefficient.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="4">{{ form.description.value|default:'' }}</textarea>
+                            {% if form.description.errors %}
+                                <div class="text-danger small">{{ form.description.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Colonne 2 : Affectation -->
+                    <div class="col-md-6">
+                        <h5 class="mb-3 text-warning">Affectation</h5>
+
+                        <!-- Année scolaire -->
+                        <div class="mb-3">
+                            <label class="form-label">Année scolaire <span class="text-danger">*</span></label>
+                            <select name="annee_scolaire" class="form-control" required>
+                                <option value="">Sélectionner une année</option>
+                                {% for annee in annees %}
+                                <option value="{{ annee.id }}" {% if annee.id == annee_active_id %}selected{% endif %} {% if form.annee_scolaire.value|stringformat:"s" == annee.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ annee.nom }} {% if annee.active %}(Active){% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.annee_scolaire.errors %}
+                                <div class="text-danger small">{{ form.annee_scolaire.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Niveau scolaire -->
+                        <div class="mb-3">
+                            <label class="form-label">Niveau scolaire</label>
+                            <select name="niveau" class="form-control" id="niveauScolaire">
+                                <option value="">Sélectionner un niveau (optionnel)</option>
+                                {% for niveau in niveaux %}
+                                <option value="{{ niveau.id }}" 
+                                        data-categorie="{{ niveau.categorie }}"
+                                        {% if form.niveau.value|stringformat:"s" == niveau.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ niveau.get_categorie_display }} - {{ niveau.nom }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.niveau.errors %}
+                                <div class="text-danger small">{{ form.niveau.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">Laissez vide pour assigner à des classes spécifiques</small>
+                        </div>
+
+                        <!-- Option -->
+                        <div class="mb-3" id="optionField" style="display: none;">
+                            <label class="form-label">Option</label>
+                            <select name="option" class="form-control" id="option">
+                                <option value="">Sélectionner une option</option>
+                                {% for option in options %}
+                                <option value="{{ option.id }}" {% if form.option.value|stringformat:"s" == option.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ option.code }} - {{ option.nom }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.option.errors %}
+                                <div class="text-danger small">{{ form.option.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Enseignant -->
+                        <div class="mb-3">
+                            <label class="form-label">Enseignant <span class="text-danger">*</span></label>
+                            <select name="enseignant" class="form-control" required>
+                                <option value="">Sélectionner un enseignant</option>
+                                {% for enseignant in enseignants %}
+                                <option value="{{ enseignant.id }}" {% if form.enseignant.value|stringformat:"s" == enseignant.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ enseignant.nom }} {{ enseignant.prenom }} - {{ enseignant.get_statut_display }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.enseignant.errors %}
+                                <div class="text-danger small">{{ form.enseignant.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Classes spécifiques -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h5 class="mb-3 text-warning">Classes concernées</h5>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Sélectionnez les classes qui suivent ce cours. Si vous avez choisi un niveau, seules les classes de ce niveau seront affichées.
+                        </div>
+                        <div class="row" id="classesContainer">
+                            {% for classe in classes %}
+                            <div class="col-md-3 col-6 mb-2 classe-item" data-niveau="{{ classe.niveau.id }}">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="classes" value="{{ classe.id }}" id="classe_{{ classe.id }}"
+                                        {% if classe.id in classes_selected %}checked{% endif %}>
+                                    <label class="form-check-label" for="classe_{{ classe.id }}">
+                                        {{ classe.nom }} ({{ classe.niveau.get_categorie_display }})
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Boutons de soumission -->
+                <div class="mt-4 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-warning btn-lg px-5">
+                        <i class="fas fa-save me-2"></i>
+                        {% if object %}Enregistrer les modifications{% else %}Créer le cours{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Gestion de l'affichage du champ option en fonction du niveau
+    $('#niveauScolaire').on('change', function() {
+        var niveauId = $(this).val();
+        var categorie = $(this).find('option:selected').data('categorie');
+        
+        // Filtrer les classes par niveau
+        $('.classe-item').each(function() {
+            if (!niveauId || $(this).data('niveau') == niveauId) {
+                $(this).show();
+            } else {
+                $(this).hide();
+                $(this).find('input[type=checkbox]').prop('checked', false);
+            }
+        });
+        
+        // Gestion de l'option
+        if (categorie === 'base' || categorie === 'humanite') {
+            $('#optionField').show();
+            $('#option').prop('disabled', false);
+        } else {
+            $('#optionField').hide();
+            $('#option').prop('disabled', true).val('');
+        }
+    });
+
+    // Déclencher le changement au chargement pour la modification
+    $('#niveauScolaire').trigger('change');
+
+    // Validation du formulaire
+    $('#coursForm').on('submit', function(e) {
+        let isValid = true;
+        let firstError = null;
+        
+        $(this).find('[required]').each(function() {
+            if (!$(this).val()) {
+                isValid = false;
+                $(this).addClass('is-invalid');
+                if (!firstError) firstError = $(this);
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+        
+        // Vérifier qu'au moins une classe est sélectionnée si pas de niveau
+        var niveau = $('#niveauScolaire').val();
+        var classesChecked = $('input[name="classes"]:checked').length;
+        
+        if (!niveau && classesChecked === 0) {
+            isValid = false;
+            alert('Veuillez sélectionner au moins une classe ou choisir un niveau');
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            if (firstError) firstError.focus();
+        }
+    });
+
+    // Supprimer la validation AJAX qui cause l'erreur
+    // Le code ci-dessous est commenté car il cause une erreur 404
+    /*
+    $('#id_code').on('blur', function() {
+        var code = $(this).val();
+        if (code) {
+            $.ajax({
+                url: '{% url "cours:check-code" %}',
+                data: {
+                    'code': code,
+                    'exclude': {% if object %}{{ object.pk }}{% else %}0{% endif %}
+                },
+                dataType: 'json',
+                success: function(data) {
+                    if (data.exists) {
+                        alert('Ce code de cours existe déjà !');
+                        $('#id_code').val('');
+                    }
+                }
+            });
+        }
+    });
+    */
+});
+</script>
+{% endblock %}

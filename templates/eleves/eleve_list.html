@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Liste des Élèves - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-user-graduate me-2 text-primary"></i>
+            Gestion des Élèves
+        </h1>
+        <a href="{% url 'eleves:eleve-create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Nouvel Élève
+        </a>
+    </div>
+
+    <!-- Filtres et recherche -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Filtres de recherche</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <input type="text" class="form-control" id="searchInput" placeholder="Rechercher par nom, prénom ou matricule...">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <select class="form-control" id="classeFilter">
+                        <option value="">Toutes les classes</option>
+                        {% for classe in classes %}
+                        <option value="{{ classe.id }}">{{ classe.nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <select class="form-control" id="statutFilter">
+                        <option value="">Tous les statuts</option>
+                        <option value="orphelin">Orphelins</option>
+                        <option value="boursier">Boursiers</option>
+                        <option value="handicape">Handicapés</option>
+                        <option value="pris_en_charge">Pris en charge</option>
+                        <option value="cas_social">Cas sociaux</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <button class="btn btn-secondary w-100" onclick="resetFilters()">
+                        <i class="fas fa-redo me-2"></i>Réinitialiser
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques rapides -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Élèves</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_eleves }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-graduate fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Garçons</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_garcons }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-mars fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Filles</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_filles }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-venus fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Cas spéciaux</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_cas_speciaux }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-heartbeat fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableau des élèves -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Liste des élèves</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="elevesTable" width="100%" cellspacing="0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Matricule</th>
+                            <th>Photo</th>
+                            <th>Nom & Prénom</th>
+                            <th>Classe</th>
+                            <th>Sexe</th>
+                            <th>Contact</th>
+                            <th>Statuts spéciaux</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for eleve in eleves %}
+                        <tr>
+                            <td>
+                                <span class="badge bg-primary">{{ eleve.matricule }}</span>
+                            </td>
+                            <td class="text-center">
+                                {% if eleve.photo %}
+                                    <img src="{{ eleve.photo.url }}" class="rounded-circle" width="40" height="40" style="object-fit: cover;">
+                                {% else %}
+                                    <i class="fas fa-user-circle fa-2x text-gray-400"></i>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>{{ eleve.nom }} {{ eleve.prenom }}</strong>
+                            </td>
+                            <td>{{ eleve.classe.nom }}</td>
+                            <td>
+                                {% if eleve.sexe == 'M' %}
+                                    <i class="fas fa-mars text-primary"></i> Masculin
+                                {% else %}
+                                    <i class="fas fa-venus text-danger"></i> Féminin
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if eleve.telephone %}
+                                    <small><i class="fas fa-phone me-1"></i>{{ eleve.telephone }}</small><br>
+                                {% endif %}
+                                {% if eleve.email_parent %}
+                                    <small><i class="fas fa-envelope me-1"></i>{{ eleve.email_parent }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-1">
+                                    {% if eleve.est_orphelin %}
+                                        <span class="badge bg-secondary" data-bs-toggle="tooltip" title="Orphelin">👤</span>
+                                    {% endif %}
+                                    {% if eleve.est_boursier %}
+                                        <span class="badge bg-success" data-bs-toggle="tooltip" title="Boursier">💰</span>
+                                    {% endif %}
+                                    {% if eleve.est_handicape %}
+                                        <span class="badge bg-warning text-dark" data-bs-toggle="tooltip" title="Handicapé">♿</span>
+                                    {% endif %}
+                                    {% if eleve.est_pris_en_charge %}
+                                        <span class="badge bg-info" data-bs-toggle="tooltip" title="Pris en charge">🤝</span>
+                                    {% endif %}
+                                    {% if eleve.est_cas_social %}
+                                        <span class="badge bg-danger" data-bs-toggle="tooltip" title="Cas social">❤️</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'eleves:eleve-detail' eleve.pk %}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Voir détails">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'eleves:eleve-update' eleve.pk %}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'eleves:eleve-delete' eleve.pk %}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-cog"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-money-bill me-2"></i>Voir paiements</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-calendar-check me-2"></i>Voir présences</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-chart-line me-2"></i>Voir résultats</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-exclamation-triangle me-2"></i>Voir incidents</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-envelope me-2"></i>Envoyer message</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <i class="fas fa-user-graduate fa-3x text-gray-400 mb-3"></i>
+                                <p class="text-muted">Aucun élève enregistré pour le moment.</p>
+                                <a href="{% url 'eleves:eleve-create' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>Ajouter un élève
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour envoyer un message -->
+<div class="modal fade" id="messageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Envoyer un message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="messageForm" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <input type="hidden" name="eleve_id" id="modalEleveId">
+                    <div class="mb-3">
+                        <label class="form-label">Sujet</label>
+                        <input type="text" class="form-control" name="sujet" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Message</label>
+                        <textarea class="form-control" name="message" rows="4" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Envoyer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Initialisation des tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function(tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Filtrage du tableau
+    $("#searchInput").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#elevesTable tbody tr").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
+
+    $("#classeFilter").on("change", function() {
+        var value = $(this).val().toLowerCase();
+        if (value === "") {
+            $("#elevesTable tbody tr").show();
+        } else {
+            $("#elevesTable tbody tr").filter(function() {
+                var classeText = $(this).find("td:eq(3)").text().toLowerCase();
+                $(this).toggle(classeText.indexOf(value) > -1);
+            });
+        }
+    });
+
+    $("#statutFilter").on("change", function() {
+        var value = $(this).val();
+        if (value === "") {
+            $("#elevesTable tbody tr").show();
+        } else {
+            $("#elevesTable tbody tr").filter(function() {
+                var statutCell = $(this).find("td:eq(6)").text();
+                return statutCell.includes(value);
+            }).show();
+        }
+    });
+});
+
+function resetFilters() {
+    $("#searchInput").val("");
+    $("#classeFilter").val("");
+    $("#statutFilter").val("");
+    $("#elevesTable tbody tr").show();
+}
+
+function sendMessage(eleveId) {
+    $("#modalEleveId").val(eleveId);
+    new bootstrap.Modal(document.getElementById('messageModal')).show();
+}
+</script>
+{% endblock %}

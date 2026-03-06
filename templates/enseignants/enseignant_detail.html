@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ enseignant.nom }} {{ enseignant.prenom }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-chalkboard-teacher me-2 text-success"></i>
+            Fiche de l'enseignant
+        </h1>
+        <div>
+            <a href="{% url 'enseignants:enseignant-list' %}" class="btn btn-secondary me-2">
+                <i class="fas fa-arrow-left me-2"></i>Retour
+            </a>
+            <a href="{% url 'enseignants:enseignant-update' enseignant.pk %}" class="btn btn-warning me-2">
+                <i class="fas fa-edit me-2"></i>Modifier
+            </a>
+            <a href="{% url 'enseignants:enseignant-delete' enseignant.pk %}" class="btn btn-danger">
+                <i class="fas fa-trash me-2"></i>Supprimer
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Photo et infos de base -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-success">Photo</h6>
+                </div>
+                <div class="card-body text-center">
+                    {% if enseignant.photo %}
+                        <img src="{{ enseignant.photo.url }}" class="img-fluid rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                    {% else %}
+                        <i class="fas fa-user-circle fa-6x text-gray-400 mb-3"></i>
+                    {% endif %}
+                    <h4>{{ enseignant.nom }} {{ enseignant.prenom }}</h4>
+                    <p class="text-muted">{{ enseignant.matricule }}</p>
+                    <span class="badge bg-info">{{ enseignant.get_statut_display }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informations détaillées -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-success">Informations personnelles</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted">Date de naissance</label>
+                            <p class="fw-bold">{{ enseignant.date_naissance|date:"d/m/Y" }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted">Lieu de naissance</label>
+                            <p class="fw-bold">{{ enseignant.lieu_naissance }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted">Sexe</label>
+                            <p class="fw-bold">{% if enseignant.sexe == 'M' %}Masculin{% else %}Féminin{% endif %}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted">Date d'embauche</label>
+                            <p class="fw-bold">{{ enseignant.date_embauche|date:"d/m/Y" }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted">Téléphone</label>
+                            <p class="fw-bold">{{ enseignant.telephone }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted">Email</label>
+                            <p class="fw-bold">{{ enseignant.email }}</p>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="text-muted">Adresse</label>
+                            <p class="fw-bold">{{ enseignant.adresse }}</p>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="text-muted">Spécialité</label>
+                            <p class="fw-bold">{{ enseignant.specialite|default:"Non spécifiée" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

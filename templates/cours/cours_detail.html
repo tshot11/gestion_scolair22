@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Détails du cours - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-book me-2 text-warning"></i>
+            Détails du cours
+        </h1>
+        <div>
+            <a href="{% url 'cours:cours-list' %}" class="btn btn-secondary me-2">
+                <i class="fas fa-arrow-left me-2"></i>Retour
+            </a>
+            <a href="{% url 'cours:cours-update' cours.pk %}" class="btn btn-warning me-2">
+                <i class="fas fa-edit me-2"></i>Modifier
+            </a>
+            <a href="{% url 'cours:cours-delete' cours.pk %}" class="btn btn-danger">
+                <i class="fas fa-trash me-2"></i>Supprimer
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-warning">Informations générales</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th>Code :</th>
+                            <td><span class="badge bg-warning">{{ cours.code }}</span></td>
+                        </tr>
+                        <tr>
+                            <th>Nom :</th>
+                            <td>{{ cours.nom }}</td>
+                        </tr>
+                        <tr>
+                            <th>Coefficient :</th>
+                            <td>{{ cours.coefficient }}</td>
+                        </tr>
+                        <tr>
+                            <th>Enseignant :</th>
+                            <td>
+                                {% if cours.enseignant %}
+                                    <a href="{% url 'enseignants:enseignant-detail' cours.enseignant.pk %}">
+                                        {{ cours.enseignant.nom }} {{ cours.enseignant.prenom }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">Non assigné</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Description :</th>
+                            <td>{{ cours.description|default:"Aucune description" }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-warning">Classes concernées</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for programme in programmes %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ programme.classe.nom }}
+                            <span class="badge bg-primary rounded-pill">{{ programme.heures_semaine }}h/sem</span>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-center text-muted">
+                            Aucune classe associée à ce cours
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Horaires du cours -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-warning">Horaires programmés</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Classe</th>
+                            <th>Jour</th>
+                            <th>Horaire</th>
+                            <th>Salle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for horaire in cours.horaires.all %}
+                        <tr>
+                            <td>{{ horaire.classe.nom }}</td>
+                            <td>{{ horaire.jour }}</td>
+                            <td>{{ horaire.heure_debut|time:"H:i" }} - {{ horaire.heure_fin|time:"H:i" }}</td>
+                            <td>{{ horaire.salle|default:"-" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">
+                                Aucun horaire programmé
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

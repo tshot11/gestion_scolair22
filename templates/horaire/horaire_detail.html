@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Détails de l'horaire - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-clock me-2 text-primary"></i>
+            Détails de l'horaire
+        </h1>
+        <div>
+            <a href="{% url 'horaire:horaire-list' %}" class="btn btn-secondary me-2">
+                <i class="fas fa-arrow-left me-2"></i>Retour
+            </a>
+            <a href="{% url 'horaire:horaire-update' horaire.pk %}" class="btn btn-warning me-2">
+                <i class="fas fa-edit me-2"></i>Modifier
+            </a>
+            <a href="{% url 'horaire:horaire-delete' horaire.pk %}" class="btn btn-danger">
+                <i class="fas fa-trash me-2"></i>Supprimer
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Informations générales</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th>Classe :</th>
+                            <td>
+                                <a href="{% url 'classes:classe-detail' horaire.classe.pk %}">
+                                    {{ horaire.classe.nom }}
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Cours :</th>
+                            <td>
+                                <a href="{% url 'cours:cours-detail' horaire.cours.pk %}">
+                                    {{ horaire.cours.nom }}
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Enseignant :</th>
+                            <td>
+                                {% if horaire.enseignant %}
+                                    <a href="{% url 'enseignants:enseignant-detail' horaire.enseignant.pk %}">
+                                        {{ horaire.enseignant.nom }} {{ horaire.enseignant.prenom }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">Non assigné</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Horaire</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th>Jour :</th>
+                            <td>{{ horaire.jour }}</td>
+                        </tr>
+                        <tr>
+                            <th>Heure de début :</th>
+                            <td>{{ horaire.heure_debut|time:"H:i" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Heure de fin :</th>
+                            <td>{{ horaire.heure_fin|time:"H:i" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Durée :</th>
+                            <td>{{ horaire.duree_en_minutes }} minutes</td>
+                        </tr>
+                        <tr>
+                            <th>Salle :</th>
+                            <td>{{ horaire.salle|default:"Non précisée" }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}Modifier{% else %}Nouveau{% endif %} message - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-envelope me-2 text-info"></i>
+            {% if object %}Modifier{% else %}Nouveau{% endif %} message
+        </h1>
+        <a href="{% url 'communication:message-list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-info">
+                {% if object %}Modifier le message{% else %}Composer un message{% endif %}
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" id="messageForm">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <!-- Colonne 1 : Expéditeur et destinataires -->
+                    <div class="col-md-6">
+                        <h5 class="mb-3 text-info">Expéditeur et destinataires</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Expéditeur <span class="text-danger">*</span></label>
+                            <select name="expediteur" class="form-control" required>
+                                <option value="">Sélectionner un expéditeur</option>
+                                {% for enseignant in enseignants %}
+                                <option value="{{ enseignant.id }}" {% if form.expediteur.value|stringformat:"s" == enseignant.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ enseignant.nom }} {{ enseignant.prenom }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.expediteur.errors %}
+                                <div class="text-danger small">{{ form.expediteur.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Destinataires <span class="text-danger">*</span></label>
+                            <select name="destinataires" class="form-control" multiple size="5" required>
+                                {% for eleve in eleves %}
+                                <option value="{{ eleve.id }}" {% if eleve.id in form.destinataires.value %}selected{% endif %}>
+                                    {{ eleve.nom }} {{ eleve.prenom }} - {{ eleve.classe.nom }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.destinataires.errors %}
+                                <div class="text-danger small">{{ form.destinataires.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">Maintenez Ctrl pour sélectionner plusieurs élèves</small>
+                        </div>
+                    </div>
+
+                    <!-- Colonne 2 : Sujet et contenu -->
+                    <div class="col-md-6">
+                        <h5 class="mb-3 text-info">Sujet et contenu</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">Sujet <span class="text-danger">*</span></label>
+                            <input type="text" name="sujet" class="form-control" value="{{ form.sujet.value|default:'' }}" required>
+                            {% if form.sujet.errors %}
+                                <div class="text-danger small">{{ form.sujet.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Contenu <span class="text-danger">*</span></label>
+                            <textarea name="contenu" class="form-control" rows="5" required>{{ form.contenu.value|default:'' }}</textarea>
+                            {% if form.contenu.errors %}
+                                <div class="text-danger small">{{ form.contenu.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="important" id="important" {% if form.important.value %}checked{% endif %}>
+                                    <label class="form-check-label" for="important">
+                                        <i class="fas fa-exclamation-circle text-danger me-1"></i>Marquer comme important
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="lu" id="lu" {% if form.lu.value %}checked{% endif %}>
+                                    <label class="form-check-label" for="lu">
+                                        <i class="fas fa-check-circle text-success me-1"></i>Marquer comme lu
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Pièce jointe</label>
+                            <input type="file" name="piece_jointe" class="form-control">
+                            {% if object and object.piece_jointe %}
+                                <div class="mt-2">
+                                    <a href="{{ object.piece_jointe.url }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-file me-2"></i>Voir la pièce jointe
+                                    </a>
+                                </div>
+                            {% endif %}
+                            {% if form.piece_jointe.errors %}
+                                <div class="text-danger small">{{ form.piece_jointe.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Boutons de soumission -->
+                <div class="mt-4 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-info btn-lg px-5">
+                        <i class="fas fa-paper-plane me-2"></i>
+                        {% if object %}Mettre à jour{% else %}Envoyer{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Styliser les champs
+    $('#messageForm input:not([type=checkbox]):not([type=file]), #messageForm select, #messageForm textarea').addClass('form-control');
+    $('#messageForm input[type=checkbox]').addClass('form-check-input');
+    
+    // Validation
+    $('#messageForm').on('submit', function(e) {
+        let isValid = true;
+        let firstError = null;
+        
+        $(this).find('[required]').each(function() {
+            if (!$(this).val()) {
+                isValid = false;
+                $(this).addClass('is-invalid');
+                if (!firstError) firstError = $(this);
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Veuillez remplir tous les champs obligatoires (*)');
+            if (firstError) firstError.focus();
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}Modifier{% else %}Ajouter{% endif %} un niveau scolaire - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-layer-group me-2 text-secondary"></i>
+            {% if object %}Modifier{% else %}Ajouter{% endif %} un niveau scolaire
+        </h1>
+        <a href="{% url 'parametres:niveau-list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-secondary">
+                {% if object %}Modifier le niveau{% else %}Nouveau niveau{% endif %}
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="post" id="niveauForm">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="mb-3 text-secondary">Informations générales</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Nom du niveau <span class="text-danger">*</span></label>
+                            <input type="text" name="nom" class="form-control" value="{{ form.nom.value|default:'' }}" placeholder="Ex: 6ème primaire, 1ère humanité" required>
+                            {% if form.nom.errors %}
+                                <div class="text-danger small">{{ form.nom.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Catégorie <span class="text-danger">*</span></label>
+                            <select name="categorie" class="form-control" required>
+                                <option value="">Sélectionner une catégorie</option>
+                                <option value="maternel" {% if form.categorie.value == 'maternel' %}selected{% endif %}>École Maternelle (1-4 ans)</option>
+                                <option value="primaire" {% if form.categorie.value == 'primaire' %}selected{% endif %}>École Primaire (1-6)</option>
+                                <option value="base" {% if form.categorie.value == 'base' %}selected{% endif %}>École de Base (7-8)</option>
+                                <option value="humanite" {% if form.categorie.value == 'humanite' %}selected{% endif %}>Humanités (1-4)</option>
+                            </select>
+                            {% if form.categorie.errors %}
+                                <div class="text-danger small">{{ form.categorie.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h5 class="mb-3 text-secondary">Ordre et description</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">Ordre d'affichage <span class="text-danger">*</span></label>
+                            <input type="number" name="ordre" class="form-control" value="{{ form.ordre.value|default:'' }}" min="1" required>
+                            {% if form.ordre.errors %}
+                                <div class="text-danger small">{{ form.ordre.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">Numéro d'ordre pour le tri (1,2,3...)</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="4">{{ form.description.value|default:'' }}</textarea>
+                            {% if form.description.errors %}
+                                <div class="text-danger small">{{ form.description.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">Description optionnelle du niveau</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Boutons de soumission -->
+                <div class="mt-4 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-secondary btn-lg px-5">
+                        <i class="fas fa-save me-2"></i>
+                        {% if object %}Enregistrer les modifications{% else %}Créer le niveau{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Validation de l'ordre
+    $('input[name="ordre"]').on('input', function() {
+        var ordre = parseInt($(this).val());
+        if (ordre < 1) {
+            $(this).val(1);
+        }
+    });
+
+    // Validation du formulaire
+    $('#niveauForm').on('submit', function(e) {
+        let isValid = true;
+        let firstError = null;
+        
+        $(this).find('[required]').each(function() {
+            if (!$(this).val()) {
+                isValid = false;
+                $(this).addClass('is-invalid');
+                if (!firstError) firstError = $(this);
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Veuillez remplir tous les champs obligatoires (*)');
+            if (firstError) firstError.focus();
+        }
+    });
+});
+</script>
+{% endblock %}

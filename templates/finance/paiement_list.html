@@ -1,0 +1,494 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestion des paiements - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête avec titre et actions -->
+    <div class="d-flex justify-content-between align-items-center mb-4 fade-in-up">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-credit-card me-2 text-success"></i>
+            Gestion des paiements
+        </h1>
+        <div>
+            <a href="{% url 'finance:accueil' %}" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-arrow-left me-2"></i>Retour
+            </a>
+            {% if peut_ajouter %}
+            <a href="{% url 'finance:paiement-create' %}" class="btn btn-success">
+                <i class="fas fa-plus-circle me-2"></i>Nouveau paiement
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Cartes statistiques -->
+    <div class="row g-4 mb-4">
+        <!-- Total des paiements -->
+        <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+            <div class="card border-left-success h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Total des paiements
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ total_paiements|floatformat:0 }} FC
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-credit-card fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent small">
+                    <i class="fas fa-calendar me-1"></i>Depuis le début
+                </div>
+            </div>
+        </div>
+
+        <!-- Nombre de paiements -->
+        <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+            <div class="card border-left-info h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Nombre de paiements
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ nombre_paiements }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-receipt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent small">
+                    <i class="fas fa-chart-line me-1"></i>Transactions
+                </div>
+            </div>
+        </div>
+
+        <!-- Paiements ce mois -->
+        <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+            <div class="card border-left-warning h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Paiements du mois
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ paiements_mois|default:0|floatformat:0 }} FC
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent small">
+                    <i class="fas fa-clock me-1"></i>{{ current_month|date:"F Y"|default:"Ce mois" }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Paiement moyen -->
+        <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+            <div class="card border-left-primary h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Paiement moyen
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% if nombre_paiements > 0 %}
+                                    {{ total_paiements|divisibleby:nombre_paiements|floatformat:0 }} FC
+                                {% else %}
+                                    0 FC
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calculator fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent small">
+                    <i class="fas fa-chart-bar me-1"></i>Par transaction
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres avancés -->
+    <div class="card shadow mb-4 fade-in-up" data-aos="fade-up">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-filter me-2"></i>Filtres avancés
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3" id="filterForm">
+                <div class="col-md-3">
+                    <label class="form-label small text-muted">Élève</label>
+                    <select name="eleve" class="form-select">
+                        <option value="">Tous les élèves</option>
+                        {% for eleve in eleves %}
+                        <option value="{{ eleve.id }}" {% if request.GET.eleve == eleve.id|stringformat:"s" %}selected{% endif %}>
+                            {{ eleve.nom }} {{ eleve.prenom }} - {{ eleve.classe.nom|default:"-" }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small text-muted">Frais</label>
+                    <select name="frais" class="form-select">
+                        <option value="">Tous les frais</option>
+                        {% for frais_item in frais %}
+                        <option value="{{ frais_item.id }}" {% if request.GET.frais == frais_item.id|stringformat:"s" %}selected{% endif %}>
+                            {{ frais_item.nom }} - {{ frais_item.montant|floatformat:0 }} FC
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">Date début</label>
+                    <input type="date" name="date_debut" class="form-control" value="{{ request.GET.date_debut }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">Date fin</label>
+                    <input type="date" name="date_fin" class="form-control" value="{{ request.GET.date_fin }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100 me-2">
+                        <i class="fas fa-search me-2"></i>Filtrer
+                    </button>
+                    <a href="{% url 'finance:paiement-list' %}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-undo"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Liste des paiements -->
+    <div class="card shadow mb-4" data-aos="fade-up">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-list me-2"></i>Liste des paiements
+            </h6>
+            <span class="badge bg-primary">{{ page_obj.paginator.count }} paiement(s)</span>
+        </div>
+        <div class="card-body">
+            {% if paiements %}
+            <div class="table-responsive">
+                <table class="table table-bordered datatable" id="paiementsTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Référence</th>
+                            <th>Élève</th>
+                            <th>Frais</th>
+                            <th>Montant payé</th>
+                            <th>Date</th>
+                            <th>Reçu</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for paiement in paiements %}
+                        <tr>
+                            <td>
+                                <strong>{{ paiement.reference|default:"N/A" }}</strong>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle me-2">
+                                        <span class="avatar-initials">{{ paiement.eleve.nom|first }}{{ paiement.eleve.prenom|first }}</span>
+                                    </div>
+                                    <div>
+                                        <strong>{{ paiement.eleve.nom }} {{ paiement.eleve.prenom }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ paiement.eleve.classe.nom|default:"-" }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-info text-white">
+                                    {{ paiement.frais.nom }}
+                                </span>
+                                <br>
+                                <small class="text-muted">{{ paiement.frais.categorie.nom|default:"-" }}</small>
+                            </td>
+                            <td class="text-end">
+                                <strong class="text-success">{{ paiement.montant_paye|floatformat:0 }} FC</strong>
+                                <br>
+                                <small class="text-muted">Total frais: {{ paiement.frais.montant|floatformat:0 }} FC</small>
+                            </td>
+                            <td>
+                                <i class="fas fa-calendar-alt me-1 text-muted"></i>
+                                {{ paiement.date_paiement|date:"d/m/Y" }}
+                                <br>
+                                <small class="text-muted">{{ paiement.date_paiement|date:"H:i" }}</small>
+                            </td>
+                            <td class="text-center">
+                                {% if paiement.recu_genere %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check-circle me-1"></i>Généré
+                                </span>
+                                {% else %}
+                                <a href="{% url 'finance:generer-recu' paiement.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-print"></i>
+                                </a>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-sm btn-info" 
+                                            onclick="showPaiementDetails({{ paiement.id }})"
+                                            data-bs-toggle="tooltip" title="Détails">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    {% if peut_modifier %}
+                                    <a href="{% url 'finance:paiement-update' paiement.pk %}" 
+                                       class="btn btn-sm btn-warning"
+                                       data-bs-toggle="tooltip" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'finance:paiement-delete' paiement.pk %}" 
+                                       class="btn btn-sm btn-danger"
+                                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce paiement ?')"
+                                       data-bs-toggle="tooltip" title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" aria-label="Premier">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" aria-label="Précédent">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" aria-label="Suivant">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" aria-label="Dernier">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <!-- Message si aucun paiement -->
+            <div class="text-center py-5">
+                <i class="fas fa-credit-card fa-4x text-muted mb-3"></i>
+                <h5>Aucun paiement enregistré</h5>
+                <p class="text-muted">Commencez par enregistrer un nouveau paiement.</p>
+                {% if peut_ajouter %}
+                <a href="{% url 'finance:paiement-create' %}" class="btn btn-success mt-3">
+                    <i class="fas fa-plus-circle me-2"></i>Ajouter un paiement
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour les détails du paiement -->
+<div class="modal fade" id="paiementDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-gradient-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-receipt me-2"></i>Détails du paiement
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="paiementDetailsContent">
+                <!-- Chargé dynamiquement -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                <button type="button" class="btn btn-primary" onclick="window.print()">
+                    <i class="fas fa-print me-2"></i>Imprimer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-initials {
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    text-transform: uppercase;
+}
+
+.btn-group .btn {
+    margin: 0 2px;
+    border-radius: 20px !important;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.pagination .page-link {
+    border: none;
+    margin: 0 3px;
+    border-radius: 10px;
+    color: #667eea;
+}
+
+.pagination .active .page-link {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Fonction pour afficher les détails du paiement
+function showPaiementDetails(paiementId) {
+    // Ici vous pouvez faire un appel AJAX pour récupérer les détails
+    // Pour l'exemple, on met un template statique
+    const modalContent = document.getElementById('paiementDetailsContent');
+    modalContent.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Chargement...</span>
+            </div>
+            <p class="mt-2">Chargement des détails...</p>
+        </div>
+    `;
+    
+    // Simuler un appel AJAX (à remplacer par un vrai appel)
+    setTimeout(function() {
+        modalContent.innerHTML = `
+            <div class="container-fluid">
+                <div class="row mb-4">
+                    <div class="col-12 text-center">
+                        <h4>REÇU DE PAIEMENT</h4>
+                        <p class="text-muted">République Démocratique du Congo</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Référence:</strong> PAID-${paiementId}-2026</p>
+                        <p><strong>Date:</strong> ${new Date().toLocaleDateString('fr-FR')}</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <p><strong>Élève:</strong> Jean Dupont</p>
+                        <p><strong>Classe:</strong> 6ème</p>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-12">
+                        <table class="table table-bordered">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Description</th>
+                                    <th class="text-end">Montant</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Frais de scolarité - 1er trimestre</td>
+                                    <td class="text-end">150 000 FC</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th class="text-end">TOTAL</th>
+                                    <th class="text-end">150 000 FC</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <p class="text-center text-muted">
+                            <i class="fas fa-check-circle text-success"></i>
+                            Paiement validé le ${new Date().toLocaleDateString('fr-FR')}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }, 500);
+    
+    // Ouvrir le modal
+    new bootstrap.Modal(document.getElementById('paiementDetailsModal')).show();
+}
+
+// Initialisation des tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function(tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+
+// Animation des lignes du tableau
+document.querySelectorAll('#paiementsTable tbody tr').forEach((row, index) => {
+    row.style.animation = `fadeInUp 0.3s ease forwards ${index * 0.05}s`;
+    row.style.opacity = '0';
+});
+</script>
+{% endblock %}

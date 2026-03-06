@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Supprimer un paiement - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-danger">Confirmation de suppression</h6>
+                </div>
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-exclamation-triangle fa-4x text-danger mb-4"></i>
+                    <h4 class="mb-3">Êtes-vous sûr ?</h4>
+                    <p>Voulez-vous vraiment supprimer ce paiement de <strong>{{ object.eleve.nom }} {{ object.eleve.prenom }}</strong> ?</p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <a href="{% url 'finance:paiement-list' %}" class="btn btn-secondary">Annuler</a>
+                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

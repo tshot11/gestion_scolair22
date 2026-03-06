@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Historique des pointages - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-history me-2 text-info"></i>
+            Historique des pointages
+        </h1>
+    </div>
+
+    <!-- Filtres -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-info">Filtres</h6>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Classe</label>
+                    <select name="classe" class="form-control">
+                        <option value="">Toutes les classes</option>
+                        {% for classe in classes %}
+                        <option value="{{ classe.id }}" {% if request.GET.classe == classe.id|stringformat:"s" %}selected{% endif %}>
+                            {{ classe.nom }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Élève</label>
+                    <select name="eleve" class="form-control">
+                        <option value="">Tous les élèves</option>
+                        {% for eleve in eleves %}
+                        <option value="{{ eleve.id }}" {% if request.GET.eleve == eleve.id|stringformat:"s" %}selected{% endif %}>
+                            {{ eleve.nom }} {{ eleve.prenom }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Date début</label>
+                    <input type="date" name="date_debut" class="form-control" value="{{ request.GET.date_debut }}">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Date fin</label>
+                    <input type="date" name="date_fin" class="form-control" value="{{ request.GET.date_fin }}">
+                </div>
+                <div class="col-md-2 mb-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-2"></i>Filtrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tableau d'historique -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-info">Liste des pointages</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Élève</th>
+                            <th>Classe</th>
+                            <th>Statut</th>
+                            <th>Motif</th>
+                            <th>Couleur</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pointage in pointages %}
+                        <tr>
+                            <td>{{ pointage.date|date:"d/m/Y" }}</td>
+                            <td>
+                                <strong>{{ pointage.eleve.nom }} {{ pointage.eleve.prenom }}</strong>
+                                <br>
+                                <small>{{ pointage.eleve.matricule }}</small>
+                            </td>
+                            <td>{{ pointage.eleve.classe.nom }}</td>
+                            <td>{{ pointage.get_statut_display }}</td>
+                            <td>{{ pointage.motif|default:"-" }}</td>
+                            <td class="text-center">
+                                <span class="badge bg-{{ pointage.couleur }}">
+                                    {{ pointage.get_statut_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <i class="fas fa-calendar-times fa-3x text-gray-400 mb-3"></i>
+                                <p class="text-muted">Aucun pointage trouvé</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

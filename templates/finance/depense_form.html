@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}Modifier{% else %}Ajouter{% endif %} une dépense - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-chart-line me-2 text-danger"></i>
+            {% if object %}Modifier{% else %}Ajouter{% endif %} une dépense
+        </h1>
+        <a href="{% url 'finance:depense-list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-danger">
+                {% if object %}Modifier la dépense{% else %}Nouvelle dépense{% endif %}
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" id="depenseForm">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="mb-3 text-danger">Informations</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Description <span class="text-danger">*</span></label>
+                            <input type="text" name="description" class="form-control" value="{{ form.description.value|default:'' }}" placeholder="Ex: Achat de fournitures" required>
+                            {% if form.description.errors %}
+                                <div class="text-danger small">{{ form.description.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Montant <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="number" name="montant" class="form-control" value="{{ form.montant.value|default:'' }}" step="0.01" min="0" required>
+                                <span class="input-group-text">FC</span>
+                            </div>
+                            {% if form.montant.errors %}
+                                <div class="text-danger small">{{ form.montant.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h5 class="mb-3 text-danger">Détails</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">Catégorie</label>
+                            <input type="text" name="categorie" class="form-control" value="{{ form.categorie.value|default:'' }}" placeholder="Ex: Fournitures, Salaire">
+                            {% if form.categorie.errors %}
+                                <div class="text-danger small">{{ form.categorie.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Justificatif</label>
+                            <input type="file" name="justificatif" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                            {% if object and object.justificatif %}
+                                <div class="mt-2">
+                                    <a href="{{ object.justificatif.url }}" target="_blank" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-file-pdf me-2"></i>Voir le justificatif
+                                    </a>
+                                </div>
+                            {% endif %}
+                            {% if form.justificatif.errors %}
+                                <div class="text-danger small">{{ form.justificatif.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Boutons de soumission -->
+                <div class="mt-4 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-danger btn-lg px-5">
+                        <i class="fas fa-save me-2"></i>
+                        {% if object %}Enregistrer les modifications{% else %}Ajouter la dépense{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Validation du formulaire
+    $('#depenseForm').on('submit', function(e) {
+        let isValid = true;
+        let firstError = null;
+        
+        $(this).find('[required]').each(function() {
+            if (!$(this).val()) {
+                isValid = false;
+                $(this).addClass('is-invalid');
+                if (!firstError) firstError = $(this);
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Veuillez remplir tous les champs obligatoires (*)');
+            if (firstError) firstError.focus();
+        }
+    });
+});
+</script>
+{% endblock %}

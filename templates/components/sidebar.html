@@ -1,0 +1,527 @@
+{% load static %}
+<div class="sidebar-wrapper bg-gradient-primary text-white" id="sidebar-wrapper">
+    
+    <!-- Logo et titre -->
+    <div class="sidebar-header text-center py-4 border-bottom border-white border-opacity-10">
+        <i class="fas fa-school fa-4x text-white mb-3"></i>
+        <h4 class="mb-1 fw-bold">GESTION SCOLAIRE</h4>
+        <p class="small opacity-75 mb-0">République Démocratique du Congo</p>
+    </div>
+
+    <!-- Profil utilisateur -->
+    <div class="user-profile p-3 border-bottom border-white border-opacity-10">
+        <div class="d-flex align-items-center">
+            <div class="me-3 position-relative">
+                <i class="fas fa-user-circle fa-3x"></i>
+                {% if user.is_authenticated %}
+                <span class="position-absolute bottom-0 end-0 translate-middle p-1 bg-success border border-light rounded-circle">
+                    <span class="visually-hidden">En ligne</span>
+                </span>
+                {% endif %}
+            </div>
+            <div>
+                <h6 class="mb-0 fw-semibold">{{ user.get_full_name|default:user.username }}</h6>
+                <small class="opacity-75">
+                    <i class="fas fa-circle fa-2xs text-success me-1"></i>
+                    {% if user.is_superuser %}
+                        Super Administrateur
+                    {% else %}
+                        {% for group in user.groups.all %}
+                            {{ group.name }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                            Utilisateur
+                        {% endfor %}
+                    {% endif %}
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu principal -->
+    <div class="menu-container py-3">
+        
+        <!-- ===== DASHBOARD ===== -->
+        {% if user.is_superuser or user.groups.all.0.name == 'Administrateur' or user.groups.all.0.name == 'Prefet' %}
+        <a href="{% url 'dashboard:index' %}" class="menu-item {% if request.path == '/' %}active{% endif %}">
+            <i class="fas fa-tachometer-alt menu-icon"></i>
+            <span class="menu-text">Tableau de bord</span>
+        </a>
+        {% endif %}
+
+        <div class="menu-section">
+            <span class="section-title">GESTION ACADÉMIQUE</span>
+        </div>
+
+        <!-- ===== ÉLÈVES ===== -->
+        {% if user.is_superuser or user.groups.all.0.name == 'Administrateur' or user.groups.all.0.name == 'Prefet' or user.groups.all.0.name == 'EnseignantTitulaire' %}
+        <a href="{% url 'eleves:eleve-list' %}" class="menu-item">
+            <i class="fas fa-user-graduate menu-icon"></i>
+            <span class="menu-text">Élèves</span>
+            <span class="menu-badge bg-primary">{{ total_eleves|default:"0" }}</span>
+        </a>
+        {% endif %}
+
+        <!-- ===== ENSEIGNANTS ===== -->
+        {% if user.is_superuser or user.groups.all.0.name == 'Administrateur' or user.groups.all.0.name == 'Prefet' %}
+        <a href="{% url 'enseignants:enseignant-list' %}" class="menu-item">
+            <i class="fas fa-chalkboard-teacher menu-icon"></i>
+            <span class="menu-text">Enseignants</span>
+            <span class="menu-badge bg-success">{{ total_enseignants|default:"0" }}</span>
+        </a>
+        {% endif %}
+
+        <!-- ===== CLASSES ===== -->
+        {% if user.is_superuser or user.groups.all.0.name == 'Administrateur' or user.groups.all.0.name == 'Prefet' or user.groups.all.0.name == 'EnseignantTitulaire' %}
+        <a href="{% url 'classes:classe-list' %}" class="menu-item">
+            <i class="fas fa-door-open menu-icon"></i>
+            <span class="menu-text">Classes</span>
+            <span class="menu-badge bg-info">{{ total_classes|default:"0" }}</span>
+        </a>
+        {% endif %}
+
+        <!-- ===== COURS ===== -->
+        {% if user.is_superuser or user.groups.all.0.name == 'Administrateur' or user.groups.all.0.name == 'Prefet' %}
+        <a href="{% url 'cours:cours-list' %}" class="menu-item">
+            <i class="fas fa-book menu-icon"></i>
+            <span class="menu-text">Cours</span>
+            <span class="menu-badge bg-warning">{{ total_cours|default:"0" }}</span>
+        </a>
+        {% endif %}
+
+        <!-- ===== HORAIRES ===== -->
+        {% if user.is_superuser or user.groups.all.0.name == 'Administrateur' or user.groups.all.0.name == 'Prefet' %}
+        <a href="{% url 'horaire:horaire-list' %}" class="menu-item">
+            <i class="fas fa-clock menu-icon"></i>
+            <span class="menu-text">Horaires</span>
+        </a>
+        {% endif %}
+
+        <!-- ===== PRÉSENCES ===== -->
+        {% if user.is_superuser or user.groups.all.0.name == 'Administrateur' or user.groups.all.0.name == 'Prefet' or user.groups.all.0.name == 'EnseignantTitulaire' %}
+        <a href="{% url 'presence:pointage-journalier' %}" class="menu-item">
+            <i class="fas fa-calendar-check menu-icon"></i>
+            <span class="menu-text">Présences</span>
+            <span class="menu-badge bg-info">{{ presences_aujourd_hui|default:"0" }}/{{ total_eleves|default:"0" }}</span>
+        </a>
+        {% endif %}
+
+        <!-- ===== RÉSULTATS ===== -->
+        {% if user.is_superuser or user.groups.all.0.name == 'Administrateur' or user.groups.all.0.name == 'Prefet' or user.groups.all.0.name == 'EnseignantTitulaire' %}
+        <a href="{% url 'resultats:resultat-list' %}" class="menu-item">
+            <i class="fas fa-chart-line menu-icon"></i>
+            <span class="menu-text">Résultats</span>
+        </a>
+        {% endif %}
+
+        <!-- ===== GESTION FINANCIÈRE ===== -->
+        {% if user.is_superuser or user.groups.all.0.name == 'Administrateur' or user.groups.all.0.name == 'Caissier' or user.groups.all.0.name == 'Comptable' %}
+        <div class="menu-section">
+            <span class="section-title">GESTION FINANCIÈRE</span>
+        </div>
+
+        <!-- Finance - Accueil -->
+        <a href="{% url 'finance:accueil' %}" class="menu-item">
+            <i class="fas fa-money-bill-wave menu-icon"></i>
+            <span class="menu-text">Finance</span>
+            <span class="menu-badge bg-success">{{ total_paiements|floatformat:0|default:"0" }} FC</span>
+        </a>
+
+        <!-- Sous-menu Finance (visible pour admins et caissiers) -->
+        {% if user.is_superuser or user.groups.all.0.name == 'Administrateur' or user.groups.all.0.name == 'Caissier' %}
+        <div class="submenu finance-submenu">
+            <a href="{% url 'finance:categorie-frais-list' %}" class="submenu-item">
+                <i class="fas fa-circle fa-2xs"></i> Catégories
+            </a>
+            <a href="{% url 'finance:frais-list' %}" class="submenu-item">
+                <i class="fas fa-circle fa-2xs"></i> Frais
+            </a>
+            <a href="{% url 'finance:paiement-list' %}" class="submenu-item">
+                <i class="fas fa-circle fa-2xs"></i> Paiements
+            </a>
+            <a href="{% url 'finance:depense-list' %}" class="submenu-item">
+                <i class="fas fa-circle fa-2xs"></i> Dépenses
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- Statistiques financières (pour comptable) -->
+        {% if user.groups.all.0.name == 'Comptable' %}
+        <a href="{% url 'finance:statistiques' %}" class="menu-item">
+            <i class="fas fa-chart-pie menu-icon"></i>
+            <span class="menu-text">Statistiques</span>
+        </a>
+        {% endif %}
+        {% endif %}
+
+        <!-- ===== DISCIPLINE ===== -->
+        {% if user.is_superuser or user.groups.all.0.name == 'Administrateur' or user.groups.all.0.name == 'Prefet' %}
+        <div class="menu-section">
+            <span class="section-title">DISCIPLINE</span>
+        </div>
+
+        <a href="{% url 'discipline:incident-list' %}" class="menu-item">
+            <i class="fas fa-exclamation-triangle menu-icon"></i>
+            <span class="menu-text">Incidents</span>
+        </a>
+        {% endif %}
+
+        <!-- ===== COMMUNICATION ===== -->
+        {% if user.is_superuser or user.groups.all.0.name == 'Administrateur' %}
+        <div class="menu-section">
+            <span class="section-title">COMMUNICATION</span>
+        </div>
+
+        <a href="{% url 'communication:message-list' %}" class="menu-item">
+            <i class="fas fa-envelope menu-icon"></i>
+            <span class="menu-text">Messages</span>
+        </a>
+
+        <a href="{% url 'communication:notification-list' %}" class="menu-item">
+            <i class="fas fa-bell menu-icon"></i>
+            <span class="menu-text">Notifications</span>
+        </a>
+        {% endif %}
+
+        <!-- ===== PARAMÈTRES ===== -->
+        {% if user.is_superuser or user.groups.all.0.name == 'Administrateur' %}
+        <div class="menu-section">
+            <span class="section-title">PARAMÈTRES</span>
+        </div>
+
+        <a href="{% url 'parametres:annee-list' %}" class="menu-item">
+            <i class="fas fa-calendar-alt menu-icon"></i>
+            <span class="menu-text">Années scolaires</span>
+        </a>
+
+        <a href="{% url 'parametres:periode-list' %}" class="menu-item">
+            <i class="fas fa-clock menu-icon"></i>
+            <span class="menu-text">Périodes</span>
+        </a>
+
+        <a href="{% url 'parametres:niveau-list' %}" class="menu-item">
+            <i class="fas fa-layer-group menu-icon"></i>
+            <span class="menu-text">Niveaux scolaires</span>
+        </a>
+        {% endif %}
+
+        <!-- ===== ESPACE PARENT ===== -->
+        {% if user.groups.all.0.name == 'Parent' %}
+        <div class="menu-section">
+            <span class="section-title">ESPACE PARENT</span>
+        </div>
+
+        <a href="{% url 'parents:dashboard' %}" class="menu-item">
+            <i class="fas fa-home menu-icon"></i>
+            <span class="menu-text">Tableau de bord</span>
+        </a>
+
+        <a href="{% url 'parents:enfants' %}" class="menu-item">
+            <i class="fas fa-children menu-icon"></i>
+            <span class="menu-text">Mes enfants</span>
+        </a>
+        {% endif %}
+
+        <!-- ===== ESPACE ÉLÈVE ===== -->
+        {% if user.groups.all.0.name == 'Eleve' %}
+        <div class="menu-section">
+            <span class="section-title">MON ESPACE</span>
+        </div>
+
+        <a href="{% url 'eleve:dashboard' %}" class="menu-item">
+            <i class="fas fa-user-graduate menu-icon"></i>
+            <span class="menu-text">Mon tableau de bord</span>
+        </a>
+
+        <a href="{% url 'eleve:presences' %}" class="menu-item">
+            <i class="fas fa-calendar-check menu-icon"></i>
+            <span class="menu-text">Mes présences</span>
+        </a>
+
+        <a href="{% url 'eleve:resultats' %}" class="menu-item">
+            <i class="fas fa-chart-line menu-icon"></i>
+            <span class="menu-text">Mes résultats</span>
+        </a>
+
+        <a href="{% url 'eleve:horaire' %}" class="menu-item">
+            <i class="fas fa-clock menu-icon"></i>
+            <span class="menu-text">Mon horaire</span>
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Footer -->
+    <div class="sidebar-footer">
+        <div class="footer-info">
+            <i class="fas fa-database"></i>
+            {% with total_eleves_val=total_eleves|default:0 %}
+            {% with total_enseignants_val=total_enseignants|default:0 %}
+            <span>{{ total_eleves_val|add:total_enseignants_val }} entités</span>
+            {% endwith %}
+            {% endwith %}
+        </div>
+        <div class="footer-links">
+            <a href="{% url 'admin:index' %}" class="footer-link" title="Administration">
+                <i class="fas fa-shield-alt"></i>
+            </a>
+            <span class="footer-separator">|</span>
+            <a href="{% url 'accounts:profile' %}" class="footer-link" title="Mon profil">
+                <i class="fas fa-user"></i>
+            </a>
+            <span class="footer-separator">|</span>
+            <a href="{% url 'accounts:logout' %}" class="footer-link" title="Déconnexion">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+        <div class="footer-version text-center mt-2">
+            <small class="opacity-50">v2.0 - RDC</small>
+        </div>
+    </div>
+</div>
+
+<!-- Bouton toggle pour mobile -->
+<button class="menu-toggle-mobile" id="menu-toggle-mobile">
+    <i class="fas fa-bars"></i>
+</button>
+
+<style>
+/* Styles du menu vertical */
+.sidebar-wrapper {
+    width: 280px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    color: white;
+    overflow-y: auto;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+}
+
+.sidebar-wrapper::-webkit-scrollbar {
+    width: 5px;
+}
+
+.sidebar-wrapper::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.1);
+}
+
+.sidebar-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.3);
+    border-radius: 10px;
+}
+
+.sidebar-header {
+    text-align: center;
+    padding: 25px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.user-profile {
+    padding: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.menu-container {
+    flex: 1;
+    padding: 15px 0;
+}
+
+.menu-section {
+    padding: 15px 20px 5px;
+}
+
+.section-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.5);
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+    margin: 2px 8px;
+    border-radius: 8px;
+}
+
+.menu-item:hover {
+    background: rgba(255,255,255,0.15);
+    border-left-color: white;
+    padding-left: 25px;
+}
+
+.menu-item.active {
+    background: rgba(255,255,255,0.2);
+    border-left-color: white;
+}
+
+.menu-icon {
+    width: 24px;
+    margin-right: 15px;
+}
+
+.menu-text {
+    flex: 1;
+    font-size: 0.9rem;
+}
+
+.menu-badge {
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: white;
+    color: #667eea;
+}
+
+.submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    background: rgba(0,0,0,0.1);
+}
+
+.menu-item:hover + .submenu,
+.submenu:hover {
+    max-height: 200px;
+}
+
+.submenu-item {
+    display: block;
+    padding: 8px 20px 8px 54px;
+    color: white;
+    text-decoration: none;
+    font-size: 0.85rem;
+    opacity: 0.8;
+    transition: all 0.3s ease;
+}
+
+.submenu-item:hover {
+    background: rgba(255,255,255,0.1);
+    opacity: 1;
+    padding-left: 64px;
+}
+
+.sidebar-footer {
+    padding: 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.8rem;
+}
+
+.footer-info {
+    margin-bottom: 10px;
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.footer-links {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.footer-link {
+    color: white;
+    text-decoration: none;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.footer-link:hover {
+    opacity: 1;
+}
+
+.footer-separator {
+    opacity: 0.3;
+}
+
+.menu-toggle-mobile {
+    display: none;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1001;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+@media (max-width: 768px) {
+    .sidebar-wrapper {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar-wrapper.show {
+        transform: translateX(0);
+    }
+    
+    .menu-toggle-mobile {
+        display: block;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle sous-menu pour Finance
+    const submenuTriggers = document.querySelectorAll('.has-submenu > .menu-item-link');
+    submenuTriggers.forEach(trigger => {
+        trigger.addEventListener('click', function(e) {
+            e.preventDefault();
+            const parent = this.closest('.has-submenu');
+            parent.classList.toggle('open');
+        });
+    });
+
+    // Toggle mobile - CORRIGÉ
+    const menuToggle = document.getElementById('menu-toggle-mobile');
+    const sidebar = document.querySelector('.sidebar-wrapper');
+    
+    if (menuToggle) {
+        menuToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('show');
+            // Ajouter un overlay pour fermer en cliquant à l'extérieur
+            const overlay = document.getElementById('sidebar-overlay');
+            if (!overlay) {
+                const newOverlay = document.createElement('div');
+                newOverlay.id = 'sidebar-overlay';
+                newOverlay.className = 'sidebar-overlay';
+                document.body.appendChild(newOverlay);
+                
+                newOverlay.addEventListener('click', function() {
+                    sidebar.classList.remove('show');
+                    this.remove();
+                });
+            }
+        });
+    }
+
+    // Fermer le menu quand on clique sur un lien
+    const menuItems = document.querySelectorAll('.menu-item, .submenu-item');
+    menuItems.forEach(item => {
+        item.addEventListener('click', function() {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('show');
+                const overlay = document.getElementById('sidebar-overlay');
+                if (overlay) overlay.remove();
+            }
+        });
+    });
+});
+</script>

@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}Modifier{% else %}Ajouter{% endif %} un enseignant - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-chalkboard-teacher me-2 text-success"></i>
+            {% if object %}Modifier{% else %}Ajouter{% endif %} un enseignant
+        </h1>
+        <a href="{% url 'enseignants:enseignant-list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-success">
+                {% if object %}Modifier les informations{% else %}Nouvel enseignant{% endif %}
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" id="enseignantForm">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <!-- Colonne 1 : Informations personnelles -->
+                    <div class="col-md-6">
+                        <h5 class="mb-3 text-success">Informations personnelles</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Matricule <span class="text-danger">*</span></label>
+                            <input type="text" name="matricule" class="form-control" value="{{ form.matricule.value|default:'' }}" required>
+                            {% if form.matricule.errors %}
+                                <div class="text-danger small">{{ form.matricule.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nom <span class="text-danger">*</span></label>
+                                <input type="text" name="nom" class="form-control" value="{{ form.nom.value|default:'' }}" required>
+                                {% if form.nom.errors %}
+                                    <div class="text-danger small">{{ form.nom.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Prénom <span class="text-danger">*</span></label>
+                                <input type="text" name="prenom" class="form-control" value="{{ form.prenom.value|default:'' }}" required>
+                                {% if form.prenom.errors %}
+                                    <div class="text-danger small">{{ form.prenom.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Date de naissance <span class="text-danger">*</span></label>
+                                <input type="date" name="date_naissance" class="form-control" value="{{ form.date_naissance.value|date:'Y-m-d'|default:'' }}" required>
+                                {% if form.date_naissance.errors %}
+                                    <div class="text-danger small">{{ form.date_naissance.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Lieu de naissance</label>
+                                <input type="text" name="lieu_naissance" class="form-control" value="{{ form.lieu_naissance.value|default:'' }}">
+                                {% if form.lieu_naissance.errors %}
+                                    <div class="text-danger small">{{ form.lieu_naissance.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Champ Sexe corrigé avec boutons radio -->
+                        <div class="mb-3">
+                            <label class="form-label">Sexe <span class="text-danger">*</span></label>
+                            <div class="d-flex gap-4 mt-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="sexe" id="sexe_m" value="M" {% if form.sexe.value == 'M' %}checked{% endif %} required>
+                                    <label class="form-check-label" for="sexe_m">
+                                        <i class="fas fa-mars text-primary me-1"></i>Masculin
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="sexe" id="sexe_f" value="F" {% if form.sexe.value == 'F' %}checked{% endif %} required>
+                                    <label class="form-check-label" for="sexe_f">
+                                        <i class="fas fa-venus text-danger me-1"></i>Féminin
+                                    </label>
+                                </div>
+                            </div>
+                            {% if form.sexe.errors %}
+                                <div class="text-danger small mt-1">{{ form.sexe.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Colonne 2 : Contact et profession -->
+                    <div class="col-md-6">
+                        <h5 class="mb-3 text-success">Contact et profession</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">Téléphone <span class="text-danger">*</span></label>
+                            <input type="tel" name="telephone" class="form-control" value="{{ form.telephone.value|default:'' }}" required>
+                            {% if form.telephone.errors %}
+                                <div class="text-danger small">{{ form.telephone.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" name="email" class="form-control" value="{{ form.email.value|default:'' }}" required>
+                            {% if form.email.errors %}
+                                <div class="text-danger small">{{ form.email.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">L'email doit être unique</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Adresse <span class="text-danger">*</span></label>
+                            <textarea name="adresse" class="form-control" rows="2" required>{{ form.adresse.value|default:'' }}</textarea>
+                            {% if form.adresse.errors %}
+                                <div class="text-danger small">{{ form.adresse.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Date d'embauche <span class="text-danger">*</span></label>
+                            <input type="date" name="date_embauche" class="form-control" value="{{ form.date_embauche.value|date:'Y-m-d'|default:'' }}" required>
+                            {% if form.date_embauche.errors %}
+                                <div class="text-danger small">{{ form.date_embauche.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Statut <span class="text-danger">*</span></label>
+                            <select name="statut" class="form-control" required>
+                                <option value="">Sélectionner un statut</option>
+                                <option value="titulaire" {% if form.statut.value == 'titulaire' %}selected{% endif %}>Titulaire (Maternel/Primaire)</option>
+                                <option value="adjoint" {% if form.statut.value == 'adjoint' %}selected{% endif %}>Adjoint/Co-enseignant</option>
+                                <option value="professeur" {% if form.statut.value == 'professeur' %}selected{% endif %}>Professeur (Secondaire)</option>
+                            </select>
+                            {% if form.statut.errors %}
+                                <div class="text-danger small">{{ form.statut.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Spécialité</label>
+                            <input type="text" name="specialite" class="form-control" value="{{ form.specialite.value|default:'' }}" placeholder="Ex: Mathématiques, Français...">
+                            {% if form.specialite.errors %}
+                                <div class="text-danger small">{{ form.specialite.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">Matière principale enseignée</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Photo</label>
+                            <input type="file" name="photo" class="form-control" accept="image/*">
+                            {% if object and object.photo %}
+                                <div class="mt-2">
+                                    <img src="{{ object.photo.url }}" alt="Photo actuelle" style="height: 50px; width: 50px; object-fit: cover; border-radius: 50%;">
+                                    <small class="text-muted ms-2">Photo actuelle</small>
+                                </div>
+                            {% endif %}
+                            {% if form.photo.errors %}
+                                <div class="text-danger small">{{ form.photo.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Boutons de soumission -->
+                <div class="mt-4 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-success btn-lg px-5">
+                        <i class="fas fa-save me-2"></i>
+                        {% if object %}Enregistrer les modifications{% else %}Ajouter l'enseignant{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Styliser les champs du formulaire
+    $('#enseignantForm input, #enseignantForm select, #enseignantForm textarea').addClass('form-control');
+    $('#enseignantForm input[type=radio]').addClass('form-check-input');
+    $('#enseignantForm input[type=file]').removeClass('form-control').addClass('form-control');
+    
+    // Validation de base (optionnel)
+    $('#enseignantForm').on('submit', function(e) {
+        let isValid = true;
+        let firstError = null;
+        
+        $(this).find('[required]').each(function() {
+            if (!$(this).val()) {
+                isValid = false;
+                $(this).addClass('is-invalid');
+                if (!firstError) firstError = $(this);
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Veuillez remplir tous les champs obligatoires (*)');
+            if (firstError) firstError.focus();
+        }
+    });
+});
+</script>
+{% endblock %}

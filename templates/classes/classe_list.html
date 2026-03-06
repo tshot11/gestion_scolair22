@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Liste des Classes - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-door-open me-2 text-info"></i>
+            Gestion des Classes
+        </h1>
+        <a href="{% url 'classes:classe-create' %}" class="btn btn-info">
+            <i class="fas fa-plus me-2"></i>Nouvelle Classe
+        </a>
+    </div>
+
+    <!-- Statistiques rapides -->
+    <div class="row mb-4">
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Total Classes</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_classes }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-door-open fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Capacité totale</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ capacite_totale }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Élèves inscrits</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_eleves }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-graduate fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableau des classes -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-info">Liste des classes</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Nom</th>
+                            <th>Niveau</th>
+                            <th>Année scolaire</th>
+                            <th>Capacité</th>
+                            <th>Effectif</th>
+                            <th>Professeur principal</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for classe in classes %}
+                        <tr>
+                            <td><strong>{{ classe.nom }}</strong></td>
+                            <td>{{ classe.niveau.nom }}</td>
+                            <td>{{ classe.annee_scolaire.nom }}</td>
+                            <td>{{ classe.capacite }}</td>
+                            <td>
+                                <span class="badge bg-info">{{ classe.effectif_actuel }}</span>
+                                <small class="text-muted">/ {{ classe.capacite }}</small>
+                            </td>
+                            <td>
+                                {% if classe.professeur_principal %}
+                                    {{ classe.professeur_principal.nom }} {{ classe.professeur_principal.prenom }}
+                                {% else %}
+                                    <span class="text-muted">Non assigné</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'classes:classe-detail' classe.pk %}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'classes:classe-update' classe.pk %}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'classes:classe-delete' classe.pk %}" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <i class="fas fa-door-open fa-3x text-gray-400 mb-3"></i>
+                                <p class="text-muted">Aucune classe enregistrée pour le moment.</p>
+                                <a href="{% url 'classes:classe-create' %}" class="btn btn-info">
+                                    <i class="fas fa-plus me-2"></i>Ajouter une classe
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

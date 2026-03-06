@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Détails de la classe - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-door-open me-2 text-info"></i>
+            Détails de la classe
+        </h1>
+        <div>
+            <a href="{% url 'classes:classe-list' %}" class="btn btn-secondary me-2">
+                <i class="fas fa-arrow-left me-2"></i>Retour
+            </a>
+            <a href="{% url 'classes:classe-update' classe.pk %}" class="btn btn-warning me-2">
+                <i class="fas fa-edit me-2"></i>Modifier
+            </a>
+            <a href="{% url 'classes:classe-delete' classe.pk %}" class="btn btn-danger">
+                <i class="fas fa-trash me-2"></i>Supprimer
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">Informations générales</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th>Nom :</th>
+                            <td>{{ classe.nom }}</td>
+                        </tr>
+                        <tr>
+                            <th>Niveau :</th>
+                            <td>{{ classe.niveau.nom }}</td>
+                        </tr>
+                        <tr>
+                            <th>Année scolaire :</th>
+                            <td>{{ classe.annee_scolaire.nom }}</td>
+                        </tr>
+                        <tr>
+                            <th>Option :</th>
+                            <td>{{ classe.option.nom|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Capacité :</th>
+                            <td>{{ classe.capacite }} places</td>
+                        </tr>
+                        <tr>
+                            <th>Effectif :</th>
+                            <td>{{ classe.eleves.count }} élèves</td>
+                        </tr>
+                        <tr>
+                            <th>Taux d'occupation :</th>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar bg-info" style="width: {{ classe.taux_occupation }}%">
+                                        {{ classe.taux_occupation|floatformat:1 }}%
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">Professeur principal</h6>
+                </div>
+                <div class="card-body">
+                    {% if classe.professeur_principal %}
+                        <div class="text-center">
+                            {% if classe.professeur_principal.photo %}
+                                <img src="{{ classe.professeur_principal.photo.url }}" class="rounded-circle mb-3" width="100" height="100">
+                            {% else %}
+                                <i class="fas fa-user-circle fa-5x text-gray-400 mb-3"></i>
+                            {% endif %}
+                            <h5>{{ classe.professeur_principal.nom }} {{ classe.professeur_principal.prenom }}</h5>
+                            <p class="text-muted">{{ classe.professeur_principal.email }}</p>
+                        </div>
+                    {% else %}
+                        <p class="text-center text-muted">Aucun professeur principal assigné</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des élèves -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-info">Élèves de la classe</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Matricule</th>
+                            <th>Nom & Prénom</th>
+                            <th>Sexe</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for eleve in classe.eleves.all %}
+                        <tr>
+                            <td>{{ eleve.matricule }}</td>
+                            <td>{{ eleve.nom }} {{ eleve.prenom }}</td>
+                            <td>{% if eleve.sexe == 'M' %}Masculin{% else %}Féminin{% endif %}</td>
+                            <td>
+                                <a href="{% url 'eleves:eleve-detail' eleve.pk %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">Aucun élève dans cette classe</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

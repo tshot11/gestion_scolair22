@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}Modifier{% else %}Nouvelle{% endif %} notification - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-bell me-2 text-warning"></i>
+            {% if object %}Modifier{% else %}Nouvelle{% endif %} notification
+        </h1>
+        <a href="{% url 'communication:notification-list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-warning">
+                {% if object %}Modifier la notification{% else %}Créer une notification{% endif %}
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="post" id="notificationForm">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <!-- Colonne 1 : Destinataire -->
+                    <div class="col-md-6">
+                        <h5 class="mb-3 text-warning">Destinataire</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Type de destinataire</label>
+                            <select class="form-control" id="destinataireType">
+                                <option value="utilisateur" {% if form.utilisateur.value %}selected{% endif %}>Utilisateur (enseignant)</option>
+                                <option value="eleve" {% if form.eleve.value %}selected{% endif %}>Élève</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3" id="utilisateurField">
+                            <label class="form-label">Utilisateur</label>
+                            <select name="utilisateur" class="form-control">
+                                <option value="">Sélectionner un utilisateur</option>
+                                {% for user in users %}
+                                <option value="{{ user.id }}" {% if form.utilisateur.value|stringformat:"s" == user.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ user.username }} - {{ user.get_full_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3" id="eleveField" style="display: none;">
+                            <label class="form-label">Élève</label>
+                            <select name="eleve" class="form-control">
+                                <option value="">Sélectionner un élève</option>
+                                {% for eleve in eleves %}
+                                <option value="{{ eleve.id }}" {% if form.eleve.value|stringformat:"s" == eleve.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ eleve.nom }} {{ eleve.prenom }} - {{ eleve.classe.nom }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Colonne 2 : Contenu -->
+                    <div class="col-md-6">
+                        <h5 class="mb-3 text-warning">Contenu</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">Type de notification</label>
+                            <select name="type" class="form-control" required>
+                                <option value="info" {% if form.type.value == 'info' %}selected{% endif %}>Information</option>
+                                <option value="success" {% if form.type.value == 'success' %}selected{% endif %}>Succès</option>
+                                <option value="warning" {% if form.type.value == 'warning' %}selected{% endif %}>Avertissement</option>
+                                <option value="danger" {% if form.type.value == 'danger' %}selected{% endif %}>Urgent</option>
+                            </select>
+                            {% if form.type.errors %}
+                                <div class="text-danger small">{{ form.type.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Message <span class="text-danger">*</span></label>
+                            <input type="text" name="message" class="form-control" value="{{ form.message.value|default:'' }}" required>
+                            {% if form.message.errors %}
+                                <div class="text-danger small">{{ form.message.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Lien (optionnel)</label>
+                            <input type="url" name="lien" class="form-control" value="{{ form.lien.value|default:'' }}" placeholder="https://...">
+                            {% if form.lien.errors %}
+                                <div class="text-danger small">{{ form.lien.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">URL vers laquelle rediriger</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="vue" id="vue" {% if form.vue.value %}checked{% endif %}>
+                                <label class="form-check-label" for="vue">
+                                    <i class="fas fa-eye me-1"></i>Marquer comme vue
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Boutons de soumission -->
+                <div class="mt-4 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-warning btn-lg px-5">
+                        <i class="fas fa-save me-2"></i>
+                        {% if object %}Mettre à jour{% else %}Créer{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Gestion du type de destinataire
+    $('#destinataireType').on('change', function() {
+        var type = $(this).val();
+        if (type === 'utilisateur') {
+            $('#utilisateurField').show();
+            $('#eleveField').hide();
+            $('select[name="eleve"]').val('');
+        } else {
+            $('#utilisateurField').hide();
+            $('#eleveField').show();
+            $('select[name="utilisateur"]').val('');
+        }
+    });
+
+    // Styliser les champs
+    $('#notificationForm input:not([type=checkbox]), #notificationForm select').addClass('form-control');
+    $('#notificationForm input[type=checkbox]').addClass('form-check-input');
+    
+    // Validation
+    $('#notificationForm').on('submit', function(e) {
+        let isValid = true;
+        let firstError = null;
+        
+        $(this).find('[required]').each(function() {
+            if (!$(this).val()) {
+                isValid = false;
+                $(this).addClass('is-invalid');
+                if (!firstError) firstError = $(this);
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Veuillez remplir tous les champs obligatoires (*)');
+            if (firstError) firstError.focus();
+        }
+    });
+});
+</script>
+{% endblock %}
