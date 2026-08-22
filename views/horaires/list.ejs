@@ -1,0 +1,91 @@
+<%- include('../layout/header', { title: 'Emploi du Temps - Gestion Scolaire RDC' }) %>
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="fas fa-clock text-primary me-2"></i> Emploi du Temps Hebdomadaire</h3>
+        <p class="text-muted small mb-0">Planning des cours, créneaux horaires, salles et affectations par classe</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="/horaires/nouveau" class="btn btn-primary rounded-pill px-4 shadow-sm">
+            <i class="fas fa-plus me-2"></i> Ajouter un créneau
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 rounded-4 shadow-sm p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h5 class="fw-bold text-dark mb-0">
+            <i class="fas fa-calendar-alt text-primary me-2"></i> Grille des Horaires : <strong>4ème Humanités Scientifique</strong>
+        </h5>
+        <span class="badge bg-light text-dark border px-3 py-2">Semaine Pédagogique Standard (Lundi au Vendredi)</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle text-center mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 140px;">Heures / Jours</th>
+                    <th>Lundi</th>
+                    <th>Mardi</th>
+                    <th>Mercredi</th>
+                    <th>Jeudi</th>
+                    <th>Vendredi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="fw-bold bg-light">07h30 - 09h10</td>
+                    <td class="p-3 bg-primary-subtle rounded-2">
+                        <div class="fw-bold text-primary">Mathématiques Analyse</div>
+                        <small class="text-muted">Prof. MUKENDI &bull; Salle 101</small>
+                    </td>
+                    <td class="p-3 bg-success-subtle rounded-2">
+                        <div class="fw-bold text-success">Français & Littérature</div>
+                        <small class="text-muted">Prof. KAPINGA &bull; Salle 101</small>
+                    </td>
+                    <td class="p-3 bg-warning-subtle rounded-2">
+                        <div class="fw-bold text-warning-emphasis">Biologie Génétique</div>
+                        <small class="text-muted">Prof. TSHIBANGU &bull; Labo Sci.</small>
+                    </td>
+                    <td class="p-3 bg-info-subtle rounded-2">
+                        <div class="fw-bold text-info-emphasis">Histoire du Congo</div>
+                        <small class="text-muted">Prof. LUMUMBA &bull; Salle 101</small>
+                    </td>
+                    <td class="p-3 bg-primary-subtle rounded-2">
+                        <div class="fw-bold text-primary">Mathématiques TP</div>
+                        <small class="text-muted">Prof. MUKENDI &bull; Salle 101</small>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="fw-bold bg-light">09h10 - 09h30</td>
+                    <td colspan="5" class="bg-light text-muted fw-bold small py-2">
+                        <i class="fas fa-coffee me-1"></i> PAUSE & RÉCRÉATION
+                    </td>
+                </tr>
+                <tr>
+                    <td class="fw-bold bg-light">09h30 - 11h10</td>
+                    <td class="p-3 bg-danger-subtle rounded-2">
+                        <div class="fw-bold text-danger">Physique Mécanique</div>
+                        <small class="text-muted">Prof. MUKENDI &bull; Salle 101</small>
+                    </td>
+                    <td class="p-3 bg-info-subtle rounded-2">
+                        <div class="fw-bold text-info-emphasis">Chimie Organique</div>
+                        <small class="text-muted">Prof. TSHIBANGU &bull; Labo Sci.</small>
+                    </td>
+                    <td class="p-3 bg-secondary-subtle rounded-2">
+                        <div class="fw-bold text-dark">Informatique & Algorithmique</div>
+                        <small class="text-muted">Prof. BAHATI &bull; Labo Info</small>
+                    </td>
+                    <td class="p-3 bg-light rounded-2 text-muted">
+                        <em>Études dirigées</em>
+                    </td>
+                    <td class="p-3 bg-light rounded-2 text-muted">
+                        <em>Éducation Physique / Sport</em>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<%- include('../layout/footer') %>

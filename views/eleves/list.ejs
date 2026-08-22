@@ -1,0 +1,151 @@
+<%- include('../layout/header', { title: 'Gestion des Élèves - Gestion Scolaire RDC' }) %>
+
+<!-- Header with Action -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge badge-figma-blue"><i class="fas fa-user-graduate me-1"></i> Module Élèves</span>
+            <span class="badge bg-light text-muted border"><%= eleves.length %> inscrits</span>
+        </div>
+        <h2 class="fw-bold mb-0">Annuaire des Élèves</h2>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="/eleves/nouveau" class="btn btn-primary" id="btn-nouveau-eleve">
+            <i class="fas fa-plus-circle me-1"></i> Inscrire un élève
+        </a>
+    </div>
+</div>
+
+<!-- Modern Filter Bar (Figma Style) -->
+<div class="card mb-4">
+    <div class="card-body p-3">
+        <form method="GET" action="/eleves" class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" name="q" value="<%= query.q || '' %>" class="form-control bg-light border-0" placeholder="Rechercher par nom, prénom ou matricule...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="classe_id" class="form-select bg-light border-0">
+                    <option value="">Toutes les classes</option>
+                    <% classes.forEach(function(c) { %>
+                        <option value="<%= c.id %>" <%= query.classe_id == c.id ? 'selected' : '' %>><%= c.nom %></option>
+                    <% }); %>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="statut" class="form-select bg-light border-0">
+                    <option value="">Tous les statuts sociaux</option>
+                    <option value="boursier" <%= query.statut === 'boursier' ? 'selected' : '' %>>Boursiers</option>
+                    <option value="orphelin" <%= query.statut === 'orphelin' ? 'selected' : '' %>>Orphelins</option>
+                    <option value="pris_en_charge" <%= query.statut === 'pris_en_charge' ? 'selected' : '' %>>Pris en charge</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-grow-1">Filtrer</button>
+                <a href="/eleves" class="btn btn-secondary"><i class="fas fa-undo"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Students Data Table Card -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-bold text-dark"><%= eleves.length %> Élèves répertoriés</span>
+        <button class="btn btn-sm btn-secondary" onclick="window.print()"><i class="fas fa-print me-1"></i> Imprimer</button>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-custom align-middle">
+            <thead>
+                <tr>
+                    <th>Photo / Nom & Prénom</th>
+                    <th>Matricule</th>
+                    <th>Sexe</th>
+                    <th>Classe</th>
+                    <th>Parent / Tuteur</th>
+                    <th>Statut</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (eleves.length === 0) { %>
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="fas fa-user-slash fa-3x mb-3 opacity-25"></i>
+                            <p>Aucun élève trouvé.</p>
+                        </td>
+                    </tr>
+                <% } %>
+                <% eleves.forEach(function(el) { 
+                    const cl = classes.find(c => c.id === el.classe_id);
+                %>
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <% if (el.photo) { %>
+                                <img src="<%= el.photo %>" class="student-avatar me-3" alt="Photo">
+                            <% } else { %>
+                                <div class="avatar-placeholder me-3"><%= el.nom[0] %><%= el.prenom[0] %></div>
+                            <% } %>
+                            <div>
+                                <a href="/eleves/<%= el.id %>" class="fw-bold text-dark text-decoration-none hover-primary">
+                                    <%= el.nom %> <%= el.prenom %>
+                                </a>
+                                <div class="small text-muted">Né(e) le <%= el.date_naissance %> à <%= el.lieu_naissance %></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-light text-dark border font-mono"><%= el.matricule %></span>
+                    </td>
+                    <td>
+                        <% if (el.sexe === 'M') { %>
+                            <span class="badge badge-figma-blue"><i class="fas fa-mars me-1"></i>M</span>
+                        <% } else { %>
+                            <span class="badge badge-figma-rose"><i class="fas fa-venus me-1"></i>F</span>
+                        <% } %>
+                    </td>
+                    <td>
+                        <span class="fw-semibold text-primary"><%= cl ? cl.nom : 'Non assignée' %></span>
+                    </td>
+                    <td>
+                        <div class="small"><i class="fas fa-phone text-muted me-1"></i><%= el.telephone || 'Non renseigné' %></div>
+                        <div class="small text-muted"><i class="fas fa-envelope text-muted me-1"></i><%= el.email_parent || 'Sans email' %></div>
+                    </td>
+                    <td>
+                        <% if (el.est_boursier) { %>
+                            <span class="badge badge-figma-emerald"><span class="badge-dot bg-success"></span> Boursier</span>
+                        <% } else if (el.est_orphelin) { %>
+                            <span class="badge badge-figma-amber"><span class="badge-dot bg-warning"></span> Orphelin</span>
+                        <% } else { %>
+                            <span class="badge bg-light text-secondary border">Ordinaire</span>
+                        <% } %>
+                    </td>
+                    <td class="text-end">
+                        <div class="btn-group">
+                            <a href="/eleves/<%= el.id %>" class="btn btn-sm btn-secondary" title="Dossier complet">
+                                <i class="fas fa-id-card text-primary"></i>
+                            </a>
+                            <a href="/resultats/bulletin/<%= el.id %>" class="btn btn-sm btn-secondary" title="Bulletin scolaire">
+                                <i class="fas fa-file-alt text-success"></i>
+                            </a>
+                            <a href="/eleves/<%= el.id %>/modifier" class="btn btn-sm btn-secondary" title="Modifier">
+                                <i class="fas fa-edit text-muted"></i>
+                            </a>
+                            <form action="/eleves/<%= el.id %>/supprimer" method="POST" class="d-inline" onsubmit="return confirm('Confirmer la radiation de cet élève ?');">
+                                <button type="submit" class="btn btn-sm btn-secondary text-danger" title="Supprimer">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<%- include('../layout/footer') %>

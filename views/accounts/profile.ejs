@@ -1,0 +1,40 @@
+<%- include('../layout/header', { title: 'Mon Profil - Gestion Scolaire RDC' }) %>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 rounded-4 shadow-sm p-4 text-center mb-4">
+            <div class="avatar-placeholder mx-auto mb-3 shadow" style="width: 100px; height: 100px; font-size: 2.2rem; background: #4e73df; color: white;">
+                <%= user.first_name[0] %><%= user.last_name[0] %>
+            </div>
+            <h4 class="fw-bold mb-1"><%= user.first_name %> <%= user.last_name %></h4>
+            <div class="mb-3">
+                <span class="badge bg-primary px-3 py-1 rounded-pill"><%= user.role %></span>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill"><i class="fas fa-check-circle me-1"></i> Compte Actif</span>
+            </div>
+            <p class="text-muted"><%= user.email %></p>
+
+            <div class="border-top pt-3 text-start">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Nom d'utilisateur</label>
+                        <input type="text" class="form-control" value="<%= user.username %>" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Adresse Électronique</label>
+                        <input type="text" class="form-control" value="<%= user.email %>" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Rôle attribué</label>
+                        <input type="text" class="form-control" value="<%= user.role %>" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Dernière Connexion</label>
+                        <input type="text" class="form-control" value="20 Août 2026 à 10:15" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../layout/footer') %>

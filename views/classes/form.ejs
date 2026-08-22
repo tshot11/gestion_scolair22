@@ -1,0 +1,67 @@
+<%- include('../layout/header', { title: 'Créer une classe - Gestion Scolaire RDC' }) %>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold mb-0"><i class="fas fa-door-open text-info me-2"></i> Ajouter une Nouvelle Classe</h3>
+            <a href="/classes" class="btn btn-outline-secondary rounded-pill px-3">Retour</a>
+        </div>
+
+        <div class="card border-0 rounded-4 shadow-sm p-4">
+            <form action="/classes/nouveau" method="POST">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Nom de la classe <span class="text-danger">*</span></label>
+                    <input type="text" name="nom" class="form-control" placeholder="Ex: 3ème Humanités Littéraire A" required>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Niveau Scolaire</label>
+                        <select name="niveau_id" class="form-select">
+                            <% niveaux.forEach(function(n) { %>
+                                <option value="<%= n.id %>"><%= n.nom %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Option (Pour les Humanités)</label>
+                        <select name="option_id" class="form-select">
+                            <option value="">Aucune (Enseignement général)</option>
+                            <% options.forEach(function(o) { %>
+                                <option value="<%= o.id %>"><%= o.nom %> (<%= o.code %>)</option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Capacité maximale</label>
+                        <input type="number" name="capacite" class="form-control" value="35" min="1" max="100">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Professeur Titulaire</label>
+                        <select name="prof_id" class="form-select">
+                            <option value="">-- Aucun --</option>
+                            <% enseignants.forEach(function(e) { %>
+                                <option value="<%= e.id %>"><%= e.nom %> <%= e.prenom %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Salle attitrée</label>
+                        <select name="salle_id" class="form-select">
+                            <option value="">-- Aucune --</option>
+                            <% salles.forEach(function(s) { %>
+                                <option value="<%= s.id %>"><%= s.nom %> (<%= s.code %>)</option>
+                            <% }); %>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                    <a href="/classes" class="btn btn-light rounded-pill px-4">Annuler</a>
+                    <button type="submit" class="btn btn-info text-white rounded-pill px-5">Enregistrer la classe</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<%- include('../layout/footer') %>

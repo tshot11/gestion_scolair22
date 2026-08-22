@@ -1,0 +1,79 @@
+<%- include('../layout/header', { title: 'Fiche Enseignant - ' + enseignant.nom + ' ' + enseignant.prenom }) %>
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="/enseignants" class="text-decoration-none">Enseignants</a></li>
+                <li class="breadcrumb-item active"><%= enseignant.nom %> <%= enseignant.prenom %></li>
+            </ol>
+        </nav>
+        <h3 class="fw-bold mb-0">Fiche de Prestation Enseignant</h3>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="/enseignants/<%= enseignant.id %>/modifier" class="btn btn-outline-success rounded-pill px-3">
+            <i class="fas fa-edit me-1"></i> Modifier
+        </a>
+        <a href="/enseignants" class="btn btn-light rounded-pill px-3">
+            <i class="fas fa-arrow-left me-1"></i> Retour
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card border-0 rounded-4 shadow-sm p-4 text-center">
+            <% if (enseignant.photo) { %>
+                <img src="<%= enseignant.photo %>" class="rounded-circle shadow mx-auto mb-3" style="width: 130px; height: 130px; object-fit: cover;" alt="Photo">
+            <% } else { %>
+                <div class="rounded-circle shadow mx-auto mb-3 d-flex align-items-center justify-content-center bg-success text-white display-5" style="width: 130px; height: 130px;">
+                    <%= enseignant.nom[0] %><%= enseignant.prenom[0] %>
+                </div>
+            <% } %>
+            <h4 class="fw-bold mb-1"><%= enseignant.nom %> <%= enseignant.prenom %></h4>
+            <span class="badge bg-success px-3 py-1 rounded-pill font-monospace mb-3"><%= enseignant.matricule %></span>
+            
+            <div class="text-start border-top pt-3 small">
+                <div class="mb-2"><strong>Spécialité :</strong> <%= enseignant.specialite %></div>
+                <div class="mb-2"><strong>Statut :</strong> <%= enseignant.statut === 'titulaire' ? 'Titulaire de classe' : 'Professeur par heure' %></div>
+                <div class="mb-2"><strong>Téléphone :</strong> <%= enseignant.telephone %></div>
+                <div class="mb-2"><strong>Email :</strong> <%= enseignant.email %></div>
+                <div class="mb-2"><strong>Adresse :</strong> <%= enseignant.adresse %></div>
+                <div class="mb-2"><strong>Date d'embauche :</strong> <%= enseignant.date_embauche %></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card border-0 rounded-4 shadow-sm p-4 mb-4">
+            <h5 class="fw-bold text-dark mb-3"><i class="fas fa-book-reader text-success me-2"></i> Cours et Matières Enseignées</h5>
+            <div class="table-responsive">
+                <table class="table table-hover table-custom align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Matière</th>
+                            <th>Coefficient</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (cours.length === 0) { %>
+                            <tr><td colspan="4" class="text-center py-4 text-muted">Aucun cours affecté à cet enseignant.</td></tr>
+                        <% } %>
+                        <% cours.forEach(function(c) { %>
+                        <tr>
+                            <td><span class="badge bg-light text-dark border font-monospace"><%= c.code %></span></td>
+                            <td><strong><%= c.nom %></strong></td>
+                            <td><span class="badge bg-primary">Coeff. <%= c.coefficient %></span></td>
+                            <td class="small text-muted"><%= c.description || 'Programme standard' %></td>
+                        </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../layout/footer') %>

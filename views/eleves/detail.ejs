@@ -1,0 +1,269 @@
+<%- include('../layout/header', { title: 'Fiche de l’Élève - ' + eleve.nom + ' ' + eleve.prenom }) %>
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="/eleves" class="text-decoration-none">Élèves</a></li>
+                <li class="breadcrumb-item active" aria-current="page"><%= eleve.nom %> <%= eleve.prenom %></li>
+            </ol>
+        </nav>
+        <h3 class="fw-bold mb-0">Dossier Scolaire Individuel</h3>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="/eleves/<%= eleve.id %>/modifier" class="btn btn-outline-primary rounded-pill px-3">
+            <i class="fas fa-edit me-1"></i> Modifier le profil
+        </a>
+        <a href="/resultats/bulletin/<%= eleve.id %>" class="btn btn-success rounded-pill px-3 shadow-sm">
+            <i class="fas fa-print me-1"></i> Imprimer le Bulletin
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Colonne de gauche: Carte d'identité scolaire -->
+    <div class="col-lg-4">
+        <div class="card border-0 rounded-4 shadow-sm text-center p-4 mb-4">
+            <div class="position-relative d-inline-block mx-auto mb-3">
+                <% if (eleve.photo) { %>
+                    <img src="<%= eleve.photo %>" class="rounded-circle shadow" style="width: 140px; height: 140px; object-fit: cover; border: 4px solid #fff;" alt="Photo élève">
+                <% } else { %>
+                    <div class="rounded-circle shadow d-inline-flex align-items-center justify-content-center bg-primary text-white display-4" style="width: 140px; height: 140px;">
+                        <%= eleve.nom[0] %><%= eleve.prenom[0] %>
+                    </div>
+                <% } %>
+            </div>
+            <h4 class="fw-bold mb-1"><%= eleve.nom %> <%= eleve.prenom %></h4>
+            <div class="mb-2">
+                <span class="badge bg-primary px-3 py-1 rounded-pill font-monospace"><%= eleve.matricule %></span>
+                <span class="badge bg-light text-dark border px-3 py-1 rounded-pill"><%= eleve.classe ? eleve.classe.nom : 'Classe' %></span>
+            </div>
+            <p class="text-muted small mb-3"><%= eleve.adresse %></p>
+
+            <div class="border-top pt-3 text-start">
+                <div class="row g-2 small">
+                    <div class="col-6 text-muted">Sexe :</div>
+                    <div class="col-6 fw-semibold text-end"><%= eleve.sexe === 'M' ? 'Masculin' : 'Féminin' %></div>
+                    <div class="col-6 text-muted">Date Naissance :</div>
+                    <div class="col-6 fw-semibold text-end"><%= eleve.date_naissance %></div>
+                    <div class="col-6 text-muted">Lieu Naissance :</div>
+                    <div class="col-6 fw-semibold text-end"><%= eleve.lieu_naissance %></div>
+                    <div class="col-6 text-muted">Date Inscription :</div>
+                    <div class="col-6 fw-semibold text-end"><%= eleve.date_inscription %></div>
+                    <div class="col-6 text-muted">Téléphone Contact :</div>
+                    <div class="col-6 fw-semibold text-end"><%= eleve.telephone %></div>
+                    <div class="col-6 text-muted">Email Tuteur :</div>
+                    <div class="col-6 fw-semibold text-end"><%= eleve.email_parent %></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carte Résumé Performance -->
+        <div class="card border-0 rounded-4 shadow-sm p-4 bg-primary text-white mb-4">
+            <h6 class="fw-bold text-uppercase small tracking-wide mb-3 opacity-75">Synthèse Périodique (3ème Période)</h6>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span>Moyenne Générale :</span>
+                <strong class="display-6 fw-bold"><%= eleve.moyenne %>/20</strong>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span>Pourcentage :</span>
+                <span class="badge bg-white text-primary fs-6 fw-bold"><%= eleve.pourcentage %>%</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <span>Mention Globale :</span>
+                <span class="badge bg-warning text-dark fw-bold"><%= eleve.mention %></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Colonne de droite: Onglets Notes, Finances, Présences, Discipline -->
+    <div class="col-lg-8">
+        <div class="card border-0 rounded-4 shadow-sm">
+            <div class="card-header bg-white border-bottom p-3">
+                <ul class="nav nav-pills gap-2" id="eleveTabs" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active rounded-pill" data-bs-toggle="pill" data-bs-target="#tab-notes">
+                            <i class="fas fa-chart-bar me-1"></i> Résultats & Notes
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link rounded-pill" data-bs-toggle="pill" data-bs-target="#tab-finances">
+                            <i class="fas fa-wallet me-1"></i> Frais & Paiements
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link rounded-pill" data-bs-toggle="pill" data-bs-target="#tab-presences">
+                            <i class="fas fa-calendar-check me-1"></i> Présences
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link rounded-pill" data-bs-toggle="pill" data-bs-target="#tab-discipline">
+                            <i class="fas fa-gavel me-1"></i> Discipline
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body p-4">
+                <div class="tab-content" id="eleveTabsContent">
+                    <!-- Onglet Notes -->
+                    <div class="tab-pane fade show active" id="tab-notes">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold mb-0">Cotes des Cours (3ème Période)</h6>
+                            <a href="/resultats/saisie" class="btn btn-sm btn-outline-primary rounded-pill"><i class="fas fa-plus me-1"></i> Saisir une cote</a>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover table-custom align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Matière / Cours</th>
+                                        <th>Coeff.</th>
+                                        <th>Enseignant</th>
+                                        <th>Note /20</th>
+                                        <th>Appréciation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (eleve.resultats.length === 0) { %>
+                                        <tr><td colspan="5" class="text-center text-muted py-4">Aucune note enregistrée pour cet élève.</td></tr>
+                                    <% } %>
+                                    <% eleve.resultats.forEach(function(r) { %>
+                                    <tr>
+                                        <td>
+                                            <strong><%= r.cours_nom %></strong>
+                                            <div class="small text-muted font-monospace"><%= r.cours_code %></div>
+                                        </td>
+                                        <td><span class="badge bg-light text-dark border">x<%= r.coefficient %></span></td>
+                                        <td class="small"><%= r.enseignant_nom %></td>
+                                        <td>
+                                            <span class="badge <%= r.note >= 10 ? 'bg-success' : 'bg-danger' %> fs-6">
+                                                <%= r.note %> / 20
+                                            </span>
+                                        </td>
+                                        <td class="small text-muted"><%= r.appreciation || 'RAS' %></td>
+                                    </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Onglet Finances -->
+                    <div class="tab-pane fade" id="tab-finances">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold mb-0">Historique des Paiements</h6>
+                            <a href="/finance/paiements/nouveau?eleve_id=<%= eleve.id %>" class="btn btn-sm btn-warning text-dark rounded-pill">
+                                <i class="fas fa-plus me-1"></i> Encaisser un versement
+                            </a>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover table-custom align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Frais</th>
+                                        <th>Montant</th>
+                                        <th>Mode</th>
+                                        <th>Référence</th>
+                                        <th>Date</th>
+                                        <th>Reçu</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (eleve.paiements.length === 0) { %>
+                                        <tr><td colspan="6" class="text-center text-muted py-4">Aucun paiement effectué à ce jour.</td></tr>
+                                    <% } %>
+                                    <% eleve.paiements.forEach(function(p) { %>
+                                    <tr>
+                                        <td><strong><%= p.frais_nom %></strong></td>
+                                        <td class="text-success fw-bold"><%= Number(p.montant_paye).toLocaleString('fr-FR') %> CDF</td>
+                                        <td><span class="badge bg-light text-dark border"><%= p.mode || 'Espèces' %></span></td>
+                                        <td><span class="font-monospace small"><%= p.reference %></span></td>
+                                        <td class="small text-muted"><%= p.date_paiement %></td>
+                                        <td>
+                                            <a href="/finance/recu/<%= p.id %>" class="btn btn-sm btn-outline-secondary rounded-pill py-0 px-2" target="_blank">
+                                                <i class="fas fa-receipt me-1"></i> Reçu
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Onglet Présences -->
+                    <div class="tab-pane fade" id="tab-presences">
+                        <h6 class="fw-bold mb-3">Historique des Pointages Quotidiens</h6>
+                        <div class="table-responsive">
+                            <table class="table table-hover table-custom align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Statut</th>
+                                        <th>Heure Arrivée</th>
+                                        <th>Motif / Justification</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (eleve.pointages.length === 0) { %>
+                                        <tr><td colspan="4" class="text-center text-muted py-4">Aucun pointage enregistré.</td></tr>
+                                    <% } %>
+                                    <% eleve.pointages.forEach(function(pt) { %>
+                                    <tr>
+                                        <td><strong><%= pt.date %></strong></td>
+                                        <td>
+                                            <% if (pt.statut === 'present') { %>
+                                                <span class="badge bg-success">Présent</span>
+                                            <% } else if (pt.statut === 'retard') { %>
+                                                <span class="badge bg-warning text-dark">En Retard</span>
+                                            <% } else if (pt.statut === 'malade') { %>
+                                                <span class="badge bg-info text-white">Malade</span>
+                                            <% } else { %>
+                                                <span class="badge bg-danger">Absent</span>
+                                            <% } %>
+                                        </td>
+                                        <td><%= pt.heure_arrivee || '--:--' %></td>
+                                        <td class="small text-muted"><%= pt.motif || 'Aucun motif particulier' %></td>
+                                    </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Onglet Discipline -->
+                    <div class="tab-pane fade" id="tab-discipline">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold mb-0">Incidents Disciplinaires & Sanctions</h6>
+                            <a href="/discipline/nouveau?eleve_id=<%= eleve.id %>" class="btn btn-sm btn-outline-danger rounded-pill">
+                                <i class="fas fa-plus me-1"></i> Signaler un incident
+                            </a>
+                        </div>
+                        <% if (eleve.incidents.length === 0) { %>
+                            <div class="text-center text-muted py-5">
+                                <i class="fas fa-award fa-3x text-success mb-3 opacity-50"></i>
+                                <p class="mb-0">Excellente conduite ! Aucun incident disciplinaire consigné.</p>
+                            </div>
+                        <% } else { %>
+                            <div class="list-group">
+                                <% eleve.incidents.forEach(function(inc) { %>
+                                    <div class="list-group-item p-3 rounded-3 mb-2 border">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="badge bg-danger text-uppercase"><%= inc.type %></span>
+                                            <small class="text-muted"><%= inc.date %> &bull; Rapporté par <%= inc.rapporte_par %></small>
+                                        </div>
+                                        <p class="mb-2 fw-medium text-dark"><%= inc.description %></p>
+                                        <div class="p-2 bg-light rounded small">
+                                            <strong>Sanction appliquée :</strong> <%= inc.sanction %>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../layout/footer') %>

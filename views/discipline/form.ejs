@@ -1,0 +1,54 @@
+<%- include('../layout/header', { title: 'Signaler un incident - Gestion Scolaire RDC' }) %>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold mb-0"><i class="fas fa-gavel text-danger me-2"></i> Consigner un Incident Disciplinaire</h3>
+            <a href="/discipline" class="btn btn-outline-secondary rounded-pill px-3">Retour</a>
+        </div>
+
+        <div class="card border-0 rounded-4 shadow-sm p-4">
+            <form action="/discipline/nouveau" method="POST">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Élève concerné <span class="text-danger">*</span></label>
+                    <select name="eleve_id" class="form-select" required>
+                        <% eleves.forEach(function(e) { %>
+                            <option value="<%= e.id %>"><%= e.nom %> <%= e.prenom %> (<%= e.matricule %>)</option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Type de faute / sanction <span class="text-danger">*</span></label>
+                        <select name="type" class="form-select" required>
+                            <option value="avertissement">Avertissement verbal / écrit</option>
+                            <option value="blâme">Blâme officiel</option>
+                            <option value="exclusion_temporaire">Exclusion temporaire (Mise à pied)</option>
+                            <option value="exclusion_definitive">Exclusion définitive</option>
+                            <option value="autre">Autre mesure</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Rapporté par</label>
+                        <input type="text" name="rapporte_par" class="form-control" value="Préfet des Études">
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold">Description détaillée des faits <span class="text-danger">*</span></label>
+                        <textarea name="description" class="form-control" rows="3" placeholder="Ex: Bagarre dans la cour, refus d'obtempérer..." required></textarea>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold">Sanction prononcée</label>
+                        <textarea name="sanction" class="form-control" rows="2" placeholder="Ex: 3 jours d'exclusion avec corvée pédagogique"></textarea>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                    <a href="/discipline" class="btn btn-light rounded-pill px-4">Annuler</a>
+                    <button type="submit" class="btn btn-danger rounded-pill px-5 fw-semibold">Enregistrer l'incident</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<%- include('../layout/footer') %>

@@ -1,0 +1,424 @@
+<%- include('layout/header', { title: 'Tableau de bord - Gestion Scolaire RDC' }) %>
+
+<!-- Modern Figma / Google Stretch Hero Banner -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="figma-hero-banner" data-aos="fade-down">
+            <div class="hero-mesh-glow-1"></div>
+            <div class="hero-mesh-glow-2"></div>
+            
+            <div class="row align-items-center position-relative" style="z-index: 2;">
+                <div class="col-lg-8">
+                    <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                        <span class="badge bg-white bg-opacity-10 text-white border border-white border-opacity-15 px-3 py-1">
+                            <i class="fas fa-layer-group text-info me-1"></i> Complexe Scolaire d'Excellence RDC
+                        </span>
+                        <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25 px-3 py-1">
+                            <span class="badge-dot bg-success animate-pulse me-1"></span> Système Actif &bull; Période 3
+                        </span>
+                    </div>
+
+                    <h1 class="display-6 fw-bold text-white mb-2">
+                        Bonjour, <%= user.first_name %> <%= user.last_name %> 👋
+                    </h1>
+                    <p class="text-white-50 mb-4" style="max-width: 620px; font-size: 0.95rem;">
+                        Tableau de bord centralisé pour le suivi pédagogique, la gestion des effectifs, le recouvrement des frais et les délibérations académiques.
+                    </p>
+
+                    <!-- Quick Segmented Navigation Bar -->
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="/eleves/nouveau" class="btn btn-sm btn-primary">
+                            <i class="fas fa-user-plus"></i> Inscrire un élève
+                        </a>
+                        <a href="/finance/paiements/nouveau" class="btn btn-sm btn-success">
+                            <i class="fas fa-receipt"></i> Encaisser frais
+                        </a>
+                        <a href="/presences/pointage" class="btn btn-sm btn-secondary bg-white bg-opacity-10 text-white border-white border-opacity-20">
+                            <i class="fas fa-fingerprint text-info"></i> Pointage journalier
+                        </a>
+                        <a href="/resultats" class="btn btn-sm btn-secondary bg-white bg-opacity-10 text-white border-white border-opacity-20">
+                            <i class="fas fa-file-invoice text-warning"></i> Bulletins
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+                    <div class="d-inline-flex flex-column text-start bg-white bg-opacity-10 p-3 rounded-4 border border-white border-opacity-15 shadow-sm" style="min-width: 210px;">
+                        <span class="text-white-50 small mb-1"><i class="fas fa-calendar-day me-1"></i> Date d'aujourd'hui</span>
+                        <strong class="text-white fs-6">Jeudi 20 Août 2026</strong>
+                        <div class="small text-info mt-1"><i class="fas fa-clock me-1"></i> Rentrée Scolaire 2025-2026</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 4 Key Stat Metric Cards (Figma / Stretch Aesthetic) -->
+<div class="row g-3 mb-4">
+    <!-- Card 1: Total Students -->
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card-figma h-100" data-aos="fade-up" data-aos-delay="50">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="stat-icon-wrapper" style="background: var(--figma-blue-light); color: var(--figma-blue);">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <span class="stat-trend-badge badge-figma-blue">
+                    <i class="fas fa-users me-1"></i> Actifs
+                </span>
+            </div>
+            <div class="text-muted small fw-bold text-uppercase" style="letter-spacing: 0.05em;">Effectif Global Élèves</div>
+            <div class="d-flex align-items-baseline gap-2 mt-1 mb-2">
+                <h2 class="display-6 fw-bold mb-0 text-dark"><%= stats.total_eleves %></h2>
+                <span class="small text-muted">inscrits</span>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center pt-2 border-top small">
+                <span class="text-primary fw-semibold"><i class="fas fa-mars me-1"></i><%= stats.total_garcons %> G (<%= stats.garcons_percentage %>%)</span>
+                <span class="text-danger fw-semibold"><i class="fas fa-venus me-1"></i><%= stats.total_filles %> F (<%= stats.filles_percentage %>%)</span>
+            </div>
+            <div class="progress mt-2" style="height: 5px; border-radius: 10px; background: #e2e8f0;">
+                <div class="progress-bar" style="width: <%= stats.garcons_percentage %>%; background: var(--figma-blue);"></div>
+                <div class="progress-bar" style="width: <%= stats.filles_percentage %>%; background: var(--figma-rose);"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 2: Teachers -->
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card-figma h-100" data-aos="fade-up" data-aos-delay="100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="stat-icon-wrapper" style="background: var(--figma-emerald-light); color: var(--figma-emerald);">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <span class="stat-trend-badge badge-figma-emerald">
+                    <i class="fas fa-check-circle me-1"></i> 100% Qualifiés
+                </span>
+            </div>
+            <div class="text-muted small fw-bold text-uppercase" style="letter-spacing: 0.05em;">Corps Professoral</div>
+            <div class="d-flex align-items-baseline gap-2 mt-1 mb-2">
+                <h2 class="display-6 fw-bold mb-0 text-dark"><%= stats.total_enseignants %></h2>
+                <span class="small text-muted">enseignants</span>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center pt-2 border-top small">
+                <span class="text-muted"><i class="fas fa-book me-1"></i><%= stats.total_cours %> cours dispensés</span>
+                <a href="/enseignants" class="text-success text-decoration-none fw-semibold">Gérer &rarr;</a>
+            </div>
+            <div class="progress mt-2" style="height: 5px; border-radius: 10px; background: #e2e8f0;">
+                <div class="progress-bar" style="width: 100%; background: var(--figma-emerald);"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 3: Attendance Rate -->
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card-figma h-100" data-aos="fade-up" data-aos-delay="150">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="stat-icon-wrapper" style="background: var(--figma-purple-light); color: var(--figma-purple);">
+                    <i class="fas fa-fingerprint"></i>
+                </div>
+                <span class="stat-trend-badge badge-figma-purple">
+                    <i class="fas fa-chart-line me-1"></i> Journalier
+                </span>
+            </div>
+            <div class="text-muted small fw-bold text-uppercase" style="letter-spacing: 0.05em;">Ponctualité & Présence</div>
+            <div class="d-flex align-items-baseline gap-2 mt-1 mb-2">
+                <h2 class="display-6 fw-bold mb-0 text-dark"><%= stats.presenceRate %>%</h2>
+                <span class="small text-success fw-semibold"><i class="fas fa-arrow-up me-1"></i>Excellente</span>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center pt-2 border-top small">
+                <span class="text-muted"><%= stats.presentCount %> P &bull; <%= stats.absentCount %> A &bull; <%= stats.retardCount %> R</span>
+                <a href="/presences" class="text-primary text-decoration-none fw-semibold">Fiche &rarr;</a>
+            </div>
+            <div class="progress mt-2" style="height: 5px; border-radius: 10px; background: #e2e8f0;">
+                <div class="progress-bar" style="width: <%= stats.presenceRate %>%; background: var(--figma-purple);"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 4: Treasury / Fees -->
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card-figma h-100" data-aos="fade-up" data-aos-delay="200">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="stat-icon-wrapper" style="background: var(--figma-amber-light); color: var(--figma-amber);">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <span class="stat-trend-badge badge-figma-amber">
+                    <i class="fas fa-coins me-1"></i> Caisse
+                </span>
+            </div>
+            <div class="text-muted small fw-bold text-uppercase" style="letter-spacing: 0.05em;">Total Recouvrement</div>
+            <div class="d-flex align-items-baseline gap-1 mt-1 mb-2">
+                <h3 class="fw-bold mb-0 text-dark font-mono"><%= (stats.total_recouvrement).toLocaleString('fr-FR') %></h3>
+                <span class="small text-muted">CDF</span>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center pt-2 border-top small">
+                <span class="text-muted">Solde net : <strong class="text-success font-mono"><%= (stats.solde_caisse).toLocaleString('fr-FR') %> CDF</strong></span>
+                <a href="/finance" class="text-warning text-dark text-decoration-none fw-semibold">Trésorerie &rarr;</a>
+            </div>
+            <div class="progress mt-2" style="height: 5px; border-radius: 10px; background: #e2e8f0;">
+                <div class="progress-bar" style="width: 82%; background: var(--figma-amber);"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modern Visualizers: Cashflow Bar Chart & Classes Doughnut Chart -->
+<div class="row g-4 mb-4">
+    <!-- Main Cashflow Chart -->
+    <div class="col-xl-8">
+        <div class="card h-100" data-aos="fade-up">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="stat-icon-wrapper" style="width: 32px; height: 32px; font-size: 0.9rem; background: var(--figma-blue-light); color: var(--figma-blue);">
+                        <i class="fas fa-chart-simple"></i>
+                    </div>
+                    <span class="fw-bold text-dark">Flux Financier & Suivi Budgétaire (CDF)</span>
+                </div>
+                <span class="badge bg-light text-muted border font-mono">Année 2025-2026</span>
+            </div>
+            <div class="card-body">
+                <div style="height: 290px;">
+                    <canvas id="mainFinanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Classes Distribution Chart -->
+    <div class="col-xl-4">
+        <div class="card h-100" data-aos="fade-up" data-aos-delay="100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="stat-icon-wrapper" style="width: 32px; height: 32px; font-size: 0.9rem; background: var(--figma-purple-light); color: var(--figma-purple);">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <span class="fw-bold text-dark">Répartition par Niveau</span>
+                </div>
+                <span class="badge badge-figma-purple"><%= stats.total_classes %> Classes</span>
+            </div>
+            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                <div style="height: 220px; width: 100%;">
+                    <canvas id="classesPieChart"></canvas>
+                </div>
+                <div class="small text-muted text-center mt-3 border-top pt-2 w-100">
+                    <span class="d-inline-block me-2"><span class="badge-dot bg-primary me-1"></span> Primaire</span>
+                    <span class="d-inline-block me-2"><span class="badge-dot bg-success me-1"></span> Éduc. Base</span>
+                    <span class="d-inline-block"><span class="badge-dot bg-warning me-1"></span> Humanités</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modern Tables: Recent Students & Recent Payments -->
+<div class="row g-4">
+    <!-- Recent Registered Students -->
+    <div class="col-xl-7">
+        <div class="card h-100" data-aos="fade-up">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="stat-icon-wrapper" style="width: 32px; height: 32px; font-size: 0.9rem; background: var(--figma-blue-light); color: var(--figma-blue);">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <span class="fw-bold text-dark">Derniers Élèves Inscrits</span>
+                </div>
+                <a href="/eleves" class="btn btn-sm btn-secondary text-decoration-none">
+                    Voir tout <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-custom mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th>Élève & Fiche</th>
+                            <th>Matricule</th>
+                            <th>Classe</th>
+                            <th>Statut Social</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% eleves.slice(0, 5).forEach(function(el) { 
+                            const cl = classes.find(c => c.id === el.classe_id);
+                        %>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <% if (el.photo) { %>
+                                        <img src="<%= el.photo %>" class="student-avatar me-3" alt="Photo">
+                                    <% } else { %>
+                                        <div class="avatar-placeholder me-3"><%= el.nom[0] %><%= el.prenom[0] %></div>
+                                    <% } %>
+                                    <div>
+                                        <a href="/eleves/<%= el.id %>" class="fw-bold text-dark text-decoration-none hover-primary">
+                                            <%= el.nom %> <%= el.prenom %>
+                                        </a>
+                                        <div class="small text-muted"><%= el.sexe === 'M' ? 'Masculin' : 'Féminin' %> &bull; Inscription récente</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-light text-dark border font-mono"><%= el.matricule %></span></td>
+                            <td><span class="fw-semibold text-primary"><%= cl ? cl.nom : 'Non assignée' %></span></td>
+                            <td>
+                                <% if (el.est_boursier) { %>
+                                    <span class="badge badge-figma-emerald"><span class="badge-dot bg-success"></span> Boursier</span>
+                                <% } else if (el.est_orphelin) { %>
+                                    <span class="badge badge-figma-amber"><span class="badge-dot bg-warning"></span> Orphelin</span>
+                                <% } else { %>
+                                    <span class="badge bg-light text-secondary border">Ordinaire</span>
+                                <% } %>
+                            </td>
+                            <td class="text-end">
+                                <a href="/eleves/<%= el.id %>" class="btn btn-sm btn-secondary p-1 px-2" title="Voir profil">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Payments & Inflow Logs -->
+    <div class="col-xl-5">
+        <div class="card h-100" data-aos="fade-up" data-aos-delay="100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="stat-icon-wrapper" style="width: 32px; height: 32px; font-size: 0.9rem; background: var(--figma-emerald-light); color: var(--figma-emerald);">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <span class="fw-bold text-dark">Derniers Encaissements</span>
+                </div>
+                <a href="/finance/paiements" class="btn btn-sm btn-secondary text-decoration-none">
+                    Journal <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    <% paiements.slice(0, 5).forEach(function(p) { 
+                        const el = eleves.find(e => e.id === p.eleve_id);
+                        const f = frais.find(fr => fr.id === p.frais_id);
+                    %>
+                    <div class="list-group-item p-3 d-flex justify-content-between align-items-center border-bottom border-light">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="stat-icon-wrapper" style="width: 38px; height: 38px; font-size: 1rem; background: var(--figma-emerald-light); color: var(--figma-emerald);">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold text-dark"><%= el ? el.nom + ' ' + el.prenom : 'Élève' %></h6>
+                                <div class="small text-muted"><%= f ? f.nom : 'Frais Scolaires' %> &bull; <span class="font-mono"><%= p.reference %></span></div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold text-success font-mono">+<%= Number(p.montant_paye).toLocaleString('fr-FR') %> CDF</div>
+                            <a href="/finance/recu/<%= p.id %>" class="small text-primary text-decoration-none fw-semibold">
+                                Quittance &rarr;
+                            </a>
+                        </div>
+                    </div>
+                    <% }); %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('layout/footer', {
+    extraJs: `
+    <script>
+        // Modern Styled Cashflow Chart
+        const ctxFinance = document.getElementById('mainFinanceChart').getContext('2d');
+        
+        // Gradient fill for bars
+        const gradientBlue = ctxFinance.createLinearGradient(0, 0, 0, 300);
+        gradientBlue.addColorStop(0, '#0d99ff');
+        gradientBlue.addColorStop(1, '#6366f1');
+
+        const gradientRed = ctxFinance.createLinearGradient(0, 0, 0, 300);
+        gradientRed.addColorStop(0, '#f43f5e');
+        gradientRed.addColorStop(1, '#e11d48');
+
+        new Chart(ctxFinance, {
+            type: 'bar',
+            data: {
+                labels: ['Sept', 'Oct', 'Nov', 'Déc', 'Janv', 'Févr', 'Mars', 'Avr', 'Mai', 'Juin'],
+                datasets: [
+                    {
+                        label: 'Recouvrement Frais (CDF)',
+                        data: [450000, 300000, 150000, 200000, 400000, 250000, 150000, 400000, 150000, 200000],
+                        backgroundColor: gradientBlue,
+                        borderRadius: 8,
+                        borderSkipped: false
+                    },
+                    {
+                        label: 'Dépenses École (CDF)',
+                        data: [420000, 180000, 350000, 120000, 190000, 620000, 110000, 290000, 150000, 180000],
+                        backgroundColor: gradientRed,
+                        borderRadius: 8,
+                        borderSkipped: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: { family: 'Plus Jakarta Sans', weight: '600', size: 12 },
+                            usePointStyle: true,
+                            boxWidth: 8
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        titleFont: { family: 'Plus Jakarta Sans', weight: 'bold' },
+                        bodyFont: { family: 'JetBrains Mono' },
+                        padding: 12,
+                        cornerRadius: 10
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false }
+                    },
+                    y: {
+                        grid: { color: 'rgba(226, 232, 240, 0.6)' },
+                        ticks: { font: { family: 'JetBrains Mono', size: 11 } }
+                    }
+                }
+            }
+        });
+
+        // Modern Donut Chart
+        const ctxClasses = document.getElementById('classesPieChart').getContext('2d');
+        new Chart(ctxClasses, {
+            type: 'doughnut',
+            data: {
+                labels: ['Primaire', 'Éduc. de Base', 'Humanités Sciences', 'Humanités Commerciale'],
+                datasets: [{
+                    data: [1, 2, 2, 1],
+                    backgroundColor: ['#0d99ff', '#10b981', '#8b5cf6', '#f59e0b'],
+                    borderWidth: 3,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '72%',
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    </script>
+    `
+}) %>

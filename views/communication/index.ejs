@@ -1,0 +1,59 @@
+<%- include('../layout/header', { title: 'Communication & Annonces - Gestion Scolaire RDC' }) %>
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="fas fa-comments text-primary me-2"></i> Centre de Communication & Annonces</h3>
+        <p class="text-muted small mb-0">Messagerie interne, circulaires administratives et notifications aux parents</p>
+    </div>
+    <div>
+        <a href="/communication/nouveau" class="btn btn-primary rounded-pill px-4 shadow-sm">
+            <i class="fas fa-paper-plane me-2"></i> Diffuser un message
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Messages et Circulaires -->
+    <div class="col-lg-8">
+        <div class="card border-0 rounded-4 shadow-sm p-4">
+            <h5 class="fw-bold mb-3 pb-2 border-bottom"><i class="fas fa-envelope-open-text text-primary me-2"></i> Circulaires & Communications Récentes</h5>
+            
+            <% if (messages.length === 0) { %>
+                <p class="text-muted text-center py-4">Aucun message pour le moment.</p>
+            <% } %>
+
+            <div class="list-group list-group-flush">
+                <% messages.forEach(function(m) { %>
+                <div class="list-group-item px-0 py-3">
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                        <h6 class="fw-bold text-dark mb-0"><%= m.sujet %></h6>
+                        <small class="text-muted"><%= m.date_envoi %></small>
+                    </div>
+                    <p class="text-secondary small mb-2"><%= m.contenu %></p>
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-light text-dark border"><i class="fas fa-user-tie me-1"></i><%= m.expediteur_nom %></span>
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle"><i class="fas fa-users me-1"></i><%= m.destinataire_role %></span>
+                    </div>
+                </div>
+                <% }); %>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Système -->
+    <div class="col-lg-4">
+        <div class="card border-0 rounded-4 shadow-sm p-4">
+            <h5 class="fw-bold mb-3 pb-2 border-bottom"><i class="fas fa-bell text-warning me-2"></i> Alertes et Activités</h5>
+            
+            <% notifications.forEach(function(n) { %>
+            <div class="p-3 mb-2 rounded-3 border-start border-4 border-<%= n.type === 'success' ? 'success' : n.type === 'warning' ? 'warning' : 'primary' %> bg-light">
+                <div class="fw-bold small text-dark"><%= n.titre %></div>
+                <p class="small text-muted mb-1"><%= n.message %></p>
+                <div class="text-xs text-muted" style="font-size: 0.7rem;"><%= n.date_creation %></div>
+            </div>
+            <% }); %>
+        </div>
+    </div>
+</div>
+
+<%- include('../layout/footer') %>

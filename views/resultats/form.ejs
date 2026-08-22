@@ -1,0 +1,56 @@
+<%- include('../layout/header', { title: 'Saisie des Cotes - Gestion Scolaire RDC' }) %>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold mb-0"><i class="fas fa-pen-fancy text-primary me-2"></i> Saisie des Cotes Périodiques</h3>
+            <a href="/resultats" class="btn btn-outline-secondary rounded-pill px-3">Retour</a>
+        </div>
+
+        <div class="card border-0 rounded-4 shadow-sm p-4">
+            <form action="/resultats/saisie" method="POST">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Élève concerné <span class="text-danger">*</span></label>
+                        <select name="eleve_id" class="form-select" required>
+                            <% eleves.forEach(function(e) { %>
+                                <option value="<%= e.id %>"><%= e.nom %> <%= e.prenom %> (<%= e.matricule %>)</option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Matière / Cours <span class="text-danger">*</span></label>
+                        <select name="cours_id" class="form-select" required>
+                            <% cours.forEach(function(c) { %>
+                                <option value="<%= c.id %>"><%= c.nom %> (<%= c.code %> - Coeff. <%= c.coefficient %>)</option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Période d'évaluation <span class="text-danger">*</span></label>
+                        <select name="periode_id" class="form-select" required>
+                            <% periodes.forEach(function(p) { %>
+                                <option value="<%= p.id %>" <%= p.active ? 'selected' : '' %>><%= p.nom %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Cote / Note obtenue (sur 20) <span class="text-danger">*</span></label>
+                        <input type="number" step="0.5" min="0" max="20" name="note" class="form-control fw-bold text-primary" placeholder="Ex: 16.5" required>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold">Appréciation pédagogique du professeur</label>
+                        <input type="text" name="appreciation" class="form-control" placeholder="Ex: Très bonne participation et maîtrise des concepts">
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                    <a href="/resultats" class="btn btn-light rounded-pill px-4">Annuler</a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold">Valider la cote</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<%- include('../layout/footer') %>

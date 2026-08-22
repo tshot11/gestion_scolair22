@@ -1,29 +1,61 @@
-// Initialisation des tooltips
+// ==========================================
+// CLIENT MAIN SCRIPTS & INTERACTION ENGINE
+// ==========================================
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Tooltips Bootstrap
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    // Bootstrap Tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.map(function(tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
 
-    // DataTables
-    if ($.fn.DataTable) {
+    // DataTables Initialization if present
+    if (window.jQuery && $.fn.DataTable) {
         $('.datatable').DataTable({
             language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json'
+                search: "_INPUT_",
+                searchPlaceholder: "Filtrer les résultats...",
+                lengthMenu: "Afficher _MENU_ entrées",
+                info: "Affichage de _START_ à _END_ sur _TOTAL_ entrées",
+                paginate: {
+                    first: "Premier",
+                    last: "Dernier",
+                    next: "Suivant",
+                    previous: "Précédent"
+                }
             },
-            pageLength: 25,
+            pageLength: 20,
             responsive: true
         });
     }
 
-    // Auto-hide alerts after 5 seconds
+    // Auto-hide alert banners after 5 seconds
     setTimeout(function() {
         $('.alert').fadeOut('slow');
     }, 5000);
+
+    // Command Palette Live Filter
+    const cmdSearchInput = document.getElementById('cmdSearchInput');
+    const cmdResultsList = document.getElementById('cmdResultsList');
+
+    if (cmdSearchInput && cmdResultsList) {
+        cmdSearchInput.addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase().trim();
+            const items = cmdResultsList.querySelectorAll('.figma-cmd-item');
+
+            items.forEach(function(item) {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(query) || query === '') {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    }
 });
 
-// Format monétaire
+// Format monetary amount to Congolese Francs (CDF)
 function formatMoney(amount) {
     return new Intl.NumberFormat('fr-CD', { 
         style: 'currency', 
@@ -32,9 +64,11 @@ function formatMoney(amount) {
     }).format(amount);
 }
 
-// Confirmation avant suppression
+// Confirmation helper
 function confirmDelete(event, message) {
-    if (!confirm(message || 'Êtes-vous sûr de vouloir supprimer cet élément ?')) {
+    if (!confirm(message || 'Confirmez-vous cette action ?')) {
         event.preventDefault();
+        return false;
     }
+    return true;
 }

@@ -1,0 +1,2 @@
+sed -i "s/const res = await fetch('\/api\/users');/const token = localStorage.getItem('auth_token');\n      const res = await fetch('\/api\/users', { headers: { 'Authorization': \`Bearer \${token}\` } });/g" src/components/views/UserManagementView.jsx
+sed -i "s/headers: { 'Content-Type': 'application\/json' },/headers: { 'Content-Type': 'application\/json', 'Authorization': \`Bearer \${localStorage.getItem('auth_token')}\` },/g" src/components/views/UserManagementView.jsx

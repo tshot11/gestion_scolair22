@@ -1,0 +1,56 @@
+<%- include('../layout/header', { title: 'Historique des Paiements - Gestion Scolaire RDC' }) %>
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="fas fa-money-check-alt text-success me-2"></i> Journal Général des Encaissements</h3>
+        <p class="text-muted small mb-0">Relevé de toutes les quittances et paiements de frais scolaires effectués</p>
+    </div>
+    <div>
+        <a href="/finance/paiements/nouveau" class="btn btn-success rounded-pill px-4 shadow-sm">
+            <i class="fas fa-plus-circle me-1"></i> Nouveau Paiement
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 rounded-4 shadow-sm p-4">
+    <div class="table-responsive">
+        <table class="table table-hover table-custom align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>N° Quittance</th>
+                    <th>Élève / Matricule</th>
+                    <th>Frais Concerné</th>
+                    <th>Montant Payé</th>
+                    <th>Mode</th>
+                    <th>Date d'Encaissement</th>
+                    <th class="text-end">Imprimer Reçu</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% paiements.forEach(function(p) { 
+                    const el = eleves.find(e => e.id === p.eleve_id);
+                    const f = frais.find(fr => fr.id === p.frais_id);
+                %>
+                <tr>
+                    <td><span class="badge bg-light text-dark border font-monospace fs-6"><%= p.reference %></span></td>
+                    <td>
+                        <div class="fw-bold"><%= el ? el.nom + ' ' + el.prenom : 'Élève' %></div>
+                        <small class="text-muted font-monospace"><%= el ? el.matricule : '' %></small>
+                    </td>
+                    <td><span class="badge bg-primary-subtle text-primary border border-primary-subtle"><%= f ? f.nom : 'Frais' %></span></td>
+                    <td class="fw-bold text-success fs-6"><%= Number(p.montant_paye).toLocaleString('fr-FR') %> CDF</td>
+                    <td><span class="badge bg-light text-muted border"><%= p.mode || 'Espèces' %></span></td>
+                    <td class="small text-muted"><%= p.date_paiement %></td>
+                    <td class="text-end">
+                        <a href="/finance/recu/<%= p.id %>" class="btn btn-sm btn-outline-success rounded-pill px-3 shadow-sm" target="_blank">
+                            <i class="fas fa-receipt me-1"></i> Quittance
+                        </a>
+                    </td>
+                </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<%- include('../layout/footer') %>

@@ -1,0 +1,6 @@
+{
+  "name": "Gestion Scolaire RDC",
+  "description": "Application complète de gestion scolaire pour le Complexe Scolaire John Tshot (élèves, enseignants, classes, cours, présences, discipline, résultats, finances, communication).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
