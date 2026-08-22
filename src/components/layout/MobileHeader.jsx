@@ -3,7 +3,8 @@ import { useApp } from '../../context/AppContext';
 import { 
   Search, 
   Bell, 
-  Menu, 
+  Menu,
+  ArrowLeft, 
   School,
   Globe,
   Sparkles
@@ -16,7 +17,9 @@ export function MobileHeader({ onOpenMenu }) {
     setIsCommandPaletteOpen, 
     stats, 
     data,
-    currentUser
+    currentUser,
+    goBack,
+    canGoBack
   } = useApp();
 
   const getTitle = () => {
@@ -57,6 +60,17 @@ export function MobileHeader({ onOpenMenu }) {
           >
             <Menu className="w-5 h-5 text-blue-400" />
           </button>
+          
+          {canGoBack && (
+            <button 
+              type="button"
+              onClick={goBack}
+              className="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-600 border border-slate-700/80 flex items-center justify-center text-slate-200 hover:text-white transition active:scale-95 shrink-0 shadow-sm"
+              aria-label="Retour"
+            >
+              <ArrowLeft className="w-5 h-5 text-blue-400" />
+            </button>
+          )}
           
           <div className="flex items-center gap-2 min-w-0 flex-1">
             <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-blue-700 shrink-0 shadow-sm border border-slate-200">

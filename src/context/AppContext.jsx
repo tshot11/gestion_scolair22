@@ -165,10 +165,30 @@ export function AppProvider({ children }) {
     return null; // Not logged in initially -> opens Landing or Login
   });
 
-  // Current View: starts on 'login' as explicitly required
-  const [currentView, setCurrentView] = useState(() => {
-    return 'login'; // Starts directly on Login/Auth page
-  });
+  // Navigation History
+  const [viewHistory, setViewHistory] = useState(['login']);
+  const currentView = viewHistory[viewHistory.length - 1];
+  
+  const setCurrentView = (view) => {
+    setViewHistory(prev => {
+      // Don't add duplicate if it's already the current view
+      if (prev[prev.length - 1] === view) return prev;
+      return [...prev, view];
+    });
+  };
+  
+  const goBack = () => {
+    setViewHistory(prev => {
+      if (prev.length > 1) {
+        const nextStack = prev.slice(0, -1);
+        if (nextStack[nextStack.length - 1] === 'login' && currentUser?.is_authenticated) {
+          return prev; // don't go back to login if logged in
+        }
+        return nextStack;
+      }
+      return prev;
+    });
+  };
 
   const [selectedEleveId, setSelectedEleveId] = useState(1);
   const [selectedPaiementId, setSelectedPaiementId] = useState(1);
@@ -409,6 +429,33 @@ export function AppProvider({ children }) {
     if (selectedEleveId === Number(id)) {
       setCurrentView('eleves');
     }
+  };
+
+  // CRUD Teachers & Courses
+  const addTeacher = (teacherData) => {
+    const nextId = (data.enseignants.length > 0 ? Math.max(...data.enseignants.map(t => t.id)) : 0) + 1;
+    const newTeacher = { id: nextId, ...teacherData };
+    setData(prev => ({ ...prev, enseignants: [newTeacher, ...prev.enseignants] }));
+    showToast(`Enseignant ${teacherData.nom} ajouté.`);
+    return newTeacher;
+  };
+
+  const updateTeacher = (id, updatedFields) => {
+    setData(prev => ({
+      ...prev,
+      enseignants: prev.enseignants.map(t => t.id === Number(id) ? { ...t, ...updatedFields } : t)
+    }));
+    showToast(`Dossier enseignant mis à jour.`);
+  };
+
+  const deleteTeacher = (id) => {
+    setData(prev => ({
+      ...prev,
+      enseignants: prev.enseignants.filter(t => t.id !== Number(id)),
+      cours: prev.cours.map(c => c.enseignant_id === Number(id) ? { ...c, enseignant_id: null } : c),
+      classes: prev.classes.map(c => c.prof_id === Number(id) ? { ...c, prof_id: null } : c)
+    }));
+    showToast(`Enseignant retiré du registre.`);
   };
 
   // Payments & Finance CRUD
@@ -747,6 +794,8 @@ export function AppProvider({ children }) {
     hasPermission,
     currentView,
     setCurrentView,
+    goBack,
+    canGoBack: viewHistory.length > 1,
     selectedEleveId,
     setSelectedEleveId,
     selectedPaiementId,
@@ -763,6 +812,10 @@ export function AppProvider({ children }) {
     addEleve,
     updateEleve,
     deleteEleve,
+    setData,
+    addTeacher,
+    updateTeacher,
+    deleteTeacher,
     addPaiement,
     addDepense,
     togglePointage,

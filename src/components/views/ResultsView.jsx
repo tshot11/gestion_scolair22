@@ -121,7 +121,7 @@ export function ResultsView() {
             onChange={(e) => setSelectedClassId(Number(e.target.value))}
             className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
           >
-            {data.classes.map(c => (
+            {data.classes.filter(c => allowedClassesIds === null || allowedClassesIds.includes(c.id)).map(c => (
               <option key={c.id} value={c.id}>{c.nom}</option>
             ))}
           </select>
@@ -134,7 +134,7 @@ export function ResultsView() {
             onChange={(e) => setSelectedCoursId(Number(e.target.value))}
             className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
           >
-            {data.cours.map(c => (
+            {data.cours.filter(c => allowedCoursIds === null || allowedCoursIds.includes(c.id)).map(c => (
               <option key={c.id} value={c.id}>{c.nom} (Coeff {c.coefficient})</option>
             ))}
           </select>

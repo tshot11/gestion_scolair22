@@ -202,7 +202,7 @@ export function SettingsView() {
 
             <button
               onClick={() => {
-                if (confirm('Réinitialiser toutes les données aux valeurs de démonstration ?')) {
+                if (true) {
                   resetToInitialData();
                 }
               }}

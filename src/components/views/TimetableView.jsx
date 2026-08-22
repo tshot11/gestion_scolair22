@@ -10,7 +10,20 @@ import {
 } from 'lucide-react';
 
 export function TimetableView() {
-  const { data } = useApp();
+  const { data, currentUser } = useApp();
+
+  let displayedClasses = data.classes;
+  if (currentUser?.role === 'ENSEIGNANT') {
+    const teacherRecord = data.enseignants.find(t => t.email === currentUser.email);
+    if (teacherRecord) {
+      displayedClasses = data.classes.filter(c => 
+        c.prof_id === teacherRecord.id || 
+        data.cours.some(cours => cours.enseignant_id === teacherRecord.id && (cours.classe_id === c.id || !cours.classe_id))
+      );
+    } else {
+      displayedClasses = [];
+    }
+  }
   const [selectedClassId, setSelectedClassId] = useState(6);
 
   const currentClass = data.classes.find(c => c.id === selectedClassId);
@@ -36,7 +49,7 @@ export function TimetableView() {
             onChange={(e) => setSelectedClassId(Number(e.target.value))}
             className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
           >
-            {data.classes.map(c => (
+            {displayedClasses.map(c => (
               <option key={c.id} value={c.id}>{c.nom}</option>
             ))}
           </select>

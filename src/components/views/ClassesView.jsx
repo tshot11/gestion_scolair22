@@ -10,7 +10,21 @@ import {
 } from 'lucide-react';
 
 export function ClassesView() {
-  const { data, setCurrentView, setSelectedClasseId } = useApp();
+  const { data, setCurrentView, setSelectedClasseId, currentUser } = useApp();
+
+  // Filter for teacher: only show classes they are titulaire of, or where they teach a course
+  let displayedClasses = data.classes;
+  if (currentUser?.role === 'ENSEIGNANT') {
+    const teacherRecord = data.enseignants.find(t => t.email === currentUser.email);
+    if (teacherRecord) {
+      displayedClasses = data.classes.filter(c => 
+        c.prof_id === teacherRecord.id || 
+        data.cours.some(cours => cours.enseignant_id === teacherRecord.id && (cours.classe_id === c.id || !cours.classe_id))
+      );
+    } else {
+      displayedClasses = []; // No teacher profile found for this user account
+    }
+  }
 
   return (
     <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto pb-24 sm:pb-8">
@@ -26,7 +40,7 @@ export function ClassesView() {
 
       {/* Classes Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {data.classes.map((classe) => {
+        {displayedClasses.map((classe) => {
           const elevesInClass = data.eleves.filter(e => e.classe_id === classe.id);
           const titulaire = data.enseignants.find(t => t.id === classe.prof_id);
           const salle = data.salles.find(s => s.id === classe.salle_id);

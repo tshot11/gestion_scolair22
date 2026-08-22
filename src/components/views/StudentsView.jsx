@@ -68,7 +68,23 @@ export function StudentsView() {
   };
 
   // Filtered List
+  // Role-based filtering
+  let allowedClassesIds = null;
+  if (currentUser?.role === 'ENSEIGNANT') {
+    const teacherRecord = data.enseignants.find(t => t.email === currentUser.email);
+    if (teacherRecord) {
+      allowedClassesIds = data.classes
+        .filter(c => c.prof_id === teacherRecord.id || data.cours.some(cours => cours.enseignant_id === teacherRecord.id && (cours.classe_id === c.id || !cours.classe_id)))
+        .map(c => c.id);
+    } else {
+      allowedClassesIds = [];
+    }
+  }
+
   const filteredEleves = data.eleves.filter(e => {
+    // Restrict access for teachers
+    if (allowedClassesIds !== null && !allowedClassesIds.includes(e.classe_id)) return false;
+
     const matchQuery = `${e.nom} ${e.prenom} ${e.matricule} ${e.adresse}`.toLowerCase().includes(search.toLowerCase());
     const matchClass = filterClass === 'all' || e.classe_id === Number(filterClass);
     const matchGender = filterGender === 'all' || e.sexe === filterGender;
@@ -122,7 +138,7 @@ export function StudentsView() {
             className="bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-blue-500"
           >
             <option value="all">Toutes les classes</option>
-            {data.classes.map(c => (
+            {data.classes.filter(c => allowedClassesIds === null || allowedClassesIds.includes(c.id)).map(c => (
               <option key={c.id} value={c.id}>{c.nom}</option>
             ))}
           </select>

@@ -78,7 +78,7 @@ export function AttendanceView() {
             onChange={(e) => setSelectedClassId(Number(e.target.value))}
             className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
           >
-            {data.classes.map(c => (
+            {displayedClasses.map(c => (
               <option key={c.id} value={c.id}>{c.nom}</option>
             ))}
           </select>

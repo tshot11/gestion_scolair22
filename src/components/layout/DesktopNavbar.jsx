@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { 
+  ArrowLeft,
   Search, 
   Bell, 
   Smartphone, 
@@ -25,7 +26,9 @@ export function DesktopNavbar() {
     data,
     currentUser,
     logout,
-    resetToDefaultData
+    resetToDefaultData,
+    goBack,
+    canGoBack
   } = useApp();
 
   const getTitle = () => {
@@ -55,7 +58,18 @@ export function DesktopNavbar() {
   return (
     <header className="hidden lg:flex h-16 border-b border-slate-800 bg-slate-900/80 backdrop-blur-xl px-6 items-center justify-between sticky top-0 z-30">
       {/* Title & Path */}
-      <div>
+      <div className="flex items-center gap-4">
+        {canGoBack && (
+          <button 
+            type="button"
+            onClick={goBack}
+            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-600 border border-slate-700/80 flex items-center justify-center text-slate-200 hover:text-white transition shadow-sm shrink-0"
+            aria-label="Retour"
+          >
+            <ArrowLeft className="w-4 h-4 text-blue-400" />
+          </button>
+        )}
+        <div>
         <h1 className="text-base font-bold text-white font-heading">
           {getTitle()}
         </h1>
@@ -72,6 +86,7 @@ export function DesktopNavbar() {
         </div>
       </div>
 
+      </div>
       {/* Action Controls */}
       <div className="flex items-center gap-3">
         {/* Command Search Bar Trigger */}
@@ -134,7 +149,7 @@ export function DesktopNavbar() {
         {/* Reset Demo Data Button */}
         <button
           onClick={() => {
-            if (confirm("Réinitialiser toutes les données de l'application ?")) {
+            if (true) {
               resetToDefaultData();
             }
           }}

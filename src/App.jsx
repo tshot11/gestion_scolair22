@@ -32,6 +32,7 @@ import { SettingsView } from './components/views/SettingsView';
 import { UserManagementView } from './components/views/UserManagementView';
 
 import { CheckCircle2, Smartphone, Monitor } from 'lucide-react';
+import { Chatbot } from './components/Chatbot';
 
 export function App() {
   const { 
@@ -56,6 +57,7 @@ export function App() {
           </div>
         )}
         <LandingPageView />
+        <Chatbot />
       </div>
     );
   }
@@ -70,6 +72,7 @@ export function App() {
           </div>
         )}
         <LoginView />
+        <Chatbot />
       </div>
     );
   }
@@ -205,6 +208,7 @@ export function App() {
           </div>
         </div>
       )}
+      <Chatbot />
     </div>
   );
 }

@@ -9,7 +9,17 @@ import {
 } from 'lucide-react';
 
 export function CoursesView() {
-  const { data } = useApp();
+  const { data, currentUser } = useApp();
+
+  let displayedCours = data.cours;
+  if (currentUser?.role === 'ENSEIGNANT') {
+    const teacherRecord = data.enseignants.find(t => t.email === currentUser.email);
+    if (teacherRecord) {
+      displayedCours = data.cours.filter(c => c.enseignant_id === teacherRecord.id);
+    } else {
+      displayedCours = [];
+    }
+  }
 
   return (
     <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto pb-24 sm:pb-8">
@@ -23,7 +33,7 @@ export function CoursesView() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {data.cours.map((course) => {
+        {displayedCours.map((course) => {
           const teacher = data.enseignants.find(t => t.id === course.enseignant_id);
           const option = data.options.find(o => o.id === course.option_id);
 

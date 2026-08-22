@@ -80,9 +80,7 @@ export function UserManagementView() {
   };
 
   const handleDeleteUser = async (userId, userEmail) => {
-    if (!confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${userEmail} ? Cette action est irréversible.`)) {
-      return;
-    }
+    // confirm removed
     
     try {
       const token = localStorage.getItem('auth_token');

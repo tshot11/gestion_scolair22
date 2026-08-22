@@ -47,7 +47,7 @@ export function StudentDetailView() {
   }
 
   const handleDelete = () => {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer définitivement ${eleve.nom} ${eleve.prenom} du registre ?`)) {
+    if (true) {
       deleteEleve(eleve.id);
     }
   };

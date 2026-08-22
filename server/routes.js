@@ -2,6 +2,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User, Student, AuditLog, Payment } from './models.js';
+import { GoogleGenAI } from '@google/genai';
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key-pour-app-scolaire';
@@ -140,6 +141,51 @@ router.get('/dashboard/stats', authenticate, async (req, res) => {
   // Stats selon le rôle (Admin voit tout, Parent voit ses enfants, etc.)
   const totalEleves = await Student.count();
   res.json({ totalEleves, message: "Ceci est une route protégée de l'API Node.js" });
+});
+
+
+let ai = null;
+
+router.post('/chat', async (req, res) => {
+  try {
+    if (!ai) {
+      if (!process.env.GEMINI_API_KEY) {
+        return res.status(500).json({ error: 'La clé API Gemini n\'est pas configurée sur le serveur.' });
+      }
+      ai = new GoogleGenAI({ 
+        apiKey: process.env.GEMINI_API_KEY,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build',
+          }
+        }
+      });
+    }
+
+    const { message, contextData } = req.body;
+    
+    // Create prompt with system instruction
+    const prompt = `
+Tu es l'assistant virtuel intelligent de l'application de Gestion Scolaire RDC.
+Ton rôle est d'aider les utilisateurs (parents, enseignants, administrateurs) à naviguer dans l'application et à trouver des informations.
+Réponds de manière concise, polie et utile en français.
+
+Voici quelques informations de contexte sur l'application actuelle :
+${contextData || 'Aucune donnée spécifique fournie.'}
+
+Question de l'utilisateur : ${message}
+`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+    });
+
+    res.json({ reply: response.text });
+  } catch (err) {
+    console.error('Erreur Chatbot:', err);
+    res.status(500).json({ error: 'Erreur lors de la communication avec l\'assistant.' });
+  }
 });
 
 export default router;
