@@ -24,7 +24,8 @@ export function StudentsView() {
     setSelectedEleveId, 
     addEleve,
     selectedClasseId,
-    setSelectedClasseId
+    setSelectedClasseId,
+    currentUser
   } = useApp();
 
   const [search, setSearch] = useState('');

@@ -18,14 +18,55 @@ export function ResultsView() {
     saveResultat, 
     setCurrentView, 
     setSelectedEleveId,
-    showToast 
+    showToast,
+    currentUser 
   } = useApp();
 
   const [selectedClassId, setSelectedClassId] = useState(6);
   const [selectedCoursId, setSelectedCoursId] = useState(1);
   const [selectedPeriodId, setSelectedPeriodId] = useState(4);
 
+  let allowedClassesIds = null;
+  let allowedCoursIds = null;
+
+  if (currentUser?.role_id === 'enseignant') {
+    // 1. Get courses taught by this teacher
+    const myCourses = data.cours.filter(c => String(c.enseignant_id) === String(currentUser.id));
+    allowedCoursIds = myCourses.map(c => c.id);
+    
+    // 2. Get classes where these courses are taught OR where teacher is titulaire
+    const classesFromCourses = myCourses.map(c => c.classe_id);
+    const classesTitulaire = data.classes.filter(c => String(c.prof_id) === String(currentUser.id)).map(c => c.id);
+    
+    allowedClassesIds = [...new Set([...classesFromCourses, ...classesTitulaire])];
+  }
+
+  // Auto-select first allowed class if current is invalid
+  React.useEffect(() => {
+    if (allowedClassesIds && allowedClassesIds.length > 0) {
+      if (!allowedClassesIds.includes(Number(selectedClassId))) {
+        setSelectedClassId(allowedClassesIds[0]);
+      }
+    }
+  }, [allowedClassesIds, selectedClassId]);
+
+  // Auto-select first allowed course for the selected class
+  React.useEffect(() => {
+    let availableCourses = data.cours.filter(c => c.classe_id === Number(selectedClassId));
+    if (allowedCoursIds) {
+      availableCourses = availableCourses.filter(c => allowedCoursIds.includes(c.id));
+    }
+    if (availableCourses.length > 0 && !availableCourses.find(c => c.id === Number(selectedCoursId))) {
+      setSelectedCoursId(availableCourses[0].id);
+    }
+  }, [selectedClassId, allowedCoursIds, selectedCoursId, data.cours]);
+
+
+
+
+  
   const classStudents = data.eleves.filter(e => e.classe_id === Number(selectedClassId));
+
   const currentClass = data.classes.find(c => c.id === Number(selectedClassId));
   const currentCourse = data.cours.find(c => c.id === Number(selectedCoursId));
   const currentPeriod = data.periodes.find(p => p.id === Number(selectedPeriodId));
@@ -134,7 +175,7 @@ export function ResultsView() {
             onChange={(e) => setSelectedCoursId(Number(e.target.value))}
             className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
           >
-            {data.cours.filter(c => allowedCoursIds === null || allowedCoursIds.includes(c.id)).map(c => (
+            {data.cours.filter(c => c.classe_id === Number(selectedClassId) && (allowedCoursIds === null || allowedCoursIds.includes(c.id))).map(c => (
               <option key={c.id} value={c.id}>{c.nom} (Coeff {c.coefficient})</option>
             ))}
           </select>
@@ -177,7 +218,7 @@ export function ResultsView() {
                 <th className="p-3 text-center w-24">Interro</th>
                 <th className="p-3 text-center w-24">Exercice</th>
                 <th className="p-3 text-center w-24">Examen</th>
-                <th className="p-3 text-center w-24">Note (/20)</th>
+                <th className="p-3 text-center w-24">Total Période</th>
                 <th className="p-3">Appréciation Pédagogique</th>
                 <th className="p-3 text-center">Action</th>
               </tr>

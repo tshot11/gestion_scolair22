@@ -21,7 +21,8 @@ export const initialData = {
     { id: 3, nom: 'Examen 1er Semestre', annee_id: 1, active: false, ordre: 3 },
     { id: 4, nom: '3ème Période', annee_id: 1, active: true, ordre: 4 },
     { id: 5, nom: '4ème Période', annee_id: 1, active: false, ordre: 5 },
-    { id: 6, nom: 'Examen 2ème Semestre', annee_id: 1, active: false, ordre: 6 }
+    { id: 6, nom: 'Examen 2ème Semestre', annee_id: 1, active: false, ordre: 6 },
+    { id: 7, nom: 'Proclamation Finale', annee_id: 1, active: false, ordre: 7 }
   ],
   salles: [
     { id: 1, code: 'S-101', nom: 'Salle Patrice Lumumba', capacite: 35, equipement: 'Projecteur, Tableau blanc', disponible: true },
@@ -32,7 +33,7 @@ export const initialData = {
   eleves: [],
   cours: [],
   presences: [],
-  notes: [],
+  resultats: [],
   paiements: [],
   utilisateurs: [],
   discipline: []

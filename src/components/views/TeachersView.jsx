@@ -34,6 +34,7 @@ export function TeachersView() {
         matricule: teacher.matricule || '',
         specialite: teacher.specialite || '',
         statut: teacher.statut || 'Actif', adresse: teacher.adresse || '', photo: teacher.photo || '',
+        password: '',
         titulaire_classe_id: data.classes.find(c => c.prof_id === teacher.id)?.id || ''
       });
       // Load their courses
@@ -66,9 +67,10 @@ export function TeachersView() {
   const handleSave = async (e) => {
     e.preventDefault();
     
-    if (!editingId) {
-      try {
-        const response = await fetch('/api/users', {
+    try {
+      let response;
+      if (!editingId) {
+        response = await fetch('/api/users', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -81,17 +83,34 @@ export function TeachersView() {
             role: 'ENSEIGNANT'
           })
         });
-        
         const resData = await response.json();
         if (!response.ok) {
            showToast("Erreur lors de la création du compte de connexion : " + (resData.error || "Erreur inconnue"));
            return;
         }
         showToast("Compte utilisateur de connexion créé avec succès.");
-      } catch (err) {
-        showToast("Impossible de se connecter au serveur pour créer l'utilisateur.");
-        return;
+      } else if (formData.password && formData.password.trim().length >= 6) {
+        // Update password if it was edited and valid
+        response = await fetch('/api/users/by-email', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.getItem('auth_token')
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password
+          })
+        });
+        const resData = await response.json();
+        if (!response.ok && response.status !== 404) {
+           showToast("Erreur: " + (resData.error || "Erreur lors de l'enregistrement de la connexion."));
+        } else if (response.ok) {
+           showToast("Mot de passe de connexion mis à jour.");
+        }
       }
+    } catch (err) {
+      showToast("Erreur serveur lors de la configuration du compte de connexion.");
     }
 
     setData(prev => {
@@ -237,7 +256,7 @@ export function TeachersView() {
                 <div className="flex items-center gap-3">
                   <div className="w-14 h-14 rounded-2xl bg-purple-600/20 border border-purple-500/30 text-purple-300 overflow-hidden flex items-center justify-center font-bold text-lg shrink-0 shadow-md">
                     {teacher.photo ? (
-                      <img src={teacher.photo} alt={teacher.nom} className="w-full h-full object-cover" />
+                      <img src={teacher.photo} alt={teacher.nom} className="w-full h-full object-cover object-top" />
                     ) : (
                       <span>{teacher.prenom[0]}{teacher.nom[0]}</span>
                     )}
@@ -318,42 +337,71 @@ export function TeachersView() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <label className="text-xs font-medium text-slate-400">Nom</label>
-                      <input type="text" required value={formData.nom} onChange={e => setFormData({...formData, nom: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none" />
+                      <input type="text" required value={formData.nom || ""} onChange={e => setFormData({...formData, nom: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none" />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-xs font-medium text-slate-400">Prénom</label>
-                      <input type="text" required value={formData.prenom} onChange={e => setFormData({...formData, prenom: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none" />
+                      <input type="text" required value={formData.prenom || ""} onChange={e => setFormData({...formData, prenom: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none" />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-xs font-medium text-slate-400">Téléphone</label>
-                      <input type="tel" value={formData.telephone} onChange={e => setFormData({...formData, telephone: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none" />
+                      <input type="tel" value={formData.telephone || ""} onChange={e => setFormData({...formData, telephone: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none" />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-xs font-medium text-slate-400">Email</label>
-                      <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none" />
+                      <input type="email" value={formData.email || ""} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none" />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-xs font-medium text-slate-400">Spécialité (ex: Mathématiques)</label>
-                      <input type="text" value={formData.specialite} onChange={e => setFormData({...formData, specialite: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none" />
+                      <input type="text" value={formData.specialite || ""} onChange={e => setFormData({...formData, specialite: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none" />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-xs font-medium text-slate-400">Matricule</label>
-                      <input type="text" required value={formData.matricule} onChange={e => setFormData({...formData, matricule: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none" />
+                      <input type="text" required value={formData.matricule || ""} onChange={e => setFormData({...formData, matricule: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none" />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-xs font-medium text-slate-400">Adresse</label>
-                      <input type="text" value={formData.adresse} onChange={e => setFormData({...formData, adresse: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none" />
+                      <input type="text" value={formData.adresse || ""} onChange={e => setFormData({...formData, adresse: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none" />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-slate-400">Photo de profil (URL)</label>
-                      <input type="text" placeholder="https://..." value={formData.photo} onChange={e => setFormData({...formData, photo: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none" />
-                    </div>
-                    {!editingId && (
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-emerald-400">Mot de passe de connexion</label>
-                        <input type="text" required minLength="6" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="w-full bg-emerald-950/20 border border-emerald-800/50 rounded-xl px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none" />
+                      <label className="text-xs font-medium text-slate-400">Photo de profil</label>
+                      <div className="flex items-center gap-4">
+                        {formData.photo && (
+                          <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-slate-700 bg-slate-800">
+                            <img src={formData.photo} alt="Aperçu" className="w-full h-full object-cover object-top" />
+                          </div>
+                        )}
+                        <input 
+                          type="file" 
+                          accept="image/*"
+                          onChange={e => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                setFormData({...formData, photo: reader.result});
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }} 
+                          className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-600/20 file:text-blue-400 hover:file:bg-blue-600/30 cursor-pointer" 
+                        />
                       </div>
-                    )}
+                    </div>
+                    <div className="space-y-1.5">
+  <label className="text-xs font-medium text-emerald-400">
+    Mot de passe de connexion {editingId && <span className="text-slate-500 font-normal">(Laisser vide pour ne pas modifier)</span>}
+  </label>
+  <input 
+    type="text" 
+    required={!editingId} 
+    minLength="6" 
+    value={formData.password || ''} 
+    onChange={e => setFormData({...formData, password: e.target.value})} 
+    placeholder={editingId ? "Nouveau mot de passe..." : ""}
+    className="w-full bg-emerald-950/20 border border-emerald-800/50 rounded-xl px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none placeholder:text-emerald-800/50" 
+  />
+</div>
                   </div>
                 </div>
 
@@ -365,7 +413,7 @@ export function TeachersView() {
                   <div className="space-y-1.5">
                     <label className="text-xs font-medium text-slate-400">Sélectionnez la classe (ou le grade) dont cet enseignant est le titulaire principal :</label>
                     <select 
-                      value={formData.titulaire_classe_id} 
+                      value={formData.titulaire_classe_id || ""} 
                       onChange={e => setFormData({...formData, titulaire_classe_id: e.target.value})} 
                       className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none"
                     >

@@ -18,17 +18,37 @@ export function AttendanceView() {
     data, 
     togglePointage, 
     showToast,
-    stats
+    stats,
+    currentUser
   } = useApp();
 
   const [selectedClassId, setSelectedClassId] = useState(6);
   const today = '2026-08-20';
+
+  let displayedClasses = data.classes;
+  if (currentUser?.role_id === 'enseignant') {
+    // Only classes where they teach or are titulaire
+    const myCourses = data.cours.filter(c => String(c.enseignant_id) === String(currentUser.id));
+    const classesFromCourses = myCourses.map(c => c.classe_id);
+    const classesTitulaire = data.classes.filter(c => String(c.prof_id) === String(currentUser.id)).map(c => c.id);
+    const allowedClassesIds = [...new Set([...classesFromCourses, ...classesTitulaire])];
+    displayedClasses = data.classes.filter(c => allowedClassesIds.includes(c.id));
+  }
+
 
   // Filter students for active class
   const classStudents = data.eleves.filter(e => e.classe_id === Number(selectedClassId));
   const currentClass = data.classes.find(c => c.id === Number(selectedClassId));
 
   // Mark all present in selected class
+
+  // Auto-select first allowed class if current is invalid
+  React.useEffect(() => {
+    if (displayedClasses.length > 0 && !displayedClasses.find(c => c.id === Number(selectedClassId))) {
+      setSelectedClassId(displayedClasses[0].id);
+    }
+  }, [displayedClasses, selectedClassId]);
+
   const handleMarkAllPresent = () => {
     classStudents.forEach(e => {
       togglePointage(e.id, 'present');

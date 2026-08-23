@@ -1,70 +1,92 @@
-import { Sequelize, DataTypes } from 'sequelize';
-import path from 'path';
+import { db } from './firebase.js';
+import { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, query, where, getCountFromServer, limit } from 'firebase/firestore';
 
-// Connexion SQLite
-export const sequelize = new Sequelize({
-  dialect: 'sqlite',
-  storage: path.join(process.cwd(), 'database.sqlite'),
-  logging: false,
-});
-
-// Modèles
-export const User = sequelize.define('User', {
-  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-  nom: { type: DataTypes.STRING, allowNull: false },
-  email: { type: DataTypes.STRING, unique: true, allowNull: false },
-  password_hash: { type: DataTypes.STRING, allowNull: false },
-  role: { 
-    type: DataTypes.ENUM('ADMIN', 'DIRECTEUR', 'PREFET', 'ENSEIGNANT', 'CAISSIER', 'PARENT', 'ELEVE'), 
-    allowNull: false 
-  },
-  is_active: { type: DataTypes.BOOLEAN, defaultValue: true },
-});
-
-export const Student = sequelize.define('Student', {
-  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-  matricule: { type: DataTypes.STRING, unique: true, allowNull: false },
-  nom: { type: DataTypes.STRING, allowNull: false },
-  classe: { type: DataTypes.STRING, allowNull: true },
-  statut_inscription: { 
-    type: DataTypes.ENUM('EN_ATTENTE', 'VALIDE', 'BLOQUE'), 
-    defaultValue: 'EN_ATTENTE' 
+class MockModel {
+  constructor(collectionName) {
+    this.collectionName = collectionName;
+    this.collection = collection(db, collectionName);
   }
-});
 
-// Relation Élève -> Utilisateur (Compte de l'élève)
-User.hasOne(Student, { foreignKey: 'userId', as: 'studentProfile' });
-Student.belongsTo(User, { foreignKey: 'userId' });
+  async count() {
+    const snapshot = await getCountFromServer(this.collection);
+    return snapshot.data().count;
+  }
 
-export const ParentStudent = sequelize.define('ParentStudent', {
-  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true }
-});
+  async findOne({ where: conditions }) {
+    let q = this.collection;
+    for (const [key, value] of Object.entries(conditions)) {
+      q = query(q, where(key, '==', value));
+    }
+    q = query(q, limit(1));
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) return null;
+    return this._wrapDoc(snapshot.docs[0]);
+  }
 
-// Relation Parent (User) <-> Élève (Student)
-User.belongsToMany(Student, { through: ParentStudent, as: 'enfants', foreignKey: 'parentId' });
-Student.belongsToMany(User, { through: ParentStudent, as: 'parents', foreignKey: 'studentId' });
+  async findByPk(id, options = {}) {
+    const docRef = doc(db, this.collectionName, String(id));
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) return null;
+    return this._wrapDoc(docSnap);
+  }
 
-export const Payment = sequelize.define('Payment', {
-  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-  montant: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
-  type_frais: { type: DataTypes.STRING, allowNull: false },
-  reference: { type: DataTypes.STRING },
-  date: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
-  statut: { type: DataTypes.ENUM('VALIDE', 'ANNULE'), defaultValue: 'VALIDE' }
-});
+  async findAll(options = {}) {
+    const snapshot = await getDocs(this.collection);
+    return snapshot.docs.map(doc => {
+      return { id: doc.id, ...doc.data() };
+    });
+  }
 
-// Relation Paiement -> Élève et Caissier
-Student.hasMany(Payment, { foreignKey: 'studentId' });
-Payment.belongsTo(Student, { foreignKey: 'studentId' });
-User.hasMany(Payment, { foreignKey: 'caissierId', as: 'encaissements' });
-Payment.belongsTo(User, { foreignKey: 'caissierId', as: 'caissier' });
+  async create(data) {
+    const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
+    let docRef;
+    if (cleanData.id) {
+      docRef = doc(db, this.collectionName, String(cleanData.id));
+    } else {
+      docRef = doc(this.collection); // Auto-generate ID
+      cleanData.id = docRef.id;
+    }
+    
+    const now = new Date().toISOString();
+    const docData = { ...cleanData, createdAt: now, updatedAt: now };
+    
+    if (this.collectionName === 'Users' && !('is_active' in docData)) {
+      docData.is_active = true;
+    }
+    
+    await setDoc(docRef, docData);
+    const savedDoc = await getDoc(docRef);
+    return this._wrapDoc(savedDoc);
+  }
 
-export const AuditLog = sequelize.define('AuditLog', {
-  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-  action: { type: DataTypes.STRING, allowNull: false },
-  details: { type: DataTypes.TEXT },
-  ip_address: { type: DataTypes.STRING }
-});
+  _wrapDoc(docSnap) {
+    const data = docSnap.data();
+    const wrapped = {
+      ...data,
+      id: docSnap.id,
+      update: async (updates) => {
+        const cleanUpdates = Object.fromEntries(Object.entries(updates).filter(([_, v]) => v !== undefined));
+        cleanUpdates.updatedAt = new Date().toISOString();
+        await updateDoc(docSnap.ref, cleanUpdates);
+        Object.assign(wrapped, cleanUpdates);
+        return wrapped;
+      },
+      destroy: async () => {
+        await deleteDoc(docSnap.ref);
+      },
+      toJSON: () => data
+    };
+    return wrapped;
+  }
+}
 
-User.hasMany(AuditLog, { foreignKey: 'userId' });
-AuditLog.belongsTo(User, { foreignKey: 'userId' });
+export const sequelize = {
+  authenticate: async () => console.log("Firebase connecté via client SDK"),
+  sync: async () => console.log("Firebase sync ignoré"),
+};
+
+export const User = new MockModel('Users');
+export const Student = new MockModel('Students');
+export const AuditLog = new MockModel('AuditLogs');
+export const Payment = new MockModel('Payments');
+export const ParentStudent = new MockModel('ParentStudents');

@@ -20,14 +20,14 @@
     "ejs": "^6.0.1",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
+    "firebase": "^12.18.0",
+    "firebase-admin": "^14.3.0",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.33.0",
     "multer": "^2.2.0",
     "react": "^19.2.8",
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.8",
-    "sequelize": "^6.37.8",
-    "sqlite3": "^5.1.7",
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {

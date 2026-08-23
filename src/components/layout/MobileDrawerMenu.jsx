@@ -60,6 +60,7 @@ export function MobileDrawerMenu({ isOpen, onClose }) {
       items: [
         { id: 'finance', label: 'Trésorerie & Minervals', icon: Wallet, count: `${(stats.solde_caisse / 1000).toFixed(0)}k CDF` },
         { id: 'parents', label: 'Espace Parents & Tuteurs', icon: HeartHandshake, count: null },
+        { id: 'bibliotheque', label: 'Bibliothèque', icon: BookOpen, count: null },
         { id: 'communication', label: 'Messagerie & Alertes', icon: MessageSquare, count: stats.unread_messages > 0 ? stats.unread_messages : null, badgeColor: 'bg-blue-500/20 text-blue-300' },
         { id: 'utilisateurs', label: 'Comptes Utilisateurs', icon: Lock, count: null },
         { id: 'parametres', label: 'Configuration École', icon: Settings, count: null },

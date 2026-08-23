@@ -30,6 +30,7 @@ import { ParentsPortalView } from './components/views/ParentsPortalView';
 import { CommunicationView } from './components/views/CommunicationView';
 import { SettingsView } from './components/views/SettingsView';
 import { UserManagementView } from './components/views/UserManagementView';
+import { LibraryView } from './components/views/LibraryView';
 
 import { CheckCircle2, Smartphone, Monitor } from 'lucide-react';
 import { Chatbot } from './components/Chatbot';
@@ -120,6 +121,8 @@ export function App() {
         return <CommunicationView />;
       case 'utilisateurs':
         return <UserManagementView />;
+      case 'bibliotheque':
+        return <LibraryView />;
       case 'settings':
       case 'parametres':
         return <SettingsView />;

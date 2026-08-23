@@ -32,7 +32,7 @@ export const SYSTEM_ROLES = {
       'dashboard', 'eleves', 'eleve-detail', 'enseignants', 'classes', 
       'cours', 'horaires', 'presences', 'discipline', 'resultats', 
       'bulletin', 'palmares', 'finance', 'recu', 'parents', 
-      'communication', 'settings', 'parametres', 'landing', 'utilisateurs'
+      'communication', 'settings', 'parametres', 'landing', 'utilisateurs', 'bibliotheque'
     ]
   },
   enseignant: {
@@ -57,7 +57,7 @@ export const SYSTEM_ROLES = {
     },
     allowedViews: [
       'resultats', 'palmares', 'presences', 'bulletin', 'classes', 
-      'cours', 'horaires', 'discipline', 'communication', 'landing'
+      'cours', 'horaires', 'discipline', 'communication', 'landing', 'bibliotheque'
     ]
   },
   comptable: {
@@ -106,7 +106,31 @@ export const SYSTEM_ROLES = {
       eleve_id: 1 // KALALA Josué
     },
     allowedViews: [
-      'parents', 'bulletin', 'recu', 'communication', 'landing'
+      'parents', 'bulletin', 'recu', 'communication', 'landing', 'bibliotheque'
+    ]
+  },
+  eleve: {
+    id: 'eleve',
+    label: 'Élève / Étudiant',
+    badge: 'Apprenant',
+    badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+    description: 'Accès aux cotes, cours en ligne, discipline, assiduité et bibliothèque.',
+    username: 'eleve',
+    defaultPassword: '123',
+    defaultView: 'dashboard',
+    user: {
+      id: 6,
+      username: 'eleve',
+      first_name: 'Élève',
+      last_name: 'Test',
+      role: 'Élève',
+      role_id: 'eleve',
+      email: 'eleve@ecole.cd',
+      avatar: 'EL',
+      is_authenticated: true
+    },
+    allowedViews: [
+      'dashboard', 'bulletin', 'presences', 'discipline', 'communication', 'landing', 'bibliotheque'
     ]
   },
   visiteur: {
@@ -144,6 +168,13 @@ export function AppProvider({ children }) {
         if (parsed.ecoleConfig && (parsed.ecoleConfig.nom === "Complexe Scolaire d'Excellence RDC" || !parsed.ecoleConfig.nom)) {
           parsed.ecoleConfig.nom = "Complexe Scolaire John Tshot";
         }
+        if (!parsed.resultats) parsed.resultats = [];
+        if (!parsed.notes) parsed.notes = [];
+
+        if (!parsed.periodes.find(p => p.nom === 'Proclamation Finale')) {
+          parsed.periodes.push({ id: 7, nom: 'Proclamation Finale', annee_id: 1, active: false, ordre: 7 });
+        }
+
         return parsed;
       }
     } catch (e) {

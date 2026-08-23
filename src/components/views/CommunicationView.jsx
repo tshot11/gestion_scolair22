@@ -94,7 +94,7 @@ export function CommunicationView() {
               >
                 <div className="flex items-center justify-between text-[10px] text-slate-400">
                   <span className="font-semibold text-blue-400 truncate max-w-[140px]">{msg.expediteur}</span>
-                  <span>{msg.date.split(' ')[0]}</span>
+                  <span>{(msg.date || '').split(' ')[0]}</span>
                 </div>
                 <div className="text-xs font-bold text-white truncate">{msg.sujet}</div>
                 <p className="text-[11px] text-slate-300 line-clamp-2">{msg.contenu}</p>

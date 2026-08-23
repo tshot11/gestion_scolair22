@@ -1,28 +1,18 @@
-import React from 'react';
-import { useApp } from '../../context/AppContext';
-import { Plus, X } from 'lucide-react';
-import { 
-  School, 
-  GraduationCap, 
-  Award, 
-  BookOpen, 
-  Clock 
-} from 'lucide-react';
+const fs = require('fs');
+const file = 'src/components/views/CoursesView.jsx';
+let content = fs.readFileSync(file, 'utf8');
 
-export function CoursesView() {
-  const { data, currentUser } = useApp();
+content = content.replace(
+  "import { useApp } from '../../context/AppContext';",
+  "import { useApp } from '../../context/AppContext';\nimport { Plus, X } from 'lucide-react';"
+);
 
-  let displayedCours = data.cours;
-  if (currentUser?.role === 'ENSEIGNANT') {
-    const teacherRecord = data.enseignants.find(t => t.email === currentUser.email);
-    if (teacherRecord) {
-      displayedCours = data.cours.filter(c => c.enseignant_id === teacherRecord.id);
-    } else {
-      displayedCours = [];
-    }
-  }
+content = content.replace(
+  "const { data } = useApp();",
+  "const { data, showToast, currentUser } = useApp();\n  const [isAddModalOpen, setIsAddModalOpen] = useState(false);\n  const [newCourse, setNewCourse] = useState({ nom: '', coefficient: 1, volume_horaire: 2, classe_id: '', enseignant_id: '', syllabus_url: '' });"
+);
 
-  
+const handleAdd = `
   const handleAddCourse = (e) => {
     e.preventDefault();
     if (!newCourse.nom) return;
@@ -35,64 +25,38 @@ export function CoursesView() {
     showToast('Cours ajouté avec succès !');
     setIsAddModalOpen(false);
   };
+`;
+content = content.replace(
+  "return (",
+  handleAdd + "\n  return ("
+);
 
-  return (
-    <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto pb-24 sm:pb-8">
-      <div>
-        <h2 className="text-xl sm:text-2xl font-extrabold text-white font-heading">
-          Programme des Cours & Matières
-        </h2>
-        <p className="text-xs sm:text-sm text-slate-400">
-          Syllabus officiels, pondérations et coefficients de délibération
-        </p>
+const header = `
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
+            <BookOpen className="w-8 h-8 text-amber-400" />
+            Programme de Cours
+          </h1>
+          <p className="text-sm text-slate-400 mt-1">Matières enseignées, pondérations et attributions.</p>
+        </div>
+        {(currentUser?.role_id === 'admin' || currentUser?.role_id === 'prefet') && (
+          <button 
+            onClick={() => setIsAddModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-lg transition"
+          >
+            <Plus className="w-4 h-4" />
+            Nouveau Cours
+          </button>
+        )}
       </div>
+`;
+content = content.replace(
+  /<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">[\s\S]*?<\/div>\s*<\/div>/,
+  header
+);
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {displayedCours.map((course) => {
-          const teacher = data.enseignants.find(t => t.id === course.enseignant_id);
-          const option = data.options.find(o => o.id === course.option_id);
-
-          return (
-            <div
-              key={course.id}
-              className="bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 rounded-3xl p-5 transition space-y-3 flex flex-col justify-between"
-            >
-              <div className="space-y-2.5">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <span className="text-[10px] font-mono font-bold text-blue-400 uppercase">
-                      {course.code}
-                    </span>
-                    <h3 className="text-sm font-bold text-white font-heading mt-0.5">
-                      {course.nom}
-                    </h3>
-                  </div>
-                  <span className="px-2.5 py-1 rounded-xl bg-blue-500/20 text-blue-300 font-mono font-bold text-xs border border-blue-500/30">
-                    Coeff {course.coefficient}
-                  </span>
-                </div>
-
-                <p className="text-xs text-slate-400 line-clamp-2">
-                  {course.description}
-                </p>
-              </div>
-
-              <div className="pt-3 border-t border-slate-700/50 space-y-1.5 text-xs">
-                <div className="flex items-center gap-2 text-slate-300">
-                  <GraduationCap className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-                  <span>Enseignant : <strong>{teacher ? `${teacher.nom} ${teacher.prenom}` : 'Non assigné'}</strong></span>
-                </div>
-                {option && (
-                  <div className="text-[11px] text-slate-400">
-                    Option : <span className="text-blue-300">{option.nom}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
+const modal = `
       {isAddModalOpen && (
         <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-slate-800 border border-slate-700 rounded-3xl w-full max-w-md overflow-hidden">
@@ -170,7 +134,11 @@ export function CoursesView() {
           </div>
         </div>
       )}
+`;
 
-    </div>
-  );
-}
+content = content.replace(
+  "    </div>\n  );\n}",
+  modal + "\n    </div>\n  );\n}"
+);
+
+fs.writeFileSync(file, content);

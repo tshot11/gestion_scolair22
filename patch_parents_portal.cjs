@@ -1,4 +1,9 @@
-import React, { useState } from 'react';
+const fs = require('fs');
+const file = 'src/components/views/ParentsPortalView.jsx';
+let content = fs.readFileSync(file, 'utf8');
+
+// The file was previously dumped, but I'll rewrite it to include the tabs for "Dossier", "Messagerie Direction", "Forum Parents"
+content = `import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { 
   Award, 
@@ -52,7 +57,7 @@ export function ParentsPortalView() {
     e.preventDefault();
     if (!msgInput.trim() || !selectedAdminId) return;
     const admin = onlineAdmins.find(a => String(a.id) === String(selectedAdminId));
-    showToast(`Message envoyé à ${admin.name} avec succès !`);
+    showToast(\`Message envoyé à \${admin.name} avec succès !\`);
     setMsgInput('');
   };
 
@@ -80,9 +85,9 @@ export function ParentsPortalView() {
 
       {/* Tabs */}
       <div className="flex overflow-x-auto hide-scrollbar gap-2 pb-2">
-        <button onClick={() => setActiveTab('dossier')} className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${activeTab === 'dossier' ? 'bg-sky-600 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}>Dossier de l'Enfant</button>
-        <button onClick={() => setActiveTab('direction')} className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${activeTab === 'direction' ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}>Contacter la Direction</button>
-        <button onClick={() => setActiveTab('forum')} className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${activeTab === 'forum' ? 'bg-purple-600 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}>Forum & Réunions</button>
+        <button onClick={() => setActiveTab('dossier')} className={\`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all \${activeTab === 'dossier' ? 'bg-sky-600 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}\`}>Dossier de l'Enfant</button>
+        <button onClick={() => setActiveTab('direction')} className={\`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all \${activeTab === 'direction' ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}\`}>Contacter la Direction</button>
+        <button onClick={() => setActiveTab('forum')} className={\`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all \${activeTab === 'forum' ? 'bg-purple-600 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}\`}>Forum & Réunions</button>
       </div>
 
       {activeTab === 'dossier' && (
@@ -125,7 +130,7 @@ export function ParentsPortalView() {
           <h2 className="text-lg font-bold text-white mb-4">Personnel Connecté</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             {onlineAdmins.map(admin => (
-              <div key={admin.id} className={`p-4 rounded-xl border ${selectedAdminId === String(admin.id) ? 'bg-indigo-600/20 border-indigo-500' : 'bg-slate-900/50 border-slate-700 hover:border-slate-600 cursor-pointer'}`} onClick={() => setSelectedAdminId(String(admin.id))}>
+              <div key={admin.id} className={\`p-4 rounded-xl border \${selectedAdminId === String(admin.id) ? 'bg-indigo-600/20 border-indigo-500' : 'bg-slate-900/50 border-slate-700 hover:border-slate-600 cursor-pointer'}\`} onClick={() => setSelectedAdminId(String(admin.id))}>
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold">{admin.name[0]}</div>
@@ -205,3 +210,5 @@ export function ParentsPortalView() {
     </div>
   );
 }
+`
+fs.writeFileSync(file, content);
