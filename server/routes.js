@@ -50,7 +50,7 @@ router.post('/auth/login', async (req, res) => {
     await AuditLog.create({ userId: user.id, action: 'LOGIN', details: 'Connexion réussie', ip_address: req.ip });
 
     res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
-    res.json({ token, user: { id: user.id, nom: user.nom, email: user.email, role: user.role } });
+    res.json({ token, user: { id: user.id, nom: user.nom, email: user.email, role: user.role, eleve_id: user.eleve_id } });
   } catch (err) {
     res.status(500).json({ error: 'Erreur serveur' });
   }
@@ -81,7 +81,7 @@ router.get('/users', authenticate, requireRole(['ADMIN']), async (req, res) => {
 
 router.post('/users', authenticate, requireRole(['ADMIN']), async (req, res) => {
   try {
-    const { nom, email, password, role } = req.body;
+    const { nom, email, password, role, eleve_id } = req.body;
     
     const existing = await User.findOne({ where: { email } });
     if (existing) return res.status(400).json({ error: 'Cet email est déjà utilisé' });
@@ -90,7 +90,7 @@ router.post('/users', authenticate, requireRole(['ADMIN']), async (req, res) => 
     const salt = await bcrypt.genSalt(10);
     const password_hash = await bcrypt.hash(password, salt);
 
-    const newUser = await User.create({ nom, email, password_hash, role });
+    const newUser = await User.create({ nom, email, password_hash, role, eleve_id });
     
     await AuditLog.create({ 
       userId: req.user.id, 

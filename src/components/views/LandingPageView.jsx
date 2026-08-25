@@ -1,533 +1,646 @@
-import React from 'react';
-import { useApp } from '../../context/AppContext';
-import { 
-  Sparkles, 
-  ShieldCheck, 
-  GraduationCap, 
-  BookOpen, 
-  Users, 
-  Award, 
-  Clock, 
-  MapPin, 
-  Phone, 
-  Mail, 
-  ArrowRight, 
-  Lock, 
-  CheckCircle2, 
-  Calendar,
-  Smartphone,
-  ChevronRight,
+import React, { useRef, useEffect, useState } from "react";
+import { useApp } from "../../context/AppContext";
+
+import {
   School,
-  Wallet,
-  FileText,
+  GraduationCap,
+  Users,
+  MapPin,
+  Phone,
+  Mail,
   Star,
-  Compass,
-  Laptop,
-  FlaskConical,
-  Library,
-  HeartHandshake
-} from 'lucide-react';
-import { Button, Badge, Card, StatCard } from '../ui';
+  Lock,
+  ArrowRight,
+  ShieldCheck,
+  Trophy,
+  HeartHandshake,
+  Sun,
+  Moon,
+  Settings } from "lucide-react";
 
-export function LandingPageView() {
-  const { setCurrentView, login, data } = useApp();
+import {
+  motion,
+  AnimatePresence,
+  useInView,
+  useMotionValue,
+  useTransform,
+  animate,
+} from "framer-motion";
 
-  const cycles = [
+const COLORS = {
+  background: "#0B1736",
+  backgroundSecondary: "#0F2142",
+  surface: "#12305A",
+  surfaceLight: "#16345F",
+  blue: "#4EA3FF",
+  blueLight: "#6CB6FF",
+  blueGlow: "#7DD3FC",
+  green: "#22C55E",
+  greenLight: "#34D399",
+  text: "#F5F9FF",
+  textSecondary: "#B8C7DF",
+  border: "rgba(148, 197, 255, 0.16)",
+};
+
+const FadeInUp = ({ children, delay = 0, duration = 0.5, className = "" }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration, delay, ease: "easeOut" }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+const StaggerContainer = ({ children, className = "" }) => {
+  return (
+    <motion.div
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-50px" }}
+      variants={{
+        hidden: {},
+        visible: { transition: { staggerChildren: 0.08 } },
+      }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+const StaggerItem = ({ children, className = "" }) => {
+  return (
+    <motion.div
+      variants={{
+        hidden: { opacity: 0, y: 20 },
+        visible: {
+          opacity: 1,
+          y: 0,
+          transition: { duration: 0.45, ease: "easeOut" },
+        },
+      }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+function CountUp({ to, duration = 2, suffix = "" }) {
+  const count = useMotionValue(0);
+  const rounded = useTransform(
+    count,
+    (latest) => `${Math.round(latest)}${suffix}`,
+  );
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-50px" });
+
+  useEffect(() => {
+    if (!inView) return;
+    const controls = animate(count, to, { duration, ease: "easeOut" });
+    return () => controls.stop();
+  }, [inView, count, to, duration]);
+
+  return <motion.span ref={ref}>{rounded}</motion.span>;
+}
+
+const ImageSlider = ({ onAction }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const slides = [
     {
-      titre: 'Maternelle (1ère à 3ème)',
-      desc: 'Éveil sensoriel, motricité, socialisation, développement du langage et initiation pré-scolaire dans un cadre épanouissant et sécurisé.',
-      icon: Sparkles,
-      badge: 'Cycle Éveil',
-      color: 'amber'
+      title: "Rentrée scolaire",
+      desc: "Préparez la rentrée en toute sérénité. Découvrez les dates clés, les modalités d'inscription et les réunions d'information.",
+      image:
+        "https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=1200&auto=format&fit=crop",
+      badge: "Information",
+      action: "Voir le calendrier",
     },
     {
-      titre: 'Primaire (1ère à 6ème)',
-      desc: 'Acquisition méthodique des savoirs fondamentaux (Français, Mathématiques, Éveil aux sciences) et préparation au TENAFEP avec 100% de réussite.',
-      icon: BookOpen,
-      badge: 'Cycle Fondamental',
-      color: 'blue'
+      title: "Inscriptions ouvertes",
+      desc: "Les inscriptions sont ouvertes. Retrouvez les documents nécessaires, les tarifs et les informations par section.",
+      image:
+        "https://images.unsplash.com/photo-1544717297-fa95b6ee9643?q=80&w=1200&auto=format&fit=crop",
+      badge: "Admission",
+      action: "Dossier d'inscription",
     },
     {
-      titre: 'Éducation de Base (7ème & 8ème)',
-      desc: 'Cycle d’orientation moderne conforme à la réforme de l’EPST avec initiation aux technologies de l’information et sciences appliquées.',
-      icon: GraduationCap,
-      badge: 'Orientation EPST',
-      color: 'emerald'
+      title: "Excellence académique",
+      desc: "Découvrez les résultats et les informations importantes concernant la réussite de nos élèves.",
+      image:
+        "https://images.unsplash.com/photo-1522661067900-ab828854a284?q=80&w=1200&auto=format&fit=crop",
+      badge: "Palmarès",
+      action: "Voir les résultats",
     },
-    {
-      titre: 'Humanités Scientifiques',
-      desc: 'Sections Math-Physique & Bio-Chimie avec travaux pratiques réguliers en laboratoire moderne et informatique expérimentale.',
-      icon: FlaskConical,
-      badge: 'Excellence Scientifique',
-      color: 'purple'
-    },
-    {
-      titre: 'Commerciale et Gestion',
-      desc: 'Formation de pointe en comptabilité informatisée, économie monétaire, fiscalité congolaise et management d’entreprise.',
-      icon: Wallet,
-      badge: 'Gestion & Économie',
-      color: 'rose'
-    },
-    {
-      titre: 'Littéraire (Latin-Philosophie)',
-      desc: 'Développement de la rhétorique, pensée critique, maîtrise approfondie des langues et préparation aux filières juridiques et diplomatiques.',
-      icon: FileText,
-      badge: 'Lettres & Humanités',
-      color: 'sky'
-    }
   ];
 
-  const valeurs = [
-    {
-      titre: 'Excellence Académique',
-      desc: 'Exigence de rigueur pédagogique, apprentissages stimulants et suivi personnalisé des talents.',
-      icon: Award
-    },
-    {
-      titre: 'Citoyenneté & Intégrité',
-      desc: 'Formation civique, respect du bien public, discipline exemplaire et responsabilité morale.',
-      icon: ShieldCheck
-    },
-    {
-      titre: 'Innovation Numérique',
-      desc: 'Plateforme connectée en temps réel pour bulletins, devoirs, présence et lien direct parents-école.',
-      icon: Laptop
-    },
-    {
-      titre: 'Épanouissement Humain',
-      desc: 'Activités sportives, culturelles, débats d’éloquence et vie associative dynamique.',
-      icon: HeartHandshake
-    }
-  ];
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % slides.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [slides.length]);
 
-  const temoignages = [
-    {
-      nom: 'Dr. Joseph MUKUNA',
-      role: 'Parent d\'élève (2 enfants en Humanités)',
-      texte: 'Le suivi en direct des bulletins et des présences sur le portail numérique nous apporte une totale sérénité. La qualité de l\'enseignement est irréprochable.',
-      note: 5
-    },
-    {
-      nom: 'Me Francine TSHILOMBO',
-      role: 'Alumni & Juriste',
-      texte: 'C\'est ici que j\'ai acquis la discipline de travail et le goût de l\'effort qui m\'ont permis de réussir mon cursus universitaire avec distinction.',
-      note: 5
-    }
-  ];
+  const currentSlide = slides[currentIndex];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col antialiased">
-      {/* Top Official EPST Banner */}
-      <div className="bg-slate-900/90 border-b border-slate-800 text-[11px] py-2 px-4">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-slate-400">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-            <span className="font-semibold text-slate-200">RÉPUBLIQUE DÉMOCRATIQUE DU CONGO</span>
-            <span className="hidden sm:inline">•</span>
-            <span className="hidden sm:inline">Ministère de l'Éducation Nationale et Nouvelle Citoyenneté</span>
+    <div className="w-full max-w-5xl mx-auto mt-8 mb-8 px-4">
+      <div
+        className="relative overflow-hidden rounded-[18px] border shadow-[0_20px_60px_rgba(0,0,0,0.22)] backdrop-blur-xl"
+        style={{
+          background: "rgba(18, 48, 90, 0.48)",
+          borderColor: COLORS.border,
+        }}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2">
+          <div className="h-64 md:h-[340px] relative overflow-hidden">
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={currentIndex}
+                src={currentSlide.image}
+                initial={{ opacity: 0, scale: 1.04 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.55, ease: "easeOut" }}
+                className="absolute inset-0 w-full h-full object-cover"
+                alt={currentSlide.title}
+              />
+            </AnimatePresence>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0B1736]/80 via-transparent to-transparent" />
+            <div className="absolute top-5 left-5">
+              <span
+                className="inline-flex items-center px-3 py-1.5 rounded-[10px] text-xs font-bold text-white shadow-lg backdrop-blur-md"
+                style={{ background: "rgba(37, 99, 235, 0.82)" }}
+              >
+                {currentSlide.badge}
+              </span>
+            </div>
           </div>
-          <div className="flex items-center gap-4">
-            <span>Agrément National : <strong className="text-slate-300 font-mono">{data.ecoleConfig.code_ministeriel}</strong></span>
-            <span className="hidden md:inline font-mono text-blue-400">Session {data.ecoleConfig.annee_courante}</span>
+          <div className="p-6 md:p-8 flex flex-col justify-center relative min-h-[280px]">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentIndex}
+                initial={{ opacity: 0, x: 18 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -18 }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+              >
+                <h3
+                  className="text-xl md:text-2xl font-bold tracking-tight"
+                  style={{ color: COLORS.text }}
+                >
+                  {currentSlide.title}
+                </h3>
+                <p
+                  className="mt-3 text-sm leading-6"
+                  style={{ color: COLORS.textSecondary }}
+                >
+                  {currentSlide.desc}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => onAction && onAction(currentSlide)}
+                  className="mt-6 inline-flex items-center gap-2 text-sm font-semibold transition-all hover:translate-x-1"
+                  style={{ color: COLORS.blueLight }}
+                >
+                  {currentSlide.action}
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </motion.div>
+            </AnimatePresence>
+            <div className="absolute bottom-6 left-6 md:left-8 flex items-center gap-2">
+              {slides.map((slide, index) => {
+                const active = currentIndex === index;
+                return (
+                  <button
+                    key={slide.title}
+                    type="button"
+                    onClick={() => setCurrentIndex(index)}
+                    aria-label={`Afficher ${slide.title}`}
+                    className="h-2 transition-all duration-300"
+                    style={{
+                      width: active ? 26 : 8,
+                      borderRadius: 999,
+                      background: active
+                        ? COLORS.blueLight
+                        : "rgba(108,182,255,0.30)",
+                    }}
+                  />
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
+    </div>
+  );
+};
 
-      {/* Main Sticky Header */}
-      <header className="sticky top-0 z-40 bg-slate-950/85 backdrop-blur-xl border-b border-slate-800/80 px-4 sm:px-8 py-3.5">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-blue-700 shadow-md shrink-0 border border-slate-200">
-              <School className="w-6 h-6" />
-            </div>
-            <div className="min-w-0">
-              <h1 className="text-base sm:text-lg font-bold text-white font-heading leading-tight truncate">
-                {data.ecoleConfig.nom}
-              </h1>
-              <p className="text-xs text-slate-400 truncate">
-                {data.ecoleConfig.province_educationnelle} • {data.ecoleConfig.commune}
-              </p>
-            </div>
-          </div>
+export function LandingPageView() {
+  const { data, setCurrentView, currentUser } = useApp();
+  const [isLightMode, setIsLightMode] = useState(false);
 
-          <div className="flex items-center gap-2.5 shrink-0">
-            <div className="hidden sm:block">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentView('login')}
-                icon={Lock}
-              >
-                Connexion
-              </Button>
-            </div>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => setCurrentView('login')}
-              icon={ArrowRight}
-              iconPosition="right"
-            >
-              <span className="hidden sm:inline">Espace Scolaire</span>
-              <span className="sm:hidden">Accéder</span>
-            </Button>
+  const stats = [
+    {
+      label: "Élèves inscrits",
+      value: 1250,
+      suffix: "+",
+      icon: Users,
+      color: COLORS.blue,
+    },
+    {
+      label: "Taux de réussite",
+      value: 98,
+      suffix: "%",
+      icon: Trophy,
+      color: COLORS.blueGlow,
+    },
+    {
+      label: "Enseignants qualifiés",
+      value: 85,
+      suffix: "",
+      icon: GraduationCap,
+      color: COLORS.blueLight,
+    },
+    {
+      label: "Années d'expérience",
+      value: 25,
+      suffix: "",
+      icon: ShieldCheck,
+      color: COLORS.blueLight,
+    },
+  ];
+
+  const [cycles, setCycles] = useState([
+    {
+      titre: "École maternelle",
+      badge: "3 à 5 ans",
+      desc: "Un environnement sécurisant et stimulant pour les premiers apprentissages, l'éveil social et le développement de la créativité.",
+      image:
+        "https://images.unsplash.com/photo-1544717297-fa95b6ee9643?q=80&w=1000&auto=format&fit=crop",
+    },
+    {
+      titre: "École primaire",
+      badge: "6 à 11 ans",
+      desc: "Acquisition solide des savoirs fondamentaux, apprentissage de la rigueur et développement du sens critique.",
+      image:
+        "https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=1000&auto=format&fit=crop",
+    },
+    {
+      titre: "Humanités & secondaire",
+      badge: "12 à 18 ans",
+      desc: "Préparation aux examens d'État avec accompagnement personnalisé et suivi pédagogique.",
+      image:
+        "https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=1000&auto=format&fit=crop",
+    },
+  ]);
+
+  
+  const handleActualiteImageChange = (index, e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const newActs = [...actualites];
+        newActs[index].image = reader.result;
+        setActualites(newActs);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCycleImageChange = (index, e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const newCycles = [...cycles];
+        newCycles[index].image = reader.result;
+        setCycles(newCycles);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const isAdmin = currentUser?.role_id === 'admin';
+  const background = isLightMode ? '#12284A' : COLORS.background;
+  const headingColor = COLORS.text;
+  const glassStyle = {
+    background: "rgba(18, 48, 90, 0.48)",
+    borderColor: COLORS.border,
+    boxShadow: "0 14px 45px rgba(0,0,0,0.18)",
+    backdropFilter: "blur(18px)",
+    WebkitBackdropFilter: "blur(18px)",
+  };
+
+  return (
+    <div
+      className="min-h-screen overflow-x-hidden relative font-sans selection:bg-blue-500/30"
+      style={{ background, color: COLORS.textSecondary }}
+    >
+      <div
+        className="fixed -top-40 -left-40 w-[500px] h-[500px] rounded-full blur-[150px] pointer-events-none"
+        style={{ background: "rgba(125,211,252,0.12)" }}
+      />
+      <div
+        className="fixed top-[25%] -right-40 w-[420px] h-[420px] rounded-full blur-[150px] pointer-events-none"
+        style={{ background: "rgba(78,163,255,0.08)" }}
+      />
+      <div
+        className="fixed bottom-0 left-[20%] w-[600px] h-[600px] rounded-full blur-[180px] pointer-events-none"
+        style={{ background: "rgba(125,211,252,0.05)" }}
+      />
+
+      <nav
+        className="fixed top-0 left-0 w-full z-50 px-5 sm:px-10 py-3 flex items-center justify-between border-b backdrop-blur-xl"
+        style={{
+          background: "rgba(11,23,54,0.78)",
+          borderColor: COLORS.border,
+        }}
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className="w-9 h-9 rounded-[10px] flex items-center justify-center text-white"
+            style={{
+              background: "linear-gradient(135deg,#4EA3FF,#2563EB)",
+              boxShadow: "0 8px 25px rgba(78,163,255,0.20)",
+            }}
+          >
+            <School className="w-5 h-5" />
           </div>
+          <span
+            className="hidden sm:block text-sm font-bold"
+            style={{ color: headingColor }}
+          >
+            {data?.ecoleConfig?.nom || "Établissement scolaire"}
+          </span>
         </div>
-      </header>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setIsLightMode(!isLightMode)}
+            className="w-9 h-9 rounded-[10px] flex items-center justify-center transition-all hover:-translate-y-0.5"
+            style={{
+              background: "rgba(78,163,255,0.12)",
+              color: COLORS.blueLight,
+              border: `1px solid ${COLORS.border}`,
+            }}
+            title="Changer le thème"
+          >
+            {isLightMode ? (
+              <Moon className="w-4 h-4" />
+            ) : (
+              <Sun className="w-4 h-4" />
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => setCurrentView("login")}
+            className="hidden md:inline-flex items-center text-sm font-semibold transition-colors"
+            style={{ color: COLORS.textSecondary }}
+          >
+            Espace Parent
+          </button>
+          <button
+            type="button"
+            onClick={() => setCurrentView("login")}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[10px] text-sm font-bold text-white transition-all hover:-translate-y-0.5"
+            style={{
+              background: "rgba(37, 99, 235, 0.82)",
+              boxShadow: "0 10px 25px rgba(37, 99, 235, 0.30)",
+            }}
+          >
+            Se connecter <Lock className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </nav>
 
-      {/* HERO SECTION */}
-      <section className="relative overflow-hidden pt-12 pb-16 sm:pt-20 sm:pb-24 px-4 sm:px-8 border-b border-slate-800/80">
-        {/* Glow & Grid Background */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-blue-600/15 via-indigo-600/15 to-purple-600/15 rounded-full blur-3xl pointer-events-none -z-10" />
-
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Left Hero Content */}
-          <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-            <div className="flex items-center justify-between gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-300 text-xs font-semibold text-justify w-full sm:w-auto">
-              <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-              <span>Inscriptions Ouvertes pour l'Année 2025-2026</span>
+      <section className="relative z-10 min-h-[90vh] pt-32 pb-16 px-5 sm:px-10 flex items-center justify-center text-center">
+        <div className="max-w-5xl w-full mx-auto">
+          <FadeInUp>
+            <div
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[9px] text-xs font-bold uppercase tracking-wide backdrop-blur-md"
+              style={{
+                color: COLORS.blueLight,
+                background: "rgba(78,163,255,0.10)",
+                border: `1px solid ${COLORS.border}`,
+              }}
+            >
+              <Star className="w-3.5 h-3.5" /> Excellence éducative
             </div>
-
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black font-heading text-white tracking-tight leading-[1.15]">
-              L'Excellence Éducative.
+          </FadeInUp>
+          <FadeInUp delay={0.1}>
+            <h1
+              className="mt-6 text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.08]"
+              style={{ color: headingColor }}
+            >
+              L'avenir se construit
+              <span
+                className="block mt-2 text-2xl sm:text-3xl font-bold"
+                style={{ color: COLORS.blueLight }}
+              >
+                dès aujourd'hui.
+              </span>
             </h1>
-
-            <p className="text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed mx-auto lg:mx-0 text-justify">
-              Le <strong className="text-white font-semibold">{data.ecoleConfig.nom}</strong> offre un cadre d'apprentissage moderne alliant rigueur académique, éducation aux valeurs citoyennes et technologies de pointe pour révéler le plein potentiel de chaque élève.
-            </p>
-
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3.5 pt-2">
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={() => setCurrentView('login')}
-                icon={Lock}
-              >
-                Accéder au Portail Connecté
-              </Button>
-              <Button
-                variant="secondary"
-                size="lg"
-                onClick={() => setCurrentView('login')}
-                icon={FileText}
-              >
-                Inscriptions & Tarifs
-              </Button>
-            </div>
-
-            {/* Micro assurances */}
-            <div className="grid grid-cols-3 gap-3 pt-4 border-t border-slate-800/80 text-left">
-              <div>
-                <div className="text-lg sm:text-xl font-extrabold text-white font-heading">100%</div>
-                <div className="text-[11px] text-slate-400">Réussite Examen d'État</div>
-              </div>
-              <div>
-                <div className="text-lg sm:text-xl font-extrabold text-white font-heading">25+ Ans</div>
-                <div className="text-[11px] text-slate-400">Tradition d'Excellence</div>
-              </div>
-              <div>
-                <div className="text-lg sm:text-xl font-extrabold text-white font-heading">100%</div>
-                <div className="text-[11px] text-slate-400">Suivi Numérique Direct</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Hero Image Frame */}
-          <div className="lg:col-span-5 relative">
-            <div className="relative rounded-3xl overflow-hidden border border-slate-700/80 shadow-2xl bg-slate-900 group">
-              {/* Image banner with overlay */}
-              <div className="h-80 sm:h-96 w-full relative bg-blue-950">
-                <img 
-                  src="https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=1000&auto=format&fit=crop" 
-                  alt="Élèves en classe studieuse"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/70 to-slate-900/40" />
-              </div>
-
-              {/* Floating Badge on Image */}
-              <div className="absolute bottom-4 left-4 right-4 p-4 rounded-2xl bg-slate-900/90 border border-slate-700/80 backdrop-blur-md space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span className="truncate">Campus Connecté & Sécurisé</span>
-                  </span>
-                  <Badge variant="emerald" size="sm">Homologué EPST</Badge>
-                </div>
-                <p className="text-[11px] text-slate-300">
-                  Laboratoires de sciences, salle multimédia connectée et bibliothèque ouverte à tous les apprenants.
-                </p>
-                
-                <div className="flex items-center gap-2.5 mt-3 pt-3 border-t border-slate-700/50">
-                  <img 
-                    src="/WhatsApp Image 2026-08-20 at 23.05.34.jpeg" 
-                    className="w-10 h-10 rounded-full object-cover aspect-square shrink-0 ring-2 ring-slate-800" 
-                    alt="Équipe technique" 
-                    onError={(e) => {
-                      e.target.onerror = null; 
-                      e.target.src = "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop";
-                    }}
-                  />
-                  <div className="flex flex-col">
-                    <span className="text-xs font-semibold text-white leading-tight">Équipe technique</span>
-                    <span className="text-[10px] text-slate-400">Support informatique 24/7</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* STATS SECTION */}
-      <section className="py-12 sm:py-16 px-4 sm:px-8 bg-slate-900/40 border-b border-slate-800/80">
-        <div className="max-w-7xl mx-auto space-y-8">
-          <div className="text-center space-y-2 max-w-2xl mx-auto">
-            <Badge variant="blue" size="md">Indicateurs de Performance</Badge>
-            <h2 className="text-2xl sm:text-3xl font-extrabold font-heading text-white">
-              Une Institution Reconnue pour ses Résultats
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-400">
-              Des chiffres concrets qui témoignent de l'engagement quotidien de notre équipe de direction et de nos enseignants.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard
-              title="Élèves Inscrits"
-              value="1 250+"
-              subtitle="De la Maternelle aux Humanités"
-              icon={Users}
-              iconColor="blue"
-            />
-            <StatCard
-              title="Taux de Réussite"
-              value="100 %"
-              subtitle="TENAFEP & Examen d'État"
-              icon={Award}
-              iconColor="emerald"
-            />
-            <StatCard
-              title="Corps Enseignant"
-              value="48"
-              subtitle="Professeurs certifiés et licenciés"
-              icon={GraduationCap}
-              iconColor="purple"
-            />
-            <StatCard
-              title="Infrastructures"
-              value="35 Salles"
-              subtitle="Climatisées avec labos & IT"
-              icon={School}
-              iconColor="amber"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* CYCLES & OPTIONS SECTION */}
-      <section className="py-16 sm:py-20 px-4 sm:px-8 border-b border-slate-800/80">
-        <div className="max-w-7xl mx-auto space-y-10">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div className="space-y-2 max-w-xl">
-              <Badge variant="indigo" size="md">Offre Pédagogique</Badge>
-              <h2 className="text-2xl sm:text-3xl font-extrabold font-heading text-white">
-                Nos Cycles et Filières d'Enseignement
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-400">
-                Un cursus complet conçu pour accompagner l'enfant du premier âge jusqu'au diplôme d'État et aux études supérieures.
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentView('login')}
-              icon={ArrowRight}
-              iconPosition="right"
+          </FadeInUp>
+          <FadeInUp delay={0.2}>
+            <p
+              className="mt-5 max-w-2xl mx-auto text-base sm:text-lg leading-7"
+              style={{ color: COLORS.textSecondary }}
             >
-              Consulter les programmes
-            </Button>
-          </div>
+              Une éducation intégrale, moderne et rigoureuse. Le complexe forme
+              les leaders de demain grâce à une pédagogie d'avant-garde.
+            </p>
+          </FadeInUp>
+          <FadeInUp delay={0.3}>
+            <ImageSlider />
+          </FadeInUp>
+          <FadeInUp delay={0.4}>
+            <button
+              type="button"
+              onClick={() => setCurrentView("login")}
+              className="inline-flex items-center gap-3 px-7 py-3.5 rounded-[10px] text-base font-bold text-white transition-all hover:-translate-y-1"
+              style={{
+                background: "rgba(37, 99, 235, 0.85)",
+                boxShadow: "0 14px 35px rgba(37, 99, 235, 0.30)",
+              }}
+            >
+              Accéder au portail <ArrowRight className="w-5 h-5" />
+            </button>
+          </FadeInUp>
+        </div>
+      </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {cycles.map((c, idx) => {
-              const Icon = c.icon;
+      <section className="relative z-10 py-10">
+        <div className="max-w-7xl mx-auto px-5 sm:px-10">
+          <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {stats.map((stat) => {
+              const Icon = stat.icon;
               return (
-                <Card key={idx} hover padding="normal" className="flex flex-col justify-between h-full space-y-4">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="w-10 h-10 rounded-2xl bg-blue-500/15 text-blue-400 flex items-center justify-center">
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <Badge variant={c.color} size="sm">{c.badge}</Badge>
+                <StaggerItem key={stat.label}>
+                  <div
+                    className="p-5 rounded-[16px] flex flex-col items-center text-center border backdrop-blur-xl"
+                    style={glassStyle}
+                  >
+                    <div
+                      className="w-11 h-11 rounded-[11px] flex items-center justify-center mb-3"
+                      style={{
+                        background: "rgba(78,163,255,0.10)",
+                        color: stat.color,
+                      }}
+                    >
+                      <Icon className="w-5 h-5" />
                     </div>
+                    <div
+                      className="text-2xl sm:text-3xl font-black"
+                      style={{ color: COLORS.text }}
+                    >
+                      <CountUp to={stat.value} suffix={stat.suffix} />
+                    </div>
+                    <div
+                      className="mt-1 text-xs font-semibold"
+                      style={{ color: COLORS.textSecondary }}
+                    >
+                      {stat.label}
+                    </div>
+                  </div>
+                </StaggerItem>
+              );
+            })}
+          </StaggerContainer>
+        </div>
+      </section>
 
-                    <h3 className="text-base sm:text-lg font-bold font-heading text-white">
-                      {c.titre}
+      <section className="relative z-10 py-20 px-5 sm:px-10">
+        <div className="max-w-7xl mx-auto">
+          <FadeInUp className="max-w-3xl mx-auto text-center mb-10">
+            <h2
+              className="text-3xl sm:text-4xl font-black tracking-tight"
+              style={{ color: COLORS.text }}
+            >
+              L'excellence à chaque étape
+            </h2>
+            <p
+              className="mt-3 text-base leading-7"
+              style={{ color: COLORS.textSecondary }}
+            >
+              De la petite enfance aux portes de l'université, un parcours
+              cohérent pour libérer le potentiel de chaque élève.
+            </p>
+          </FadeInUp>
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {cycles.map((cycle, idx) => (
+              <StaggerItem key={cycle.titre}>
+                <div
+                  className="group overflow-hidden rounded-[16px] border h-full flex flex-col backdrop-blur-xl transition-transform duration-300 hover:-translate-y-1"
+                  style={glassStyle}
+                >
+                  
+                  <div className="h-52 relative overflow-hidden group">
+                    <img
+                      src={cycle.image}
+                      alt={cycle.titre}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0B1736] via-[#0B1736]/20 to-transparent"></div>
+                    {isAdmin && (
+                      <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <label className="cursor-pointer p-1.5 bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-lg text-xs font-bold text-white border border-white/20 transition-all flex items-center gap-2">
+                          <Settings className="w-3.5 h-3.5" /> Changer
+                          <input type="file" accept="image/*" className="hidden" onChange={(e) => handleCycleImageChange(idx, e)} />
+                        </label>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-6 flex flex-col flex-1">
+                    <h3
+                      className="text-xl font-bold mb-3"
+                      style={{ color: COLORS.text }}
+                    >
+                      {cycle.titre}
                     </h3>
-
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      {c.desc}
+                    <p
+                      className="text-sm leading-6 flex-1"
+                      style={{ color: COLORS.textSecondary }}
+                    >
+                      {cycle.desc}
                     </p>
+                    <button
+                      type="button"
+                      className="mt-5 inline-flex items-center gap-2 text-sm font-bold transition-all group-hover:translate-x-1"
+                      style={{ color: COLORS.blueLight }}
+                    >
+                      Découvrir le programme <ArrowRight className="w-4 h-4" />
+                    </button>
                   </div>
-
-                  <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-blue-400 font-semibold">
-                    <span>Programme Officiel RDC</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </div>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* VALUES & ENVIRONMENT */}
-      <section className="py-16 sm:py-20 px-4 sm:px-8 bg-slate-900/30 border-b border-slate-800/80">
-        <div className="max-w-7xl mx-auto space-y-12">
-          <div className="text-center space-y-2 max-w-2xl mx-auto">
-            <Badge variant="emerald" size="md">Notre Philosophie</Badge>
-            <h2 className="text-2xl sm:text-3xl font-extrabold font-heading text-white">
-              Pourquoi Choisir Notre Établissement ?
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-400">
-              Une éducation intégrale qui conjugue savoir, savoir-faire et savoir-être.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {valeurs.map((v, idx) => {
-              const Icon = v.icon;
-              return (
-                <Card key={idx} padding="normal" className="space-y-3">
-                  <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <h4 className="text-base font-bold font-heading text-white">
-                    {v.titre}
-                  </h4>
-                  <p className="text-xs text-slate-400 leading-relaxed">
-                    {v.desc}
-                  </p>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* TESTIMONIALS */}
-      <section className="py-16 sm:py-20 px-4 sm:px-8 border-b border-slate-800/80">
-        <div className="max-w-5xl mx-auto space-y-10">
-          <div className="text-center space-y-2">
-            <Badge variant="amber" size="md">Témoignages</Badge>
-            <h2 className="text-2xl sm:text-3xl font-extrabold font-heading text-white">
-              La Confiance de Notre Communauté
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {temoignages.map((t, idx) => (
-              <Card key={idx} padding="normal" className="space-y-4">
-                <div className="flex items-center gap-1 text-amber-400">
-                  {[...Array(t.note)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-current" />
-                  ))}
                 </div>
-                <p className="text-xs sm:text-sm text-slate-300 italic leading-relaxed">
-                  « {t.texte} »
-                </p>
-                <div className="pt-3 border-t border-slate-800/80">
-                  <div className="text-xs font-bold text-white">{t.nom}</div>
-                  <div className="text-[11px] text-slate-400">{t.role}</div>
-                </div>
-              </Card>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         </div>
       </section>
 
-      {/* CTA FOOTER BANNER */}
-      <section className="py-16 px-4 sm:px-8 bg-gradient-to-r from-blue-900/40 via-indigo-900/40 to-slate-900 border-b border-slate-800">
-        <div className="max-w-4xl mx-auto text-center space-y-6">
-          <h2 className="text-2xl sm:text-4xl font-extrabold font-heading text-white">
-            Prêt à Offrir le Meilleur Avenir à Votre Enfant ?
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto leading-relaxed">
-            Rejoignez notre communauté éducative. Connectez-vous à notre portail ou prenez contact avec notre secrétariat pour toute demande d'inscription.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-3.5">
-            <Button
-              variant="primary"
-              size="lg"
-              onClick={() => setCurrentView('login')}
-              icon={Lock}
-            >
-              Se Connecter à l'Espace Numérique
-            </Button>
-            <Button
-              variant="secondary"
-              size="lg"
-              onClick={() => setCurrentView('login')}
-            >
-              Créer un Compte Parent
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* MAIN FOOTER */}
-      <footer className="bg-slate-950 py-12 px-4 sm:px-8 text-xs text-slate-400">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pb-8 border-b border-slate-800">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2.5 text-white font-bold text-sm font-heading">
-              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-blue-700 shrink-0 shadow-sm">
-                <School className="w-4 h-4" />
+      <footer
+        className="border-t py-12 px-5 sm:px-10 relative z-10 mt-10"
+        style={{ background: "rgba(11,23,54,0.6)", borderColor: COLORS.border }}
+      >
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
+          <div className="space-y-4 md:col-span-2">
+            <div className="flex items-center gap-2">
+              <div
+                className="w-10 h-10 rounded-[10px] flex items-center justify-center text-white"
+                style={{
+                  background: "linear-gradient(135deg,#4EA3FF,#2563EB)",
+                }}
+              >
+                <School className="w-5 h-5" />
               </div>
-              <span>{data.ecoleConfig.nom}</span>
+              <span
+                className="font-black text-xl tracking-tight"
+                style={{ color: headingColor }}
+              >
+                {data?.ecoleConfig?.nom}
+              </span>
             </div>
-            <p className="text-slate-400 text-[11px] leading-relaxed">
-              Établissement scolaire d'excellence agréé par le Ministère de l'EPST en République Démocratique du Congo.
+            <p
+              className="text-sm leading-relaxed max-w-sm"
+              style={{ color: COLORS.textSecondary }}
+            >
+              Le standard d'excellence éducative en RDC. Formation intégrale et
+              innovation pédagogique.
             </p>
           </div>
-
-          <div className="space-y-2">
-            <div className="font-bold text-white text-xs uppercase tracking-wider">Localisation</div>
-            <p className="flex items-start gap-2 text-[11px]">
-              <MapPin className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-              <span>{data.ecoleConfig.adresse}, Commune de {data.ecoleConfig.commune}, Kinshasa - RDC</span>
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <div className="font-bold text-white text-xs uppercase tracking-wider">Contacts Directs</div>
-            <p className="flex items-center gap-2 text-[11px]">
-              <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>{data.ecoleConfig.telephone}</span>
-            </p>
-            <p className="flex items-center gap-2 text-[11px]">
-              <Mail className="w-4 h-4 text-amber-400 shrink-0" />
-              <span>{data.ecoleConfig.email}</span>
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <div className="font-bold text-white text-xs uppercase tracking-wider">Accès Rapides</div>
-            <ul className="space-y-1 text-[11px]">
-              <li><button onClick={() => setCurrentView('login')} className="hover:text-white transition">Portail Direction & Préfet</button></li>
-              <li><button onClick={() => setCurrentView('login')} className="hover:text-white transition">Espace Enseignants & Cotes</button></li>
-              <li><button onClick={() => setCurrentView('login')} className="hover:text-white transition">Portail Famille & Bulletins</button></li>
-              <li><button onClick={() => setCurrentView('login')} className="hover:text-white transition">Caisse & Trésorerie</button></li>
+          <div className="space-y-4">
+            <h4
+              className="text-xs font-black uppercase tracking-wider"
+              style={{ color: headingColor }}
+            >
+              Contact
+            </h4>
+            <ul
+              className="space-y-3 text-sm"
+              style={{ color: COLORS.textSecondary }}
+            >
+              <li className="flex items-center gap-3">
+                <MapPin
+                  className="w-4 h-4"
+                  style={{ color: COLORS.blueLight }}
+                />{" "}
+                {data?.ecoleConfig?.adresse}
+              </li>
+              <li className="flex items-center gap-3">
+                <Phone
+                  className="w-4 h-4"
+                  style={{ color: COLORS.blueLight }}
+                />{" "}
+                {data?.ecoleConfig?.telephone}
+              </li>
             </ul>
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-500 text-[11px]">
-          <div>
-            © 2026 {data.ecoleConfig.nom}. Tous droits réservés.
-          </div>
-          <div>
-            Conception conforme aux normes du Ministère de l'EPST - RDC.
           </div>
         </div>
       </footer>

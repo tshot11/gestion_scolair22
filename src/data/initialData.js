@@ -35,6 +35,13 @@ export const initialData = {
   presences: [],
   resultats: [],
   paiements: [],
-  utilisateurs: [],
+  utilisateurs: [
+    { id: 1, nom: "Dieudonné TSHILOMBO", email: "admin@complexe-tshot.com", role: "ADMIN", is_active: true },
+    { id: 2, nom: "Préfet Etudes", email: "prefet@complexe-tshot.com", role: "PREFET", is_active: true },
+    { id: 3, nom: "Agent Comptable", email: "comptable@complexe-tshot.com", role: "COMPTABLE", is_active: true },
+    { id: 4, nom: "Agent Caisse", email: "caissier@complexe-tshot.com", role: "CAISSIER", is_active: true },
+    { id: 5, nom: "Jean Prof", email: "prof@complexe-tshot.com", role: "ENSEIGNANT", is_active: true },
+    { id: 6, nom: "Parent Eleve", email: "parent@complexe-tshot.com", role: "TUTEUR", eleve_id: 1, is_active: true }
+  ],
   discipline: []
 };
