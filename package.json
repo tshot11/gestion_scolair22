@@ -23,6 +23,7 @@
     "firebase": "^12.18.0",
     "firebase-admin": "^14.3.0",
     "framer-motion": "^13.1.1",
+    "glob": "^13.0.6",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.33.0",
     "multer": "^2.2.0",

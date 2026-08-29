@@ -85,41 +85,38 @@ export function ResultsView() {
         </div>
       </div>
 
-      <div className="bg-[#12305A]/45 backdrop-blur-md border border-[#94C5FF]/15 rounded-2xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="bg-blue-500/10 border-b border-[#94C5FF]/15 text-blue-300/70 text-xs uppercase">
-                <th className="p-4">Élève</th>
-                <th className="p-4">Matricule</th>
-                <th className="p-4 w-48 text-right">Cote (/20)</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#94C5FF]/10 text-sm">
-              {eleves.map(e => (
-                <tr key={e.id} className="hover:bg-blue-500/10 transition-colors">
-                  <td className="p-4 text-white font-medium">{e.nom} {e.prenom}</td>
-                  <td className="p-4 text-blue-300 font-mono text-xs">{e.matricule}</td>
-                  <td className="p-4 text-right">
-                    <input 
-                      type="number" 
-                      min="0" max="20"
-                      value={grades[e.id] || ''} 
-                      onChange={evt => handleGradeChange(e.id, evt.target.value)}
-                      className="w-20 bg-[#0B1736]/60 border border-[#94C5FF]/30 rounded-lg px-2 py-1 text-white text-center focus:outline-none focus:border-blue-500"
-                      placeholder="-"
-                    />
-                  </td>
-                </tr>
-              ))}
-              {eleves.length === 0 && (
-                <tr>
-                  <td colSpan="3" className="p-8 text-center text-blue-300/50">Aucun élève dans cette classe.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+      <div className="min-h-[300px]">
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+          {eleves.map(e => (
+            <div key={e.id} className="bg-[#0B1736]/60 border border-[#94C5FF]/15 rounded-2xl p-4 hover:bg-[#12305A]/70 transition-colors flex flex-col justify-between">
+              <div className="flex items-center gap-3 mb-4">
+                 <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-sm shrink-0">
+                    {e.nom.charAt(0)}{e.prenom.charAt(0)}
+                  </div>
+                  <div>
+                    <h3 className="text-white font-bold text-sm">{e.nom} {e.prenom}</h3>
+                    <p className="text-xs text-blue-300 font-mono">{e.matricule}</p>
+                  </div>
+              </div>
+              <div className="flex items-center justify-between pt-3 border-t border-[#94C5FF]/15">
+                 <span className="text-xs font-bold text-blue-300/70">Cote (/20)</span>
+                 <input 
+                   type="number" 
+                   min="0" max="20"
+                   value={grades[e.id] || ''} 
+                   onChange={evt => handleGradeChange(e.id, evt.target.value)}
+                   className="w-20 bg-[#12305A]/45 border border-[#94C5FF]/30 rounded-xl px-3 py-1.5 text-white text-center font-bold focus:outline-none focus:border-blue-500"
+                   placeholder="-"
+                 />
+              </div>
+            </div>
+          ))}
+          {eleves.length === 0 && (
+            <div className="col-span-full p-8 text-center text-blue-300/50">Aucun élève dans cette classe.</div>
+          )}
         </div>
+
       </div>
     </div>
   );

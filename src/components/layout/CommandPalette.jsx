@@ -36,14 +36,14 @@ export function CommandPalette() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [setIsCommandPaletteOpen]);
   if (!isCommandPaletteOpen) return null; /* Filter students */
-  const filteredStudents = data.eleves
+  const filteredStudents = (data?.eleves || [])
     .filter((e) =>
       `${e.nom} ${e.prenom} ${e.matricule}`
         .toLowerCase()
         .includes(query.toLowerCase()),
     )
     .slice(0, 4); /* Filter teachers */
-  const filteredTeachers = data.enseignants
+  const filteredTeachers = (data?.enseignants || [])
     .filter((t) =>
       `${t.nom} ${t.prenom} ${t.specialite}`
         .toLowerCase()
@@ -60,53 +60,42 @@ export function CommandPalette() {
     { title: "Emploi du temps", view: "horaires", category: "Pages" },
   ].filter((item) => item.title.toLowerCase().includes(query.toLowerCase()));
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
-      {" "}
-      <div
-        className="bg-[#12305A]/45 bg-[#12305A]/45 backdrop-blur-md/60 backdrop-blur-md border border-[#94C5FF]/15/80 rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200"><div
+        className="bg-[#12305A]/45 backdrop-blur-md border border-[#94C5FF]/15 rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        {" "}
-        {/* Search Input Bar */}{" "}
-        <div className="flex items-center px-4 py-3.5 border-b border-[#94C5FF]/15 gap-3">
-          {" "}
-          <Search className="w-5 h-5 text-blue-400 shrink-0" />{" "}
-          <input
+        
+        {/* Search Input Bar */}
+        <div className="flex items-center px-4 py-3.5 border-b border-[#94C5FF]/15 gap-3"><Search className="w-5 h-5 text-blue-400 shrink-0" /><input
             type="text"
             placeholder="Rechercher un élève, enseignant, classe ou page..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoFocus
-            className="w-full bg-transparent text-[#F5F9FF] placeholder-blue-200/40 text-sm focus:outline-none"
-          />{" "}
+            className="w-full bg-transparent text-blue-100 placeholder-blue-200/40 text-sm focus:outline-none"
+          />
           {query ? (
             <button
               onClick={() => setQuery("")}
-              className="text-[#B8C7DF] hover:text-slate-700 B8C7DF]"
-            >
-              {" "}
-              <X className="w-4 h-4" />{" "}
-            </button>
+              className="text-blue-300/50 hover:text-slate-700 "
+            ><X className="w-4 h-4" /></button>
           ) : (
-            <kbd className="px-2 py-0.5 rounded bg-[#12305A]/45 text-[10px] text-[#F5F9FF]0 B8C7DF] border border-[#94C5FF]/15">
-              {" "}
-              ESC{" "}
+            <kbd className="px-2 py-0.5 rounded bg-[#12305A]/45 text-[10px] text-blue-300/70  border border-[#94C5FF]/15">
+              
+              ESC
             </kbd>
-          )}{" "}
-        </div>{" "}
-        {/* Results List */}{" "}
+          )}
+        </div>
+        {/* Results List */}
         <div className="max-h-96 overflow-y-auto p-3 space-y-4">
-          {" "}
-          {/* Quick Pages */}{" "}
+          
+          {/* Quick Pages */}
           {navigationItems.length > 0 && (
-            <div>
-              {" "}
-              <div className="text-[10px] font-bold text-[#F5F9FF]0 B8C7DF] uppercase tracking-wider px-2 mb-1.5">
-                {" "}
-                Navigation Rapide{" "}
-              </div>{" "}
-              <div className="space-y-1">
-                {" "}
+            <div><div className="text-[10px] font-bold text-blue-300/70  uppercase tracking-wider px-2 mb-1.5">
+                
+                Navigation Rapide
+              </div><div className="space-y-1">
+                
                 {navigationItems.map((item, idx) => (
                   <button
                     key={idx}
@@ -114,32 +103,20 @@ export function CommandPalette() {
                       setCurrentView(item.view);
                       setIsCommandPaletteOpen(false);
                     }}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left text-xs text-slate-700 B8C7DF] hover:bg-blue-600/20 hover:text-blue-400 transition"
-                  >
-                    {" "}
-                    <div className="flex items-center gap-2.5">
-                      {" "}
-                      <Sparkles className="w-3.5 h-3.5 text-blue-400" />{" "}
-                      <span>{item.title}</span>{" "}
-                    </div>{" "}
-                    <ChevronRight className="w-3.5 h-3.5 text-[#B8C7DF] " />{" "}
-                  </button>
-                ))}{" "}
-              </div>{" "}
-            </div>
-          )}{" "}
-          {/* Students */}{" "}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left text-xs text-slate-700  hover:bg-blue-600/20 hover:text-blue-400 transition"
+                  ><div className="flex items-center gap-2.5"><Sparkles className="w-3.5 h-3.5 text-blue-400" /><span>{item.title}</span></div><ChevronRight className="w-3.5 h-3.5 text-blue-300/50 " /></button>
+                ))}
+              </div></div>
+          )}
+          {/* Students */}
           {filteredStudents.length > 0 && (
-            <div>
-              {" "}
-              <div className="text-[10px] font-bold text-[#F5F9FF]0 B8C7DF] uppercase tracking-wider px-2 mb-1.5">
-                {" "}
-                Élèves ({filteredStudents.length}){" "}
-              </div>{" "}
-              <div className="space-y-1">
-                {" "}
+            <div><div className="text-[10px] font-bold text-blue-300/70  uppercase tracking-wider px-2 mb-1.5">
+                
+                Élèves ({filteredStudents.length})
+              </div><div className="space-y-1">
+                
                 {filteredStudents.map((eleve) => {
-                  const classe = data.classes.find(
+                  const classe = (data?.classes || []).find(
                     (c) => c.id === eleve.classe_id,
                   );
                   return (
@@ -150,46 +127,30 @@ export function CommandPalette() {
                         setCurrentView("eleve-detail");
                         setIsCommandPaletteOpen(false);
                       }}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left text-xs bg-[#12305A]/45 bg-[#12305A]/45 backdrop-blur-md/40 hover:bg-[#12305A]/45 text-[#F5F9FF] transition border border-[#94C5FF]/15"
-                    >
-                      {" "}
-                      <div className="flex items-center gap-3">
-                        {" "}
-                        <div className="w-7 h-7 rounded-[14px] bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-[10px]">
-                          {" "}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left text-xs bg-[#12305A]/45 backdrop-blur-md/40 hover:bg-[#12305A]/45 text-blue-100 transition border border-[#94C5FF]/15"
+                    ><div className="flex items-center gap-3"><div className="w-7 h-7 rounded-[14px] bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-[10px]">
+                          
                           {eleve.prenom[0]}
-                          {eleve.nom[0]}{" "}
-                        </div>{" "}
-                        <div>
-                          {" "}
-                          <div className="font-semibold text-white">
+                          {eleve.nom[0]}
+                        </div><div><div className="font-semibold text-white">
                             {eleve.nom} {eleve.prenom}
-                          </div>{" "}
-                          <div className="text-[10px] text-[#F5F9FF]0 B8C7DF]">
+                          </div><div className="text-[10px] text-blue-300/70 ">
                             {eleve.matricule} • {classe ? classe.nom : ""}
-                          </div>{" "}
-                        </div>{" "}
-                      </div>{" "}
-                      <span className="text-[10px] text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-[14px] border border-[#94C5FF]/15">
-                        {" "}
-                        Voir dossier{" "}
-                      </span>{" "}
-                    </button>
+                          </div></div></div><span className="text-[10px] text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-[14px] border border-[#94C5FF]/15">
+                        
+                        Voir dossier
+                      </span></button>
                   );
-                })}{" "}
-              </div>{" "}
-            </div>
-          )}{" "}
-          {/* Teachers */}{" "}
+                })}
+              </div></div>
+          )}
+          {/* Teachers */}
           {filteredTeachers.length > 0 && (
-            <div>
-              {" "}
-              <div className="text-[10px] font-bold text-[#F5F9FF]0 B8C7DF] uppercase tracking-wider px-2 mb-1.5">
-                {" "}
-                Enseignants ({filteredTeachers.length}){" "}
-              </div>{" "}
-              <div className="space-y-1">
-                {" "}
+            <div><div className="text-[10px] font-bold text-blue-300/70  uppercase tracking-wider px-2 mb-1.5">
+                
+                Enseignants ({filteredTeachers.length})
+              </div><div className="space-y-1">
+                
                 {filteredTeachers.map((teacher) => (
                   <button
                     key={teacher.id}
@@ -197,52 +158,33 @@ export function CommandPalette() {
                       setCurrentView("enseignants");
                       setIsCommandPaletteOpen(false);
                     }}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left text-xs bg-[#12305A]/45 bg-[#12305A]/45 backdrop-blur-md/40 hover:bg-[#12305A]/45 text-[#F5F9FF] transition border border-[#94C5FF]/15"
-                  >
-                    {" "}
-                    <div className="flex items-center gap-3">
-                      {" "}
-                      <div className="w-7 h-7 rounded-[14px] bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-[10px]">
-                        {" "}
-                        {teacher.nom[0]}{" "}
-                      </div>{" "}
-                      <div>
-                        {" "}
-                        <div className="font-semibold text-white">
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left text-xs bg-[#12305A]/45 backdrop-blur-md/40 hover:bg-[#12305A]/45 text-blue-100 transition border border-[#94C5FF]/15"
+                  ><div className="flex items-center gap-3"><div className="w-7 h-7 rounded-[14px] bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-[10px]">
+                        
+                        {teacher.nom[0]}
+                      </div><div><div className="font-semibold text-white">
                           {teacher.nom} {teacher.prenom}
-                        </div>{" "}
-                        <div className="text-[10px] text-[#F5F9FF]0 B8C7DF]">
+                        </div><div className="text-[10px] text-blue-300/70 ">
                           {teacher.specialite}
-                        </div>{" "}
-                      </div>{" "}
-                    </div>{" "}
-                    <span className="text-[10px] text-[#F5F9FF]0 B8C7DF]">
-                      {" "}
-                      {teacher.matricule}{" "}
-                    </span>{" "}
-                  </button>
-                ))}{" "}
-              </div>{" "}
-            </div>
-          )}{" "}
+                        </div></div></div><span className="text-[10px] text-blue-300/70 ">
+                      
+                      {teacher.matricule}
+                    </span></button>
+                ))}
+              </div></div>
+          )}
           {filteredStudents.length === 0 &&
             filteredTeachers.length === 0 &&
             navigationItems.length === 0 && (
-              <div className="py-8 text-center text-[#B8C7DF] text-xs">
-                {" "}
-                Aucun résultat correspondant à "{query}"{" "}
+              <div className="py-8 text-center text-blue-300/50 text-xs">
+                
+                Aucun résultat correspondant à "{query}"
               </div>
-            )}{" "}
-        </div>{" "}
-        {/* Palette Footer */}{" "}
-        <div className="px-4 py-2 bg-[#0B1736]/80 border-t border-[#94C5FF]/15 text-[10px] text-[#F5F9FF]0 B8C7DF] flex justify-between items-center">
-          {" "}
-          <span>
+            )}
+        </div>
+        {/* Palette Footer */}
+        <div className="px-4 py-2 bg-[#0B1736]/80 border-t border-[#94C5FF]/15 text-[10px] text-blue-300/70  flex justify-between items-center"><span>
             Conseil : Utilisez les flèches ou touchez un élément pour naviguer
-          </span>{" "}
-          <span className="text-blue-400">Gestion Scolaire RDC</span>{" "}
-        </div>{" "}
-      </div>{" "}
-    </div>
+          </span><span className="text-blue-400">Gestion Scolaire RDC</span></div></div></div>
   );
 }

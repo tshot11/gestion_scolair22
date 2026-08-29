@@ -9,9 +9,9 @@ export function Badge({
 }) {
   const variantStyles = {
     slate:
-      "bg-[#12305A]/45 backdrop-blur-md text-slate-700 B8C7DF] border-[#94C5FF]/15/80",
+      "bg-[#12305A]/45 backdrop-blur-md text-slate-700  border-[#94C5FF]/15",
     blue: "bg-blue-500/15 text-blue-300 border-[#94C5FF]/15",
-    emerald: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
+    emerald: "bg-blue-600/15 text-emerald-300 border-emerald-500/30",
     amber: "bg-amber-500/15 text-amber-300 border-amber-500/30",
     rose: "bg-rose-500/15 text-rose-300 border-rose-500/30",
     purple: "bg-purple-500/15 text-purple-300 border-purple-500/30",
@@ -38,13 +38,13 @@ export function Badge({
       className={`inline-flex items-center gap-1.5 rounded-[14px] border whitespace-nowrap select-none ${variantStyles[variant] || variantStyles.slate} ${sizeStyles[size]} ${className}`}
       {...props}
     >
-      {" "}
+      
       {dot && (
         <span
           className={`w-1.5 h-1.5 rounded-[14px] shrink-0 ${dotColorStyles[variant] || dotColorStyles.slate}`}
         />
-      )}{" "}
-      {children}{" "}
+      )}
+      {children}
     </span>
   );
 }
@@ -62,7 +62,7 @@ export function StatCard({
   const colorMap = {
     blue: "bg-blue-500/15 text-blue-400 border-[#94C5FF]/15 group-hover:bg-blue-500/25",
     emerald:
-      "bg-emerald-500/15 text-emerald-400 border-emerald-500/20 group-hover:bg-emerald-500/25",
+      "bg-blue-600/15 text-emerald-400 border-emerald-500/20 group-hover:bg-blue-600/25",
     amber:
       "bg-amber-500/15 text-amber-400 border-amber-500/20 group-hover:bg-amber-500/25",
     purple:
@@ -73,50 +73,39 @@ export function StatCard({
   return (
     <div
       onClick={onClick}
-      className={`p-3.5 sm:p-5 rounded-2xl bg-[#12305A]/45 bg-[#12305A]/45 backdrop-blur-md/60 backdrop-blur-md/80 border border-[#94C5FF]/15/90 shadow-sm backdrop-blur-sm transition-all duration-200 group flex flex-col justify-between ${onClick ? "cursor-pointer hover:border-[#94C5FF]/15 hover:bg-[#12305A]/45 backdrop-blur-md/90 active:scale-[0.99]" : ""} ${className}`}
-    >
-      {" "}
-      <div>
-        {" "}
-        <div className="flex items-start justify-between gap-2 mb-2">
-          {" "}
-          <span className="text-[11px] sm:text-xs font-semibold text-[#F5F9FF]0 B8C7DF] tracking-wide line-clamp-1">
-            {" "}
-            {title}{" "}
-          </span>{" "}
+      className={`p-3.5 sm:p-5 rounded-2xl bg-[#12305A]/45 backdrop-blur-md border border-[#94C5FF]/15 shadow-sm backdrop-blur-sm transition-all duration-200 group flex flex-col justify-between ${onClick ? "cursor-pointer hover:border-[#94C5FF]/15 hover:bg-[#12305A]/60 active:scale-[0.99]" : ""} ${className}`}
+    ><div><div className="flex items-start justify-between gap-2 mb-2"><span className="text-[11px] sm:text-xs font-semibold text-blue-300/70 tracking-wide line-clamp-1">
+            
+            {title}
+          </span>
           {Icon && (
             <div
               className={`w-7 h-7 sm:w-8 sm:h-8 rounded-xl border flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 ${colorMap[iconColor] || colorMap.blue}`}
-            >
-              {" "}
-              <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />{" "}
-            </div>
-          )}{" "}
-        </div>{" "}
-        <div className="text-sm xs:text-base sm:text-xl lg:text-2xl font-black text-white font-heading tracking-tight truncate">
-          {" "}
-          {value}{" "}
-        </div>{" "}
-      </div>{" "}
+            ><Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" /></div>
+          )}
+        </div><div className="text-sm xs:text-base sm:text-xl lg:text-2xl font-black text-white font-heading tracking-tight truncate">
+          
+          {value}
+        </div></div>
       {(subtitle || trend) && (
-        <div className="flex items-center flex-wrap gap-x-2 gap-y-0.5 mt-2.5 pt-2 border-t border-[#94C5FF]/15/70 text-[10px] sm:text-[11px] text-[#F5F9FF]0 B8C7DF]">
-          {" "}
+        <div className="flex items-center flex-wrap gap-x-2 gap-y-0.5 mt-2.5 pt-2 border-t border-[#94C5FF]/15 text-[10px] sm:text-[11px] text-blue-300/70">
+          
           {trend && (
             <span
               className={`font-bold flex items-center gap-0.5 ${trendPositive ? "text-emerald-400" : "text-rose-400"}`}
             >
-              {" "}
-              {trend}{" "}
+              
+              {trend}
             </span>
-          )}{" "}
+          )}
           {subtitle && (
-            <span className="text-[#F5F9FF]0 B8C7DF] truncate max-w-full">
-              {" "}
-              {trend ? `• ${subtitle}` : subtitle}{" "}
+            <span className="text-blue-300/70 truncate max-w-full">
+              
+              {trend ? `• ${subtitle}` : subtitle}
             </span>
-          )}{" "}
+          )}
         </div>
-      )}{" "}
+      )}
     </div>
   );
 }

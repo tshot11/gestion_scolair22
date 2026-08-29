@@ -12,250 +12,137 @@ import {
 export function ReceiptView() {
   const { selectedPaiementId, setCurrentView, data } = useApp();
   const paiement =
-    data.paiements.find((p) => p.id === Number(selectedPaiementId)) ||
-    data.paiements[0];
+    (data?.paiements || []).find((p) => p.id === Number(selectedPaiementId)) ||
+    (data?.paiements || [])[0];
   const eleve = paiement
-    ? data.eleves.find((e) => e.id === paiement.eleve_id)
+    ? (data?.eleves || []).find((e) => e.id === paiement.eleve_id)
     : null;
   const classe = eleve
-    ? data.classes.find((c) => c.id === eleve.classe_id)
+    ? (data?.classes || []).find((c) => c.id === eleve.classe_id)
     : null;
   const frais = paiement
-    ? data.frais.find((f) => f.id === paiement.frais_id)
+    ? (data?.frais || []).find((f) => f.id === paiement.frais_id)
     : null;
   if (!paiement || !eleve) {
     return (
-      <div className="p-8 text-center">
-        {" "}
-        <p className="text-[#F5F9FF]0">
+      <div className="p-8 text-center"><p className="text-blue-300/70">
           Quittance introuvable.
-        </p>{" "}
-        <button
+        </p><button
           onClick={() => setCurrentView("finance")}
           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-xl text-xs"
         >
-          {" "}
-          Retour aux finances{" "}
-        </button>{" "}
-      </div>
+          
+          Retour aux finances
+        </button></div>
     );
   }
   return (
     <div className="p-4 sm:p-6 space-y-6 max-w-3xl mx-auto pb-24 sm:pb-8">
-      {" "}
-      {/* Action Bar */}{" "}
-      <div className="flex items-center justify-between no-print">
-        {" "}
-        <button
+      
+      {/* Action Bar */}
+      <div className="flex items-center justify-between no-print"><button
           onClick={() => setCurrentView("finance")}
-          className="inline-flex items-center gap-2 text-xs font-semibold text-[#hover:text-white px-3 py-1.5 rounded-xl bg-[#12305A]/45 backdrop-blur-md border border-[#94C5FF]/15 transition"
-        >
-          {" "}
-          <ArrowLeft className="w-4 h-4" />{" "}
-          <span>Retour aux finances</span>{" "}
-        </button>{" "}
-        <button
+          className="inline-flex items-center gap-2 text-xs font-semibold text-blue-300 hover:text-white px-3 py-1.5 rounded-xl bg-[#12305A]/45 backdrop-blur-md border border-[#94C5FF]/15 transition"
+        ><ArrowLeft className="w-4 h-4" /><span>Retour aux finances</span></button><button
           onClick={() => window.print()}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-600/30 transition active:scale-95"
-        >
-          {" "}
-          <Printer className="w-4 h-4" />{" "}
-          <span>Imprimer la Quittance</span>{" "}
-        </button>{" "}
-      </div>{" "}
-      {/* Official Receipt Card (Figma / Material Print-Ready Style) */}{" "}
-      <div className="bg-[#12305A]/45 A]/45 bg-[#12305A]/45 backdrop-blur-md/60 backdrop-blur-md border-2 border-[#94C5FF]/15/80 rounded-2xl p-6 sm:p-8 shadow-2xl text-[#F5F9FF] relative overflow-hidden bulletin-page">
-        {" "}
-        {/* DRC Emblem & Header */}{" "}
-        <div className="text-center border-b-2 border-[#94C5FF]/15 pb-5 mb-6 space-y-1">
-          {" "}
-          <div className="text-[11px] font-bold uppercase tracking-widest text-[#F5F9FF]0">
-            {" "}
-            RÉPUBLIQUE DÉMOCRATIQUE DU CONGO{" "}
-          </div>{" "}
-          <div className="text-xs text-[#F5F9FF]0">
-            {" "}
-            Ministère de l'Éducation Nationale et Nouvelle Citoyenneté{" "}
-          </div>{" "}
-          <h2 className="text-xl sm:text-2xl font-black text-white uppercase font-heading tracking-tight mt-1">
-            {" "}
-            {data.ecoleConfig.nom}{" "}
-          </h2>{" "}
-          <div className="text-xs text-blue-400 font-mono">
-            {" "}
-            {data.ecoleConfig.code_ministeriel} •{" "}
-            {data.ecoleConfig.province_educationnelle}{" "}
-          </div>{" "}
-          <div className="inline-block mt-3 px-4 py-1 rounded-[14px] bg-blue-500/15 border border-blue-500/30 text-blue-400 font-bold text-xs uppercase tracking-wider">
-            {" "}
-            QUITTANCE OFFICIELLE DE PAIEMENT{" "}
-          </div>{" "}
-        </div>{" "}
-        {/* Reference & Date Banner */}{" "}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-[#12305A]/45 A]/45 bg-[#12305A]/45 backdrop-blur-md/60 backdrop-blur-md border border-[#94C5FF]/15/60 mb-6 text-xs font-mono">
-          {" "}
-          <div>
-            {" "}
-            <span className="text-[#text-[10px] block">
+        ><Printer className="w-4 h-4" /><span>Imprimer la Quittance</span></button></div>
+      {/* Official Receipt Card (Figma / Material Print-Ready Style) */}
+      <div className="bg-[#12305A]/45 backdrop-blur-md border-2 border-[#94C5FF]/15 rounded-2xl p-6 sm:p-8 shadow-2xl text-blue-100 relative overflow-hidden bulletin-page">
+        
+        {/* DRC Emblem & Header */}
+        <div className="text-center border-b-2 border-[#94C5FF]/15 pb-5 mb-6 space-y-1"><div className="text-[11px] font-bold uppercase tracking-widest text-blue-300/70">
+            
+            RÉPUBLIQUE DÉMOCRATIQUE DU CONGO
+          </div><div className="text-xs text-blue-300/70">
+            
+            Ministère de l'Éducation Nationale et Nouvelle Citoyenneté
+          </div><h2 className="text-xl sm:text-2xl font-black text-white uppercase font-heading tracking-tight mt-1">
+            
+            {(data?.ecoleConfig || {}).nom}
+          </h2><div className="text-xs text-blue-400 font-mono">
+            
+            {(data?.ecoleConfig || {}).code_ministeriel} •
+            {(data?.ecoleConfig || {}).province_educationnelle}
+          </div><div className="inline-block mt-3 px-4 py-1 rounded-[14px] bg-blue-500/15 border border-blue-500/30 text-blue-400 font-bold text-xs uppercase tracking-wider">
+            
+            QUITTANCE OFFICIELLE DE PAIEMENT
+          </div></div>
+        {/* Reference & Date Banner */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-[#12305A]/45 backdrop-blur-md border border-[#94C5FF]/15 mb-6 text-xs font-mono"><div><span className="text-blue-300/70 text-[10px] block">
               N° DE QUITTANCE
-            </span>{" "}
-            <span className="font-bold text-white text-sm">
+            </span><span className="font-bold text-white text-sm">
               {paiement.reference}
-            </span>{" "}
-          </div>{" "}
-          <div>
-            {" "}
-            <span className="text-[#text-[10px] block">
+            </span></div><div><span className="text-blue-300/70 text-[10px] block">
               DATE D'ENCAISSEMENT
-            </span>{" "}
-            <span className="font-bold text-white">
+            </span><span className="font-bold text-white">
               {paiement.date_paiement}
-            </span>{" "}
-          </div>{" "}
-          <div className="col-span-2 sm:col-span-1">
-            {" "}
-            <span className="text-[#text-[10px] block">
+            </span></div><div className="col-span-2 sm:col-span-1"><span className="text-blue-300/70 text-[10px] block">
               MODE DE RÈGLEMENT
-            </span>{" "}
-            <span className="font-bold text-blue-400">
+            </span><span className="font-bold text-blue-400">
               {paiement.mode}
-            </span>{" "}
-          </div>{" "}
-        </div>{" "}
-        {/* Student & Guardian Info */}{" "}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-xs">
-          {" "}
-          <div className="p-4 rounded-2xl bg-[#12305A]/45 backdrop-blur-md/30 border border-[#94C5FF]/15/40 space-y-1.5">
-            {" "}
-            <span className="text-[10px] font-bold uppercase text-[#tracking-wider">
+            </span></div></div>
+        {/* Student & Guardian Info */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-xs"><div className="p-4 rounded-2xl bg-[#12305A]/45 backdrop-blur-md/30 border border-[#94C5FF]/15 space-y-1.5"><span className="text-[10px] font-bold uppercase text-blue-300/70 tracking-wider">
               IDENTIFICATION ÉLÈVE
-            </span>{" "}
-            <div className="text-base font-extrabold text-white font-heading">
-              {" "}
-              {eleve.nom} {eleve.prenom}{" "}
-            </div>{" "}
-            <div className="text-slate-700">
-              {" "}
-              Matricule :{" "}
+            </span><div className="text-base font-extrabold text-white font-heading">
+              
+              {eleve.nom} {eleve.prenom}
+            </div><div className="text-slate-700">
+              
+              Matricule :
               <strong className="font-mono text-blue-400">
                 {eleve.matricule}
-              </strong>{" "}
-            </div>{" "}
-            <div className="text-slate-700">
-              {" "}
-              Classe : <strong>{classe?.nom}</strong>{" "}
-            </div>{" "}
-          </div>{" "}
-          <div className="p-4 rounded-2xl bg-[#12305A]/45 backdrop-blur-md/30 border border-[#94C5FF]/15/40 space-y-1.5">
-            {" "}
-            <span className="text-[10px] font-bold uppercase text-[#tracking-wider">
+              </strong></div><div className="text-slate-700">
+              
+              Classe : <strong>{classe?.nom}</strong></div></div><div className="p-4 rounded-2xl bg-[#12305A]/45 backdrop-blur-md/30 border border-[#94C5FF]/15 space-y-1.5"><span className="text-[10px] font-bold uppercase text-blue-300/70 tracking-wider">
               PARENT / PAYEUR
-            </span>{" "}
-            <div className="text-sm font-bold text-white">
-              {" "}
-              {eleve.nom_parent || "Tuteur Légal"}{" "}
-            </div>{" "}
-            <div className="text-slate-700">
-              {" "}
-              Téléphone : {eleve.telephone}{" "}
-            </div>{" "}
-            <div className="text-[#F5F9FF]0">
-              {" "}
-              Adresse : {eleve.adresse}{" "}
-            </div>{" "}
-          </div>{" "}
-        </div>{" "}
-        {/* Payment Line Item Table */}{" "}
-        <div className="border border-[#94C5FF]/15 rounded-2xl overflow-hidden mb-6">
-          {" "}
-          <table className="w-full text-left text-xs">
-            {" "}
-            <thead className="bg-[#12305A]/45 backdrop-blur-md text-slate-700 font-bold border-b border-[#94C5FF]/15">
-              {" "}
-              <tr>
-                {" "}
-                <th className="p-3">Description du Frais Scolaire</th>{" "}
-                <th className="p-3">Période / Échéance</th>{" "}
-                <th className="p-3 text-right">Montant Encaissé</th>{" "}
-              </tr>{" "}
-            </thead>{" "}
-            <tbody className="divide-y divide-blue-500/20">
-              {" "}
-              <tr>
-                {" "}
-                <td className="p-3 font-semibold text-white">
-                  {" "}
-                  {frais?.nom || "Frais de Minerval / Scolarité"}{" "}
-                </td>{" "}
-                <td className="p-3 text-[#F5F9FF]0">
-                  {" "}
-                  Année {data.ecoleConfig.annee_courante}{" "}
-                </td>{" "}
-                <td className="p-3 text-right font-mono font-extrabold text-blue-400 text-sm">
-                  {" "}
-                  {Number(paiement.montant_paye).toLocaleString("fr-FR")}{" "}
-                  CDF{" "}
-                </td>{" "}
-              </tr>{" "}
-            </tbody>{" "}
-            <tfoot className="bg-blue-500/10 font-bold border-t border-[#94C5FF]/15">
-              {" "}
-              <tr>
-                {" "}
-                <td
+            </span><div className="text-sm font-bold text-white">
+              
+              {eleve.nom_parent || "Tuteur Légal"}
+            </div><div className="text-slate-700">
+              
+              Téléphone : {eleve.telephone}
+            </div><div className="text-blue-300/70">
+              
+              Adresse : {eleve.adresse}
+            </div></div></div>
+        {/* Payment Line Item Table */}
+        <div className="border border-[#94C5FF]/15 rounded-2xl overflow-hidden mb-6"><table className="w-full text-left text-xs"><thead className="bg-[#12305A]/45 backdrop-blur-md text-slate-700 font-bold border-b border-[#94C5FF]/15"><tr><th className="p-3">Description du Frais Scolaire</th><th className="p-3">Période / Échéance</th><th className="p-3 text-right">Montant Encaissé</th></tr></thead><tbody className="divide-y divide-blue-500/20"><tr><td className="p-3 font-semibold text-white">
+                  
+                  {frais?.nom || "Frais de Minerval / Scolarité"}
+                </td><td className="p-3 text-blue-300/70">
+                  
+                  Année {(data?.ecoleConfig || {}).annee_courante}
+                </td><td className="p-3 text-right font-mono font-extrabold text-blue-400 text-sm">
+                  
+                  {Number(paiement.montant_paye).toLocaleString("fr-FR")}
+                  CDF
+                </td></tr></tbody><tfoot className="bg-blue-500/10 font-bold border-t border-[#94C5FF]/15"><tr><td
                   colSpan={2}
                   className="p-3 text-right uppercase text-slate-700"
                 >
                   TOTAL PAYÉ :
-                </td>{" "}
-                <td className="p-3 text-right text-base text-blue-400 font-mono">
-                  {" "}
-                  {Number(paiement.montant_paye).toLocaleString("fr-FR")}{" "}
-                  CDF{" "}
-                </td>{" "}
-              </tr>{" "}
-            </tfoot>{" "}
-          </table>{" "}
-        </div>{" "}
-        {/* Footer with Signatures & QR Code */}{" "}
-        <div className="pt-4 border-t-2 border-[#94C5FF]/15 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-[#F5F9FF]0">
-          {" "}
-          <div className="flex items-center gap-3">
-            {" "}
-            <div className="w-16 h-16 rounded-xl bg-white p-1 flex items-center justify-center">
-              {" "}
-              {/* QR Code Symbol */}{" "}
-              <div className="w-full h-full border border-black flex flex-col items-center justify-center text-[7px] text-black font-mono font-bold leading-tight text-center">
-                {" "}
-                <span>RDC-SEC</span> <span>{paiement.reference}</span>{" "}
-                <span>OK</span>{" "}
-              </div>{" "}
-            </div>{" "}
-            <div className="text-[11px] leading-tight">
-              {" "}
-              <span className="text-white font-bold block">
+                </td><td className="p-3 text-right text-base text-blue-400 font-mono">
+                  
+                  {Number(paiement.montant_paye).toLocaleString("fr-FR")}
+                  CDF
+                </td></tr></tfoot></table></div>
+        {/* Footer with Signatures & QR Code */}
+        <div className="pt-4 border-t-2 border-[#94C5FF]/15 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-blue-300/70"><div className="flex items-center gap-3"><div className="w-16 h-16 rounded-xl bg-white p-1 flex items-center justify-center">
+              
+              {/* QR Code Symbol */}
+              <div className="w-full h-full border border-black flex flex-col items-center justify-center text-[7px] text-black font-mono font-bold leading-tight text-center"><span>RDC-SEC</span> <span>{paiement.reference}</span><span>OK</span></div></div><div className="text-[11px] leading-tight"><span className="text-white font-bold block">
                 Vérification de Sécurité
-              </span>{" "}
-              <span>
+              </span><span>
                 Scannez pour authentifier la quittance sur le serveur de
                 l'établissement.
-              </span>{" "}
-            </div>{" "}
-          </div>{" "}
-          <div className="text-center sm:text-right space-y-1">
-            {" "}
-            <div className="text-[11px] text-[#F5F9FF]0">
+              </span></div></div><div className="text-center sm:text-right space-y-1"><div className="text-[11px] text-blue-300/70">
               Pour la Direction / Caisse Centrale
-            </div>{" "}
-            <div className="font-bold text-white uppercase text-xs pt-4">
+            </div><div className="font-bold text-white uppercase text-xs pt-4">
               Le Comptable de l'École
-            </div>{" "}
-            <div className="text-[10px] text-blue-400 font-mono">
+            </div><div className="text-[10px] text-blue-400 font-mono">
               SCEAU & SIGNATURE NUMÉRIQUE
-            </div>{" "}
-          </div>{" "}
-        </div>{" "}
-      </div>{" "}
-    </div>
+            </div></div></div></div></div>
   );
 }

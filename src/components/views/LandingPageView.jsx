@@ -109,31 +109,28 @@ function CountUp({ to, duration = 2, suffix = "" }) {
   return <motion.span ref={ref}>{rounded}</motion.span>;
 }
 
-const ImageSlider = ({ onAction }) => {
+const ImageSlider = ({ onAction, data }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const slides = [
+  const slides = data?.ecoleConfig?.landingSlides || [
     {
       title: "Rentrée scolaire",
       desc: "Préparez la rentrée en toute sérénité. Découvrez les dates clés, les modalités d'inscription et les réunions d'information.",
-      image:
-        "https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=1200&auto=format&fit=crop",
+      image: "https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=1200&auto=format&fit=crop",
       badge: "Information",
       action: "Voir le calendrier",
     },
     {
       title: "Inscriptions ouvertes",
       desc: "Les inscriptions sont ouvertes. Retrouvez les documents nécessaires, les tarifs et les informations par section.",
-      image:
-        "https://images.unsplash.com/photo-1544717297-fa95b6ee9643?q=80&w=1200&auto=format&fit=crop",
+      image: "https://images.unsplash.com/photo-1544717297-fa95b6ee9643?q=80&w=1200&auto=format&fit=crop",
       badge: "Admission",
       action: "Dossier d'inscription",
     },
     {
       title: "Excellence académique",
       desc: "Découvrez les résultats et les informations importantes concernant la réussite de nos élèves.",
-      image:
-        "https://images.unsplash.com/photo-1522661067900-ab828854a284?q=80&w=1200&auto=format&fit=crop",
+      image: "https://images.unsplash.com/photo-1522661067900-ab828854a284?q=80&w=1200&auto=format&fit=crop",
       badge: "Palmarès",
       action: "Voir les résultats",
     },
@@ -364,15 +361,19 @@ export function LandingPageView() {
         }}
       >
         <div className="flex items-center gap-3">
-          <div
-            className="w-9 h-9 rounded-[10px] flex items-center justify-center text-white"
-            style={{
-              background: "linear-gradient(135deg,#4EA3FF,#2563EB)",
-              boxShadow: "0 8px 25px rgba(78,163,255,0.20)",
-            }}
-          >
-            <School className="w-5 h-5" />
-          </div>
+          {data?.ecoleConfig?.logo ? (
+            <img src={data.ecoleConfig.logo} alt="Logo" className="w-9 h-9 object-contain" />
+          ) : (
+            <div
+              className="w-9 h-9 rounded-[10px] flex items-center justify-center text-white"
+              style={{
+                background: "linear-gradient(135deg,#4EA3FF,#2563EB)",
+                boxShadow: "0 8px 25px rgba(78,163,255,0.20)",
+              }}
+            >
+              <School className="w-5 h-5" />
+            </div>
+          )}
           <span
             className="hidden sm:block text-sm font-bold"
             style={{ color: headingColor }}
@@ -458,7 +459,7 @@ export function LandingPageView() {
             </p>
           </FadeInUp>
           <FadeInUp delay={0.3}>
-            <ImageSlider />
+            <ImageSlider data={data} />
           </FadeInUp>
           <FadeInUp delay={0.4}>
             <button
@@ -548,14 +549,7 @@ export function LandingPageView() {
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0B1736] via-[#0B1736]/20 to-transparent"></div>
-                    {isAdmin && (
-                      <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <label className="cursor-pointer p-1.5 bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-lg text-xs font-bold text-white border border-white/20 transition-all flex items-center gap-2">
-                          <Settings className="w-3.5 h-3.5" /> Changer
-                          <input type="file" accept="image/*" className="hidden" onChange={(e) => handleCycleImageChange(idx, e)} />
-                        </label>
-                      </div>
-                    )}
+                    
                   </div>
                   <div className="p-6 flex flex-col flex-1">
                     <h3
@@ -592,14 +586,18 @@ export function LandingPageView() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
           <div className="space-y-4 md:col-span-2">
             <div className="flex items-center gap-2">
-              <div
-                className="w-10 h-10 rounded-[10px] flex items-center justify-center text-white"
-                style={{
-                  background: "linear-gradient(135deg,#4EA3FF,#2563EB)",
-                }}
-              >
-                <School className="w-5 h-5" />
-              </div>
+              {data?.ecoleConfig?.logo ? (
+                <img src={data.ecoleConfig.logo} alt="Logo" className="w-10 h-10 object-contain" />
+              ) : (
+                <div
+                  className="w-10 h-10 rounded-[10px] flex items-center justify-center text-white"
+                  style={{
+                    background: "linear-gradient(135deg,#4EA3FF,#2563EB)",
+                  }}
+                >
+                  <School className="w-5 h-5" />
+                </div>
+              )}
               <span
                 className="font-black text-xl tracking-tight"
                 style={{ color: headingColor }}
@@ -630,14 +628,14 @@ export function LandingPageView() {
                 <MapPin
                   className="w-4 h-4"
                   style={{ color: COLORS.blueLight }}
-                />{" "}
+                />
                 {data?.ecoleConfig?.adresse}
               </li>
               <li className="flex items-center gap-3">
                 <Phone
                   className="w-4 h-4"
                   style={{ color: COLORS.blueLight }}
-                />{" "}
+                />
                 {data?.ecoleConfig?.telephone}
               </li>
             </ul>

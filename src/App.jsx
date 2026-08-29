@@ -23,6 +23,7 @@ import { CoursesView } from "./components/views/CoursesView";
 import { TimetableView } from "./components/views/TimetableView";
 import { DisciplineView } from "./components/views/DisciplineView";
 import { ParentsPortalView } from "./components/views/ParentsPortalView";
+import { StudentPortalView } from "./components/views/StudentPortalView";
 import { CommunicationView } from "./components/views/CommunicationView";
 import { SettingsView } from "./components/views/SettingsView";
 import { UserManagementView } from "./components/views/UserManagementView";
@@ -45,32 +46,22 @@ export function App() {
     ); /* If on Landing Page or Login View, show standalone full-width page */
   if (currentView === "landing") {
     return (
-      <div className="min-h-screen bg-[#0B1736] text-[#F5F9FF] flex flex-col antialiased">
-        {" "}
+      <div className="min-h-screen bg-[#0B1736] text-blue-100 flex flex-col antialiased">
+        
         {toastMessage && (
-          <div className="fixed top-4 right-4 z-50 flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-[#12305A]/45/95 border border-emerald-500/40 text-emerald-300 text-xs font-semibold shadow-2xl backdrop-blur-md animate-in slide-in-from-top-2 duration-200">
-            {" "}
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />{" "}
-            <span>{toastMessage}</span>{" "}
-          </div>
-        )}{" "}
-        <LandingPageView /> <Chatbot />{" "}
-      </div>
+          <div className="fixed top-4 right-4 z-50 flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-[#12305A]/45/95 border border-emerald-500/40 text-emerald-300 text-xs font-semibold shadow-2xl backdrop-blur-md animate-in slide-in-from-top-2 duration-200"><CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" /><span>{toastMessage}</span></div>
+        )}
+        <LandingPageView /> <Chatbot /></div>
     );
   }
   if (currentView === "login") {
     return (
-      <div className="min-h-screen bg-[#0B1736] text-[#F5F9FF] flex flex-col antialiased">
-        {" "}
+      <div className="min-h-screen bg-[#0B1736] text-blue-100 flex flex-col antialiased">
+        
         {toastMessage && (
-          <div className="fixed top-4 right-4 z-50 flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-[#12305A]/45/95 border border-emerald-500/40 text-emerald-300 text-xs font-semibold shadow-2xl backdrop-blur-md animate-in slide-in-from-top-2 duration-200">
-            {" "}
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />{" "}
-            <span>{toastMessage}</span>{" "}
-          </div>
-        )}{" "}
-        <LoginView /> <Chatbot />{" "}
-      </div>
+          <div className="fixed top-4 right-4 z-50 flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-[#12305A]/45/95 border border-emerald-500/40 text-emerald-300 text-xs font-semibold shadow-2xl backdrop-blur-md animate-in slide-in-from-top-2 duration-200"><CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" /><span>{toastMessage}</span></div>
+        )}
+        <LoginView /> <Chatbot /></div>
     );
   }
   const renderView = () => {
@@ -111,6 +102,8 @@ export function App() {
         return <DisciplineView />;
       case "parents":
         return <ParentsPortalView />;
+      case "eleve_portal":
+        return <StudentPortalView />;
       case "communication":
         return <CommunicationView />;
       case "utilisateurs":
@@ -127,84 +120,69 @@ export function App() {
     }
   };
   return (
-    <div className="min-h-screen bg-[#0B1736] text-[#F5F9FF] flex flex-col antialiased">
-      {" "}
-      {/* Toast Notification */}{" "}
+    <div className="min-h-screen bg-[#0B1736] text-blue-100 flex flex-col antialiased">
+      
+      {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-4 right-4 z-50 flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-[#12305A]/45/95 border border-emerald-500/40 text-emerald-300 text-xs font-semibold shadow-2xl backdrop-blur-md animate-in slide-in-from-top-2 duration-200">
-          {" "}
-          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />{" "}
-          <span>{toastMessage}</span>{" "}
-        </div>
-      )}{" "}
-      {/* Global Command Palette */} <CommandPalette />{" "}
-      {/* Mobile Drawer Menu */}{" "}
+        <div className="fixed top-4 right-4 z-50 flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-[#12305A]/45/95 border border-emerald-500/40 text-emerald-300 text-xs font-semibold shadow-2xl backdrop-blur-md animate-in slide-in-from-top-2 duration-200"><CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" /><span>{toastMessage}</span></div>
+      )}
+      {/* Global Command Palette */} <CommandPalette />
+      {/* Mobile Drawer Menu */}
       <MobileDrawerMenu
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
-      />{" "}
-      {/* Mobile Simulator Mode Wrapper or Standard Responsive App */}{" "}
+      />
+      {/* Mobile Simulator Mode Wrapper or Standard Responsive App */}
       {isMobileSimulator ? (
         <div className="flex-1 flex flex-col items-center justify-center p-2 sm:p-6 bg-[#0B1736]/90">
-          {" "}
-          {/* Top Bar Switcher */}{" "}
-          <div className="mb-3 flex items-center gap-3 bg-[#12305A]/45/60 border border-[#94C5FF]/15 px-4 py-2 rounded-2xl">
-            {" "}
-            <span className="text-xs text-[#B8C7DF] font-semibold flex items-center gap-1.5">
-              {" "}
-              <Smartphone className="w-4 h-4 text-blue-400" /> Simulateur Mobile
-              React Native (iPhone / Android){" "}
-            </span>{" "}
-            <button
+          
+          {/* Top Bar Switcher */}
+          <div className="mb-3 flex items-center gap-3 bg-[#12305A]/45 border border-[#94C5FF]/15 px-4 py-2 rounded-2xl"><span className="text-xs text-blue-300/50 font-semibold flex items-center gap-1.5"><Smartphone className="w-4 h-4 text-blue-400" /> Simulateur Mobile
+              React Native (iPhone / Android)
+            </span><button
               onClick={() => setIsMobileSimulator(false)}
-              className="text-[11px] px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-[#B8C7DF] transition"
+              className="text-[11px] px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-300/50 transition"
             >
-              {" "}
-              Passer en Plein Écran Web{" "}
-            </button>{" "}
-          </div>{" "}
-          {/* Smartphone Mockup Frame */}{" "}
+              
+              Passer en Plein Écran Web
+            </button></div>
+          {/* Smartphone Mockup Frame */}
           <div className="w-full max-w-[420px] h-[860px] max-h-[92vh] bg-[#0B1736] border-[6px] border-[#94C5FF]/15 rounded-[48px] shadow-2xl flex flex-col overflow-hidden relative">
-            {" "}
-            {/* Dynamic Island / Camera Notch */}{" "}
-            <div className="w-28 h-5 bg-[#12305A]/45/60 rounded-[14px] mx-auto mt-2 shrink-0 border border-[#94C5FF]/15"></div>{" "}
-            {/* Mobile Header */}{" "}
-            <MobileHeader onOpenMenu={() => setIsMobileMenuOpen(true)} />{" "}
-            {/* Scrollable View Area */}{" "}
+            
+            {/* Dynamic Island / Camera Notch */}
+            <div className="w-28 h-5 bg-[#12305A]/45 rounded-[14px] mx-auto mt-2 shrink-0 border border-[#94C5FF]/15"></div>
+            {/* Mobile Header */}
+            <MobileHeader onOpenMenu={() => setIsMobileMenuOpen(true)} />
+            {/* Scrollable View Area */}
             <main className="flex-1 overflow-y-auto no-scrollbar pb-24">
-              {" "}
-              {renderView()}{" "}
-            </main>{" "}
-            {/* Mobile Bottom Navigation */}{" "}
-            <MobileBottomNav onOpenMenu={() => setIsMobileMenuOpen(true)} />{" "}
-            {/* Home Indicator bar */}{" "}
-            <div className="w-32 h-1 bg-slate-700/60 rounded-[14px] mx-auto my-1.5 shrink-0"></div>{" "}
-          </div>{" "}
-        </div>
+              
+              {renderView()}
+            </main>
+            {/* Mobile Bottom Navigation */}
+            <MobileBottomNav onOpenMenu={() => setIsMobileMenuOpen(true)} />
+            {/* Home Indicator bar */}
+            <div className="w-32 h-1 bg-slate-700/60 rounded-[14px] mx-auto my-1.5 shrink-0"></div></div></div>
       ) : (
         /* Standard Responsive Layout (Full 100% width on Mobile, Sidebar + Navbar on Desktop) */ <div className="flex-1 flex flex-row min-h-screen w-full max-w-full overflow-x-hidden">
-          {" "}
-          {/* Desktop Left Sidebar: hidden on mobile (< lg), flex on desktop (lg:flex) */}{" "}
-          <DesktopSidebar /> {/* Main Content Area: 100% width on mobile */}{" "}
+          
+          {/* Desktop Left Sidebar: hidden on mobile (< lg), flex on desktop (lg:flex) */}
+          <DesktopSidebar /> {/* Main Content Area: 100% width on mobile */}
           <div className="flex-1 flex flex-col min-w-0 w-full max-w-full overflow-x-hidden">
-            {" "}
-            {/* Top Desktop Navbar */}{" "}
-            <DesktopNavbar onOpenMenu={() => setIsMobileMenuOpen(true)} />{" "}
-            {/* Top Mobile Header */}{" "}
-            <MobileHeader onOpenMenu={() => setIsMobileMenuOpen(true)} />{" "}
-            {/* Page View Container */}{" "}
+            
+            {/* Top Desktop Navbar */}
+            <DesktopNavbar onOpenMenu={() => setIsMobileMenuOpen(true)} />
+            {/* Top Mobile Header */}
+            <MobileHeader onOpenMenu={() => setIsMobileMenuOpen(true)} />
+            {/* Page View Container */}
             <main className="flex-1 overflow-y-auto w-full max-w-full overflow-x-hidden pb-24 lg:pb-8">
-              {" "}
-              {renderView()}{" "}
-            </main>{" "}
-            {/* Fixed Mobile Bottom Navigation */}{" "}
+              
+              {renderView()}
+            </main>
+            {/* Fixed Mobile Bottom Navigation */}
             <MobileBottomNav
               onOpenMenu={() => setIsMobileMenuOpen(true)}
-            />{" "}
-          </div>{" "}
-        </div>
-      )}{" "}
-      <Chatbot />{" "}
-    </div>
+            /></div></div>
+      )}
+      <Chatbot /></div>
   );
 }

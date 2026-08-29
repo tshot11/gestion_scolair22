@@ -10,65 +10,61 @@ export function PageHeader({
 }) {
   return (
     <div
-      className={`flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 mb-6 border-b border-[#94C5FF]/15/80 ${className}`}
-    >
-      {" "}
-      <div className="space-y-1.5 min-w-0">
-        {" "}
+      className={`flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 mb-6 border-b border-[#94C5FF]/15 ${className}`}
+    ><div className="space-y-1.5 min-w-0">
+        
         {breadcrumbs.length > 0 && (
-          <nav className="flex items-center gap-1.5 text-xs text-[#F5F9FF]0 B8C7DF] mb-1">
-            {" "}
+          <nav className="flex items-center gap-1.5 text-xs text-blue-300/70  mb-1">
+            
             {breadcrumbs.map((crumb, idx) => (
               <React.Fragment key={idx}>
-                {" "}
+                
                 {idx > 0 && (
-                  <ChevronRight className="w-3.5 h-3.5 text-[#B8C7DF]" />
-                )}{" "}
+                  <ChevronRight className="w-3.5 h-3.5 text-blue-300/50" />
+                )}
                 {crumb.onClick ? (
                   <button
                     onClick={crumb.onClick}
-                    className="hover:text-[#F5F9FF] transition font-medium"
+                    className="hover:text-blue-100 transition font-medium"
                   >
-                    {" "}
-                    {crumb.label}{" "}
+                    
+                    {crumb.label}
                   </button>
                 ) : (
                   <span
                     className={
                       idx === breadcrumbs.length - 1
-                        ? "text-[#F5F9FF] font-semibold"
+                        ? "text-blue-100 font-semibold"
                         : ""
                     }
                   >
-                    {" "}
-                    {crumb.label}{" "}
+                    
+                    {crumb.label}
                   </span>
-                )}{" "}
+                )}
               </React.Fragment>
-            ))}{" "}
+            ))}
           </nav>
-        )}{" "}
-        <div className="flex flex-wrap items-center gap-2.5">
-          {" "}
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold font-heading text-white tracking-tight">
-            {" "}
-            {title}{" "}
-          </h1>{" "}
-          {badge}{" "}
-        </div>{" "}
+        )}
+        <div className="flex flex-wrap items-center gap-2.5"><h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold font-heading text-white tracking-tight">
+            
+            {title}
+          </h1>
+          {badge}
+        </div>
         {description && (
-          <p className="text-xs sm:text-sm text-[#F5F9FF]0 B8C7DF] max-w-3xl leading-relaxed">
-            {" "}
-            {description}{" "}
+          <p className="text-xs sm:text-sm text-blue-300/70  max-w-3xl leading-relaxed">
+            
+            {description}
           </p>
-        )}{" "}
-      </div>{" "}
+        )}
+      </div>
       {actions && (
         <div className="flex flex-wrap items-center gap-2.5 shrink-0 self-start md:self-auto">
-          {" "}
-          {actions}{" "}
+          
+          {actions}
         </div>
-      )}{" "}
+      )}
     </div>
   );
 }
@@ -90,58 +86,49 @@ export function Modal({
     full: "max-w-full m-4",
   };
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 sm:p-6 bg-[#0B1736]/80 backdrop-blur-md animate-in fade-in duration-200">
-      {" "}
-      <div
+    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 sm:p-6 bg-[#0B1736]/80 backdrop-blur-md animate-in fade-in duration-200"><div
         className="fixed inset-0"
         onClick={onClose}
         aria-hidden="true"
-      />{" "}
-      <div
-        className={`relative w-full ${sizeClasses[size]} bg-[#12305A]/45 bg-[#12305A]/45 backdrop-blur-md/60 backdrop-blur-md border border-[#94C5FF]/15 rounded-2xl shadow-2xl overflow-hidden z-10 animate-in zoom-in-95 duration-200 ${className}`}
+      /><div
+        className={`relative w-full ${sizeClasses[size]} bg-[#12305A]/45 backdrop-blur-md border border-[#94C5FF]/15 rounded-2xl shadow-2xl overflow-hidden z-10 animate-in zoom-in-95 duration-200 ${className}`}
       >
-        {" "}
-        {/* Header */}{" "}
-        <div className="flex items-center justify-between p-5 sm:p-6 border-b border-[#94C5FF]/15/80">
-          {" "}
-          <div>
-            {" "}
+        
+        {/* Header */}
+        <div className="flex items-center justify-between p-5 sm:p-6 border-b border-[#94C5FF]/15"><div>
+            
             {title && (
               <h3 className="text-base sm:text-lg font-bold font-heading text-white">
-                {" "}
-                {title}{" "}
+                
+                {title}
               </h3>
-            )}{" "}
+            )}
             {description && (
-              <p className="text-xs text-[#F5F9FF]0 B8C7DF] mt-0.5">
-                {" "}
-                {description}{" "}
+              <p className="text-xs text-blue-300/70  mt-0.5">
+                
+                {description}
               </p>
-            )}{" "}
-          </div>{" "}
-          <button
+            )}
+          </div><button
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-[#12305A]/45 bg-[#12305A]/45 backdrop-blur-md/60 backdrop-blur-md hover:bg-[#12305A]/45 backdrop-blur-md text-[#F5F9FF]0 B8C7DF] hover:text-white flex items-center justify-center transition"
+            className="w-8 h-8 rounded-xl bg-[#12305A]/45 backdrop-blur-md hover:bg-[#12305A]/45 backdrop-blur-md text-blue-300/70  hover:text-white flex items-center justify-center transition"
           >
-            {" "}
-            ✕{" "}
-          </button>{" "}
-        </div>{" "}
-        {/* Content */}{" "}
+            
+            ✕
+          </button></div>
+        {/* Content */}
         <div className="p-5 sm:p-6 max-h-[75vh] overflow-y-auto">
-          {" "}
-          {children}{" "}
-        </div>{" "}
-      </div>{" "}
-    </div>
+          
+          {children}
+        </div></div></div>
   );
 }
 export function Tabs({ tabs = [], activeTab, onChange, className = "" }) {
   return (
     <div
-      className={`flex items-center gap-1.5 p-1 bg-[#12305A]/45 bg-[#12305A]/45 backdrop-blur-md/60 backdrop-blur-md/90 border border-[#94C5FF]/15/90 rounded-2xl overflow-x-auto no-scrollbar ${className}`}
+      className={`flex items-center gap-1.5 p-1 bg-[#12305A]/45 backdrop-blur-md border border-[#94C5FF]/15 rounded-2xl overflow-x-auto no-scrollbar ${className}`}
     >
-      {" "}
+      
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
         const Icon = tab.icon;
@@ -149,21 +136,21 @@ export function Tabs({ tabs = [], activeTab, onChange, className = "" }) {
           <button
             key={tab.id}
             onClick={() => onChange(tab.id)}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-150 ${isActive ? "bg-blue-600 text-white shadow-md shadow-blue-600/20" : "text-[#F5F9FF]0 B8C7DF] hover:text-[#F5F9FF] hover:bg-blue-500/10"}`}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-150 ${isActive ? "bg-blue-600 text-white shadow-md shadow-blue-600/20" : "text-blue-300/70  hover:text-blue-100 hover:bg-blue-500/10"}`}
           >
-            {" "}
-            {Icon && <Icon className="w-3.5 h-3.5" />} <span>{tab.label}</span>{" "}
+            
+            {Icon && <Icon className="w-3.5 h-3.5" />} <span>{tab.label}</span>
             {tab.count !== undefined && (
               <span
-                className={`text-[10px] px-1.5 py-0.5 rounded-[14px] font-bold ${isActive ? "bg-[#12305A]/45 text-white" : "bg-[#12305A]/45 backdrop-blur-md text-slate-700 B8C7DF]"}`}
+                className={`text-[10px] px-1.5 py-0.5 rounded-[14px] font-bold ${isActive ? "bg-[#12305A]/45 text-white" : "bg-[#12305A]/45 backdrop-blur-md text-slate-700 "}`}
               >
-                {" "}
-                {tab.count}{" "}
+                
+                {tab.count}
               </span>
-            )}{" "}
+            )}
           </button>
         );
-      })}{" "}
+      })}
     </div>
   );
 }
@@ -176,26 +163,23 @@ export function EmptyState({
 }) {
   return (
     <div
-      className={`flex flex-col items-center justify-center text-center p-8 sm:p-12 rounded-2xl border border-dashed border-[#94C5FF]/15 bg-[#12305A]/45 bg-[#12305A]/45 backdrop-blur-md/60 backdrop-blur-md/30 ${className}`}
+      className={`flex flex-col items-center justify-center text-center p-8 sm:p-12 rounded-2xl border border-dashed border-[#94C5FF]/15 bg-[#12305A]/45 backdrop-blur-md/30 ${className}`}
     >
-      {" "}
+      
       {Icon && (
-        <div className="w-12 h-12 rounded-2xl bg-[#12305A]/45 bg-[#12305A]/45 backdrop-blur-md/80 backdrop-blur-md border border-[#94C5FF]/15/60 text-[#F5F9FF]0 B8C7DF] flex items-center justify-center mb-4">
-          {" "}
-          <Icon className="w-6 h-6" />{" "}
-        </div>
-      )}{" "}
-      <h4 className="text-base font-bold text-[#F5F9FF] font-heading">
-        {" "}
-        {title}{" "}
-      </h4>{" "}
+        <div className="w-12 h-12 rounded-2xl bg-[#12305A]/45 backdrop-blur-md backdrop-blur-md border border-[#94C5FF]/15 text-blue-300/70  flex items-center justify-center mb-4"><Icon className="w-6 h-6" /></div>
+      )}
+      <h4 className="text-base font-bold text-blue-100 font-heading">
+        
+        {title}
+      </h4>
       {description && (
-        <p className="text-xs text-[#F5F9FF]0 B8C7DF] max-w-sm mt-1 mb-5">
-          {" "}
-          {description}{" "}
+        <p className="text-xs text-blue-300/70  max-w-sm mt-1 mb-5">
+          
+          {description}
         </p>
-      )}{" "}
-      {action}{" "}
+      )}
+      {action}
     </div>
   );
 }

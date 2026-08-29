@@ -70,120 +70,80 @@ export function DesktopNavbar() {
     }
   };
   return (
-    <header className="hidden lg:flex h-16 border-b border-[#94C5FF]/15 bg-[#12305A]/45 A]/45 bg-[#12305A]/45 backdrop-blur-md/80 backdrop-blur-md/60/80 backdrop-blur-md px-6 items-center justify-between sticky top-0 z-30">
-      {" "}
-      {/* Title & Path */}{" "}
+    <header className="hidden lg:flex h-16 border-b border-[#94C5FF]/15 bg-[#12305A]/45 A]/45 bg-[#12305A]/45 backdrop-blur-md backdrop-blur-md/80 backdrop-blur-md px-6 items-center justify-between sticky top-0 z-30">
+      
+      {/* Title & Path */}
       <div className="flex items-center gap-4">
-        {" "}
+        
         {canGoBack && (
           <button
             type="button"
             onClick={goBack}
-            className="p-2 rounded-xl bg-[#12305A]/45 A]/45 bg-[#12305A]/45 backdrop-blur-md/80 backdrop-blur-md hover:bg-blue-500/20 active:bg-slate-600 border border-[#94C5FF]/15/80 flex items-center justify-center text-[#F5F9FF] hover:text-white transition shadow-sm shrink-0"
+            className="p-2 rounded-xl bg-[#12305A]/45 A]/45 bg-[#12305A]/45 backdrop-blur-md backdrop-blur-md hover:bg-blue-500/20 active:bg-slate-600 border border-[#94C5FF]/15 flex items-center justify-center text-blue-100 hover:text-white transition shadow-sm shrink-0"
             aria-label="Retour"
-          >
-            {" "}
-            <ArrowLeft className="w-4 h-4 text-blue-400" />{" "}
-          </button>
-        )}{" "}
-        <div>
-          {" "}
-          <h1 className="text-base font-bold text-white font-heading">
-            {" "}
-            {getTitle()}{" "}
-          </h1>{" "}
-          <div className="flex items-center gap-2 text-xs text-[#F5F9FF]0 B8C7DF]">
-            {" "}
-            <span>{data.ecoleConfig.province_educationnelle}</span>{" "}
-            <span>•</span>{" "}
-            <span className="text-blue-400 font-medium">
-              {data.ecoleConfig.periode_active}
-            </span>{" "}
+          ><ArrowLeft className="w-4 h-4 text-blue-400" /></button>
+        )}
+        <div><h1 className="text-base font-bold text-white font-heading">
+            
+            {getTitle()}
+          </h1><div className="flex items-center gap-2 text-xs text-blue-300/70 "><span>{(data?.ecoleConfig || {}).province_educationnelle}</span><span>•</span><span className="text-blue-400 font-medium">
+              {(data?.ecoleConfig || {}).periode_active}
+            </span>
             {currentUser && (
-              <>
-                {" "}
-                <span>•</span>{" "}
-                <span className="text-emerald-400 font-semibold">
+              <><span>•</span><span className="text-emerald-400 font-semibold">
                   {currentUser.role}
-                </span>{" "}
-              </>
-            )}{" "}
-          </div>{" "}
-        </div>{" "}
-      </div>{" "}
-      {/* Action Controls */}{" "}
+                </span></>
+            )}
+          </div></div></div>
+      {/* Action Controls */}
       <div className="flex items-center gap-3">
-        {" "}
-        {/* Command Search Bar Trigger */}{" "}
+        
+        {/* Command Search Bar Trigger */}
         <button
           onClick={() => setIsCommandPaletteOpen(true)}
-          className="flex items-center gap-3 px-3.5 py-1.5 rounded-xl bg-[#12305A]/45 A]/45 bg-[#12305A]/45 backdrop-blur-md/80 backdrop-blur-md/80 border border-[#94C5FF]/15/60 text-[#F5F9FF]0 B8C7DF] hover:text-white hover:border-[#94C5FF]/15 transition w-56 text-xs shadow-inner"
-        >
-          {" "}
-          <Search className="w-4 h-4 text-[#F5F9FF]0 B8C7DF]" />{" "}
-          <span className="flex-1 text-left">Recherche globale...</span>{" "}
-          <kbd className="px-1.5 py-0.5 rounded bg-slate-700 text-[10px] font-mono text-slate-700 B8C7DF] border border-[#94C5FF]/15">
-            {" "}
-            ⌘K{" "}
-          </kbd>{" "}
-        </button>{" "}
-        {/* Device Switcher (Mobile vs Desktop Frame) */}{" "}
+          className="flex items-center gap-3 px-3.5 py-1.5 rounded-xl bg-[#12305A]/45 A]/45 bg-[#12305A]/45 backdrop-blur-md backdrop-blur-md border border-[#94C5FF]/15 text-blue-300/70  hover:text-white hover:border-[#94C5FF]/15 transition w-56 text-xs shadow-inner"
+        ><Search className="w-4 h-4 text-blue-300/70 " /><span className="flex-1 text-left">Recherche globale...</span><kbd className="px-1.5 py-0.5 rounded bg-slate-700 text-[10px] font-mono text-slate-700  border border-[#94C5FF]/15">
+            
+            ⌘K
+          </kbd></button>
+        {/* Device Switcher (Mobile vs Desktop Frame) */}
         <button
           onClick={() => setIsMobileSimulator(!isMobileSimulator)}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold border transition ${isMobileSimulator ? "bg-blue-600/20 text-blue-400 border-[#94C5FF]/15 shadow-sm shadow-blue-500/20" : "bg-[#12305A]/45 A]/45 bg-[#12305A]/45 backdrop-blur-md/80 backdrop-blur-md/70 text-slate-700 B8C7DF] border-[#94C5FF]/15/60 hover:bg-blue-500/20"}`}
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold border transition ${isMobileSimulator ? "bg-blue-600/20 text-blue-400 border-[#94C5FF]/15 shadow-sm shadow-blue-500/20" : "bg-[#12305A]/45 A]/45 bg-[#12305A]/45 backdrop-blur-md backdrop-blur-md/70 text-slate-700  border-[#94C5FF]/15 hover:bg-blue-500/20"}`}
           title="Basculer entre la vue smartphone et la vue plein écran web"
         >
-          {" "}
+          
           {isMobileSimulator ? (
-            <>
-              {" "}
-              <Smartphone className="w-4 h-4 text-blue-400" />{" "}
-              <span className="hidden lg:inline">Mode Mobile</span>{" "}
-            </>
+            <><Smartphone className="w-4 h-4 text-blue-400" /><span className="hidden lg:inline">Mode Mobile</span></>
           ) : (
-            <>
-              {" "}
-              <Monitor className="w-4 h-4 text-[#F5F9FF]0 B8C7DF]" />{" "}
-              <span className="hidden lg:inline">Simulateur Mobile</span>{" "}
-            </>
-          )}{" "}
-        </button>{" "}
-        {/* Public Landing Button */}{" "}
+            <><Monitor className="w-4 h-4 text-blue-300/70 " /><span className="hidden lg:inline">Simulateur Mobile</span></>
+          )}
+        </button>
+        {/* Public Landing Button */}
         <button
           onClick={() => setCurrentView("landing")}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#12305A]/45 A]/45 bg-[#12305A]/45 backdrop-blur-md/80 backdrop-blur-md/70 text-slate-700 B8C7DF] border border-[#94C5FF]/15/60 hover:text-white hover:bg-blue-500/20 text-xs font-medium transition"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#12305A]/45 A]/45 bg-[#12305A]/45 backdrop-blur-md backdrop-blur-md/70 text-slate-700  border border-[#94C5FF]/15 hover:text-white hover:bg-blue-500/20 text-xs font-medium transition"
           title="Page d'accueil de l'école (Vitrine)"
-        >
-          {" "}
-          <Globe className="w-4 h-4 text-blue-400" />{" "}
-          <span className="hidden xl:inline">Vitrine École</span>{" "}
-        </button>{" "}
-        {/* Notifications */}{" "}
+        ><Globe className="w-4 h-4 text-blue-400" /><span className="hidden xl:inline">Vitrine École</span></button>
+        {/* Notifications */}
         <button
           onClick={() => setCurrentView("communication")}
-          className="relative p-2 rounded-xl bg-[#12305A]/45 A]/45 bg-[#12305A]/45 backdrop-blur-md/80 backdrop-blur-md/80 border border-[#94C5FF]/15/60 text-slate-700 B8C7DF] hover:text-white hover:bg-blue-500/20 transition"
+          className="relative p-2 rounded-xl bg-[#12305A]/45 A]/45 bg-[#12305A]/45 backdrop-blur-md backdrop-blur-md border border-[#94C5FF]/15 text-slate-700  hover:text-white hover:bg-blue-500/20 transition"
           title="Notifications & Messages"
-        >
-          {" "}
-          <Bell className="w-4 h-4" />{" "}
+        ><Bell className="w-4 h-4" />
           {stats.unread_notifications > 0 && (
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-[14px] ring-2 ring-slate-900"></span>
-          )}{" "}
-        </button>{" "}
-        {/* Reset Demo Data Button */}{" "}
+          )}
+        </button>
+        {/* Reset Demo Data Button */}
         <button
           onClick={() => {
             if (true) {
               resetToDefaultData();
             }
           }}
-          className="p-2 rounded-xl bg-[#12305A]/45 A]/45 bg-[#12305A]/45 backdrop-blur-md/80 backdrop-blur-md/60 border border-[#94C5FF]/15 text-[#F5F9FF]0 B8C7DF] hover:text-rose-400 hover:bg-[#12305A]/45 A]/45 bg-[#12305A]/45 backdrop-blur-md/80 backdrop-blur-md transition"
+          className="p-2 rounded-xl bg-[#12305A]/45 A]/45 bg-[#12305A]/45 backdrop-blur-md backdrop-blur-md border border-[#94C5FF]/15 text-blue-300/70  hover:text-rose-400 hover:bg-[#12305A]/45 A]/45 bg-[#12305A]/45 backdrop-blur-md backdrop-blur-md transition"
           title="Réinitialiser données d'exemple"
-        >
-          {" "}
-          <RotateCcw className="w-4 h-4" />{" "}
-        </button>{" "}
-      </div>{" "}
-    </header>
+        ><RotateCcw className="w-4 h-4" /></button></div></header>
   );
 }

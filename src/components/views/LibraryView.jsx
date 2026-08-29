@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   Lock,
   Plus,
+  Award
 } from "lucide-react";
 export function LibraryView() {
   const { data, showToast, currentUser } = useApp();
@@ -73,21 +74,13 @@ export function LibraryView() {
   };
   return (
     <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto pb-24 sm:pb-8">
-      {" "}
-      {/* Header */}{" "}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        {" "}
-        <div>
-          {" "}
-          <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
-            {" "}
-            <Book className="w-8 h-8 text-blue-400" /> Bibliothèque &
-            Médias{" "}
-          </h1>{" "}
-          <p className="text-sm text-[#mt-1">
+      
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"><div><h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3"><Book className="w-8 h-8 text-blue-400" /> Bibliothèque &
+            Médias
+          </h1><p className="text-sm text-blue-300/70 mt-1">
             Documentation, syllabus, mémoires et manuels scolaires.
-          </p>{" "}
-        </div>{" "}
+          </p></div>
         {(currentUser?.role_id === "admin" ||
           currentUser?.role_id === "enseignant") && (
           <button
@@ -95,110 +88,75 @@ export function LibraryView() {
               showToast("Fenêtre d'upload en cours de développement...")
             }
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg transition"
-          >
-            {" "}
-            <Upload className="w-4 h-4" /> Ajouter un document{" "}
+          ><Upload className="w-4 h-4" /> Ajouter un document
           </button>
-        )}{" "}
-      </div>{" "}
-      {/* Filters */}{" "}
-      <div className="flex flex-col sm:flex-row gap-3">
-        {" "}
-        <div className="relative flex-1">
-          {" "}
-          <Search className="w-5 h-5 text-[#absolute left-3 top-1/2 -translate-y-1/2" />{" "}
-          <input
+        )}
+      </div>
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-3"><div className="relative flex-1"><Search className="w-5 h-5 text-blue-300/70 absolute left-3 top-1/2 -translate-y-1/2" /><input
             type="text"
             placeholder="Rechercher un livre, syllabus ou mémoire..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-blue-500/10 border border-[#94C5FF]/15 C5FF]/15 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500"
-          />{" "}
-        </div>{" "}
-        <div className="flex gap-2">
-          {" "}
-          <select
+            className="w-full bg-blue-500/10 border border-[#94C5FF]/15 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500"
+          /></div><div className="flex gap-2"><select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="bg-blue-500/10 border border-[#94C5FF]/15 C5FF]/15 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500"
-          >
-            {" "}
-            <option value="all">Tous les types</option>{" "}
-            <option value="pdf">Syllabus (PDF)</option>{" "}
-            <option value="book">Manuels (Achat)</option>{" "}
-            <option value="video">Cours Vidéo</option>{" "}
-            <option value="memory">Mémoires des anciens</option>{" "}
-          </select>{" "}
-        </div>{" "}
-      </div>{" "}
-      {/* Grid */}{" "}
+            className="bg-blue-500/10 border border-[#94C5FF]/15 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500"
+          ><option value="all">Tous les types</option><option value="pdf">Syllabus (PDF)</option><option value="book">Manuels (Achat)</option><option value="video">Cours Vidéo</option><option value="memory">Mémoires des anciens</option></select></div></div>
+      {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {" "}
+        
         {filteredItems.map((item) => (
           <div
             key={item.id}
-            className="bg-blue-500/10 border border-[#94C5FF]/15 C5FF]/15 rounded-2xl p-4 flex flex-col hover:border-blue-500/50 transition-colors group"
-          >
-            {" "}
-            <div className="h-32 bg-[#12305A]/45 A]/45 bg-[#12305A]/45 backdrop-blur-md/60 backdrop-blur-md rounded-xl flex items-center justify-center mb-4 relative overflow-hidden">
-              {" "}
+            className="bg-blue-500/10 border border-[#94C5FF]/15 rounded-2xl p-4 flex flex-col hover:border-blue-500/50 transition-colors group"
+          ><div className="h-32 bg-[#12305A]/45 backdrop-blur-md rounded-xl flex items-center justify-center mb-4 relative overflow-hidden">
+              
               {item.type === "video" && (
-                <Video className="w-12 h-12 text-[#B8C7DF]" />
-              )}{" "}
+                <Video className="w-12 h-12 text-blue-300/50" />
+              )}
               {item.type === "pdf" && (
-                <FileText className="w-12 h-12 text-[#B8C7DF]" />
-              )}{" "}
+                <FileText className="w-12 h-12 text-blue-300/50" />
+              )}
               {item.type === "book" && (
-                <Book className="w-12 h-12 text-[#B8C7DF]" />
-              )}{" "}
+                <Book className="w-12 h-12 text-blue-300/50" />
+              )}
               {item.type === "memory" && (
-                <Award className="w-12 h-12 text-[#B8C7DF]" />
-              )}{" "}
+                <Award className="w-12 h-12 text-blue-300/50" />
+              )}
               <div className="absolute top-2 right-2 flex gap-1">
-                {" "}
+                
                 {item.required && (
                   <span className="bg-blue-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
                     Requis
                   </span>
-                )}{" "}
+                )}
                 {item.price > 0 && (
                   <span className="bg-blue-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
                     Payant
                   </span>
-                )}{" "}
-              </div>{" "}
-            </div>{" "}
-            <div className="flex-1">
-              {" "}
-              <h3 className="text-sm font-bold text-white line-clamp-2">
+                )}
+              </div></div><div className="flex-1"><h3 className="text-sm font-bold text-white line-clamp-2">
                 {item.title}
-              </h3>{" "}
-              <p className="text-xs text-[#mt-1">
+              </h3><p className="text-xs text-blue-300/70 mt-1">
                 {item.author}
-              </p>{" "}
-            </div>{" "}
-            <div className="mt-4 pt-4 border-t border-[#94C5FF]/15 C5FF]/15 flex items-center justify-between">
-              {" "}
-              <span className="text-xs font-mono font-bold text-slate-700">
-                {" "}
-                {item.price === 0 ? "Gratuit" : `\${item.price} $`}{" "}
-              </span>{" "}
-              <button
+              </p></div><div className="mt-4 pt-4 border-t border-[#94C5FF]/15 flex items-center justify-between"><span className="text-xs font-mono font-bold text-slate-700">
+                
+                {item.price === 0 ? "Gratuit" : `\${item.price} $`}
+              </span><button
                 onClick={() => handleBuy(item)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs transition \${ item.price === 0 ? 'bg-slate-700 hover:bg-slate-600 text-white' : 'bg-blue-600 hover:bg-blue-500 text-white' }`}
               >
-                {" "}
+                
                 {item.price === 0 ? (
                   <Download className="w-3.5 h-3.5" />
                 ) : (
                   <ShoppingCart className="w-3.5 h-3.5" />
-                )}{" "}
-                {item.price === 0 ? "Ouvrir" : "Acheter"}{" "}
-              </button>{" "}
-            </div>{" "}
-          </div>
-        ))}{" "}
-      </div>{" "}
-    </div>
+                )}
+                {item.price === 0 ? "Ouvrir" : "Acheter"}
+              </button></div></div>
+        ))}
+      </div></div>
   );
 }

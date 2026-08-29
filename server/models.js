@@ -90,3 +90,5 @@ export const Student = new MockModel('Students');
 export const AuditLog = new MockModel('AuditLogs');
 export const Payment = new MockModel('Payments');
 export const ParentStudent = new MockModel('ParentStudents');
+export const Alert = new MockModel('Alerts');
+export const CorrectionRequest = new MockModel('CorrectionRequests');

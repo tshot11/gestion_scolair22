@@ -1,7 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { User, Student, AuditLog, Payment } from './models.js';
+import { User, Student, AuditLog, Payment, Alert, CorrectionRequest } from './models.js';
 import { GoogleGenAI } from '@google/genai';
 
 const router = express.Router();
@@ -9,7 +9,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key-pour-app-scolaire
 
 // Middleware d'authentification
 export const authenticate = (req, res, next) => {
-  const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
+  const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ error: 'Non autorisé' });
   
   try {
@@ -32,27 +32,72 @@ export const requireRole = (roles) => (req, res, next) => {
 // --- AUTH ROUTES ---
 router.post('/auth/login', async (req, res) => {
   try {
-    const email = (req.body.email || '').trim().toLowerCase();
+    const identifier = (req.body.email || req.body.username || req.body.matricule || '').trim().toLowerCase();
     const password = (req.body.password || '').trim();
-    const user = await User.findOne({ where: { email } });
-    if (!user || !user.is_active) {
+
+    if (!identifier || !password) {
+      return res.status(400).json({ error: 'Identifiant et mot de passe requis' });
+    }
+
+    // 1. Chercher par email dans Users
+    let user = await User.findOne({ where: { email: identifier } });
+
+    // 2. Si pas trouvé par email, chercher par matricule élève
+    if (!user) {
+      const student = await Student.findOne({ where: { matricule: identifier.toUpperCase() } }) 
+        || await Student.findOne({ where: { email_eleve: identifier } });
+      
+      if (student) {
+        user = await User.findOne({ where: { eleve_id: student.id } })
+          || await User.findOne({ where: { email: student.email_eleve || student.email } });
+      }
+    }
+
+    if (!user || user.is_active === false) {
       return res.status(401).json({ error: 'Identifiants invalides ou compte inactif' });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password_hash);
+    let isMatch = false;
+    if (user.password_hash) {
+      isMatch = await bcrypt.compare(password, user.password_hash);
+    }
+    // Fallback si mot de passe non haché
+    if (!isMatch && user.password && user.password === password) {
+      isMatch = true;
+    }
+
     if (!isMatch) {
       return res.status(401).json({ error: 'Identifiants invalides' });
     }
 
-    const token = jwt.sign({ id: user.id, role: user.role, nom: user.nom }, JWT_SECRET, { expiresIn: '12h' });
+    const token = jwt.sign(
+      { id: user.id, role: user.role, nom: user.nom, eleve_id: user.eleve_id },
+      JWT_SECRET,
+      { expiresIn: '12h' }
+    );
     
     // Log connexion
-    await AuditLog.create({ userId: user.id, action: 'LOGIN', details: 'Connexion réussie', ip_address: req.ip });
+    await AuditLog.create({
+      userId: user.id,
+      action: 'LOGIN',
+      details: `Connexion réussie (${user.role})`,
+      ip_address: req.ip
+    });
 
     res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
-    res.json({ token, user: { id: user.id, nom: user.nom, email: user.email, role: user.role, eleve_id: user.eleve_id } });
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        nom: user.nom,
+        email: user.email,
+        role: user.role,
+        eleve_id: user.eleve_id
+      }
+    });
   } catch (err) {
-    res.status(500).json({ error: 'Erreur serveur' });
+    console.error('Erreur login:', err);
+    res.status(500).json({ error: 'Erreur serveur lors de la connexion' });
   }
 });
 
@@ -72,7 +117,7 @@ router.get('/auth/me', authenticate, async (req, res) => {
 // --- USER MANAGEMENT ROUTES (ADMIN ONLY) ---
 router.get('/users', authenticate, requireRole(['ADMIN']), async (req, res) => {
   try {
-    const users = await User.findAll({ attributes: ['id', 'nom', 'email', 'role', 'is_active', 'createdAt'] });
+    const users = await User.findAll({ attributes: ['id', 'nom', 'email', 'role', 'eleve_id', 'is_active', 'createdAt'] });
     res.json({ users });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la récupération des utilisateurs' });
@@ -155,6 +200,72 @@ router.delete('/users/:id', authenticate, requireRole(['ADMIN']), async (req, re
     res.json({ success: true, message: 'Utilisateur supprimé avec succès' });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la suppression de l\'utilisateur' });
+  }
+});
+
+// --- STUDENT SPECIFIC SECURE ROUTES ---
+router.post('/student/alerts', authenticate, async (req, res) => {
+  try {
+    const { category, recipient, subject, description, priority, attachment } = req.body;
+    if (!subject || !description) {
+      return res.status(400).json({ error: 'Objet et description requis' });
+    }
+
+    const newAlert = await Alert.create({
+      eleve_id: req.user.eleve_id || req.user.id,
+      eleve_nom: req.user.nom,
+      category: category || 'Discipline',
+      recipient: recipient || 'Préfecture des études',
+      subject,
+      description,
+      priority: priority || 'Normale',
+      attachment: attachment || null,
+      status: 'Soumis', // Soumis -> Reçu -> En cours d'examen -> Résolu -> Clôturé
+      createdAt: new Date().toISOString()
+    });
+
+    await AuditLog.create({
+      userId: req.user.id,
+      action: 'STUDENT_ALERT',
+      details: `Alerte transmise: ${subject} (${category})`,
+      ip_address: req.ip
+    });
+
+    res.status(201).json({ success: true, alert: newAlert });
+  } catch (error) {
+    console.error('Erreur alert:', error);
+    res.status(500).json({ error: "Erreur lors de l'enregistrement du signalement" });
+  }
+});
+
+router.get('/student/alerts', authenticate, async (req, res) => {
+  try {
+    const studentId = req.user.eleve_id || req.user.id;
+    const allAlerts = await Alert.findAll();
+    const studentAlerts = (allAlerts || []).filter(a => String(a.eleve_id) === String(studentId));
+    res.json({ alerts: studentAlerts });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la récupération des signalements' });
+  }
+});
+
+router.post('/student/corrections', authenticate, async (req, res) => {
+  try {
+    const { field, currentValue, requestedValue, reason } = req.body;
+    const correction = await CorrectionRequest.create({
+      eleve_id: req.user.eleve_id || req.user.id,
+      eleve_nom: req.user.nom,
+      field,
+      currentValue,
+      requestedValue,
+      reason,
+      status: 'En attente',
+      createdAt: new Date().toISOString()
+    });
+
+    res.status(201).json({ success: true, correction });
+  } catch (error) {
+    res.status(500).json({ error: "Erreur lors de la demande de correction" });
   }
 });
 
