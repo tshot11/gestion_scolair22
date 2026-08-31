@@ -81,7 +81,7 @@ export function AnimatedStudentCard({
                 {eleve.nom} {eleve.prenom}
               </h3>
               {/* Essential Line: Birthday & Class */}
-              <div className="flex items-center flex-wrap gap-x-1.5 gap-y-0.5 mt-0.5 text-[11px] text-blue-300/70 "><span className="inline-flex items-center gap-1 font-mono text-slate-700 "><Calendar className="w-3 h-3 text-blue-400 shrink-0" /><span>{eleve.date_naissance}</span></span><span className="text-blue-300/50">•</span><span className="text-blue-300 font-medium truncate max-w-[120px]">
+              <div className="flex items-center flex-wrap gap-x-1.5 gap-y-0.5 mt-0.5 text-[11px] text-blue-300/70 "><span className="inline-flex items-center gap-1 font-mono text-blue-200 "><Calendar className="w-3 h-3 text-blue-400 shrink-0" /><span>{eleve.date_naissance}</span></span><span className="text-blue-300/50">•</span><span className="text-blue-300 font-medium truncate max-w-[120px]">
                   {classe ? classe.nom : "Classe"}
                 </span></div></div></div>
           {/* Right Tag & Accordion Toggle Icon */}
@@ -133,7 +133,7 @@ export function AnimatedStudentCard({
                 </span></div>
               {/* Parent Contact */}
               {(eleve.telephone || eleve.email_parent) && (
-                <div className="flex items-center justify-between p-2 rounded-xl bg-[#12305A]/45 backdrop-blur-md border border-[#94C5FF]/15"><span className="text-blue-300/70  flex items-center gap-1 text-[11px]"><Phone className="w-3 h-3 text-emerald-400 shrink-0" /><span>Contact :</span></span><span className="text-slate-700  font-mono text-[11px] text-right truncate max-w-[150px]">
+                <div className="flex items-center justify-between p-2 rounded-xl bg-[#12305A]/45 backdrop-blur-md border border-[#94C5FF]/15"><span className="text-blue-300/70  flex items-center gap-1 text-[11px]"><Phone className="w-3 h-3 text-emerald-400 shrink-0" /><span>Contact :</span></span><span className="text-blue-200  font-mono text-[11px] text-right truncate max-w-[150px]">
                     
                     {eleve.telephone || eleve.email_parent}
                   </span></div>
@@ -147,7 +147,7 @@ export function AnimatedStudentCard({
                       {quickAverage}/20
                     </span>
                   )}
-                  <span className="text-[10px] text-slate-700  font-medium">
+                  <span className="text-[10px] text-blue-200  font-medium">
                     
                     {eleve.est_boursier
                       ? "🎓 Boursier"

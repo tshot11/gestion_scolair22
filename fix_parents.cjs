@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+const fs = require('fs');
+
+const code = `import React, { useState } from "react";
 import { useApp } from "../../context/AppContext";
 import {
   Award,
@@ -79,7 +81,7 @@ export function ParentsPortalView() {
     const admin = onlineAdmins.find(
       (a) => String(a.id) === String(selectedAdminId),
     );
-    showToast(`Message envoyé à ${admin.name} avec succès !`);
+    showToast(\`Message envoyé à \${admin.name} avec succès !\`);
     setMsgInput("");
   };
 
@@ -124,31 +126,31 @@ export function ParentsPortalView() {
       <div className="flex overflow-x-auto hide-scrollbar gap-2 pb-2">
         <button
           onClick={() => setActiveTab("dossier")}
-          className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${
+          className={\`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all \${
             activeTab === "dossier"
               ? "bg-purple-600 text-white"
               : "bg-[#12305A]/45 backdrop-blur-md text-blue-300 hover:bg-[#94C5FF]/10 border border-transparent hover:border-[#94C5FF]/15"
-          }`}
+          }\`}
         >
           Dossier de {eleve.prenom}
         </button>
         <button
           onClick={() => setActiveTab("direction")}
-          className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${
+          className={\`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all \${
             activeTab === "direction"
               ? "bg-purple-600 text-white"
               : "bg-[#12305A]/45 backdrop-blur-md text-blue-300 hover:bg-[#94C5FF]/10 border border-transparent hover:border-[#94C5FF]/15"
-          }`}
+          }\`}
         >
           Contacter la Direction
         </button>
         <button
           onClick={() => setActiveTab("forum")}
-          className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${
+          className={\`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all \${
             activeTab === "forum"
               ? "bg-purple-600 text-white"
               : "bg-[#12305A]/45 backdrop-blur-md text-blue-300 hover:bg-[#94C5FF]/10 border border-transparent hover:border-[#94C5FF]/15"
-          }`}
+          }\`}
         >
           Forum & Réunions
         </button>
@@ -229,11 +231,11 @@ export function ParentsPortalView() {
             {onlineAdmins.map((admin) => (
               <div
                 key={admin.id}
-                className={`p-4 rounded-xl border transition-colors ${
+                className={\`p-4 rounded-xl border transition-colors \${
                   selectedAdminId === String(admin.id)
                     ? "bg-purple-600/20 border-purple-500"
                     : "bg-[#0B1736]/40 border-[#94C5FF]/15 hover:border-purple-400/50 cursor-pointer"
-                }`}
+                }\`}
                 onClick={() => setSelectedAdminId(String(admin.id))}
               >
                 <div className="flex items-center gap-3">
@@ -342,3 +344,6 @@ export function ParentsPortalView() {
     </div>
   );
 }
+`;
+
+fs.writeFileSync('./src/components/views/ParentsPortalView.jsx', code, 'utf8');

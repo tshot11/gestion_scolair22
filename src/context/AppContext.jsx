@@ -132,7 +132,14 @@ export const SYSTEM_ROLES = {
     badge: "Espace Famille",
     badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
     defaultView: "parents",
-    allowedViews: ["parents", "bulletin", "recu", "communication", "discipline", "visio", "bibliotheque"],
+    allowedViews: ["parents",
+        "bulletin",
+        "recu",
+        "communication",
+        "discipline",
+        "visio",
+        "bibliotheque",
+        "presences"],
     user: { id: 6, username: "parent", first_name: "Parent", last_name: "Eleve", role: "Tuteur", role_id: "tuteur", avatar: "PE", is_authenticated: true },
   },
   tuteur: {
@@ -142,7 +149,7 @@ export const SYSTEM_ROLES = {
     badge: "Espace Famille",
     badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
     defaultView: "parents",
-    allowedViews: ["parents", "bulletin", "recu", "communication", "discipline", "visio", "bibliotheque"],
+    allowedViews: ["parents", "bulletin", "recu", "communication", "discipline", "visio", "bibliotheque", "presences"],
     user: { id: 6, username: "parent", first_name: "Parent", last_name: "Eleve", role: "Tuteur", role_id: "tuteur", avatar: "PE", is_authenticated: true },
   },
   parent: {
@@ -152,7 +159,7 @@ export const SYSTEM_ROLES = {
     badge: "Espace Famille",
     badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
     defaultView: "parents",
-    allowedViews: ["parents", "bulletin", "recu", "communication", "discipline", "visio", "bibliotheque"],
+    allowedViews: ["parents", "bulletin", "recu", "communication", "discipline", "visio", "bibliotheque", "presences"],
     user: { id: 6, username: "parent", first_name: "Parent", last_name: "Eleve", role: "Tuteur", role_id: "tuteur", avatar: "PE", is_authenticated: true },
   },
   ELEVE: {
@@ -314,7 +321,8 @@ export function AppProvider({ children }) {
         "communication",
         "discipline",
         "visio",
-        "bibliotheque"
+        "bibliotheque",
+        "presences"
       ];
       return parentAllowed.includes(viewId);
     }

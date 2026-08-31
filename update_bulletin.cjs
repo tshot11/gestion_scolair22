@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+const fs = require('fs');
+
+const newCode = `import React, { useState } from "react";
 import { useApp } from "../../context/AppContext";
 import { Printer } from "lucide-react";
 
@@ -245,3 +247,6 @@ export function BulletinView() {
     </div>
   );
 }
+`;
+
+fs.writeFileSync('./src/components/views/BulletinView.jsx', newCode, 'utf8');
