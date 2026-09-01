@@ -26,6 +26,7 @@ import {
   useTransform,
   animate,
 } from "framer-motion";
+import { compressImage } from "../../imageCompressor";
 
 const COLORS = {
   background: "#0B1736",
@@ -301,26 +302,22 @@ export function LandingPageView() {
   const handleActualiteImageChange = (index, e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
+      compressImage(file, (dataUrl) => {
         const newActs = [...actualites];
-        newActs[index].image = reader.result;
+        newActs[index].image = dataUrl;
         setActualites(newActs);
-      };
-      reader.readAsDataURL(file);
+      });
     }
   };
 
   const handleCycleImageChange = (index, e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
+      compressImage(file, (dataUrl) => {
         const newCycles = [...cycles];
-        newCycles[index].image = reader.result;
+        newCycles[index].image = dataUrl;
         setCycles(newCycles);
-      };
-      reader.readAsDataURL(file);
+      });
     }
   };
 

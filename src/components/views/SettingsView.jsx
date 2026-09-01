@@ -17,6 +17,8 @@ import {
   Sparkles,
 } from "lucide-react";
 
+import { compressImage } from "../../imageCompressor";
+
 export function SettingsView() {
   const {
     data,
@@ -114,9 +116,7 @@ export function SettingsView() {
   const handleImageUpload = (e, callback) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => callback(reader.result);
-      reader.readAsDataURL(file);
+      compressImage(file, callback);
     }
   };
 

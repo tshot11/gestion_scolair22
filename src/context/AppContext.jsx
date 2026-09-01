@@ -198,27 +198,9 @@ export const SYSTEM_ROLES = {
 /* Permission & Role Checks */
 
 export function AppProvider({ children }) {
-  const [data, setData] = useState(() => {
-    try {
-      const localData = localStorage.getItem(STORAGE_KEY);
-      if (localData) {
-        const parsed = JSON.parse(localData);
-        return {
-          ...initialData,
-          ...parsed,
-          classes: (parsed.classes && parsed.classes.length > 0) ? parsed.classes : initialData.classes,
-          options: (parsed.options && parsed.options.length > 0) ? parsed.options : initialData.options,
-          niveaux: (parsed.niveaux && parsed.niveaux.length > 0) ? parsed.niveaux : initialData.niveaux,
-          eleves: (parsed.eleves && parsed.eleves.length > 0) ? parsed.eleves : initialData.eleves,
-          utilisateurs: (parsed.utilisateurs && parsed.utilisateurs.length > 0) ? parsed.utilisateurs : initialData.utilisateurs,
-          ecoleConfig: parsed.ecoleConfig || initialData.ecoleConfig,
-        };
-      }
-      return initialData;
-    } catch {
-      return initialData;
-    }
-  });
+  
+  const [data, setData] = useState(null);
+
 
   const [currentUser, setCurrentUser] = useState(() => {
     try {
@@ -238,9 +220,33 @@ export function AppProvider({ children }) {
   const [isMobileSimulator, setIsMobileSimulator] = useState(false);
   const [notificationToast, setNotificationToast] = useState(null);
 
+  
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    fetch('/api/sync/state')
+      .then(res => res.json())
+      .then(result => {
+        if (result.success && result.data) {
+          setData(JSON.parse(result.data));
+        } else {
+          setData(initialData);
+        }
+      })
+      .catch(err => {
+        console.error("Failed to load state", err);
+        setData(initialData);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (data && data !== initialData) {
+      fetch('/api/sync/state', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).catch(err => console.error("Failed to save state", err));
+    }
   }, [data]);
+
 
   useEffect(() => {
     if (currentUser) {
@@ -1701,8 +1707,8 @@ export function AppProvider({ children }) {
   }; /* Computed Statistics Engine */
   const getStats = () => {
     const total_eleves = (data?.eleves || []).length;
-    const total_garcons = (data.eleves || []).filter((e) => e.sexe === "M").length;
-    const total_filles = (data.eleves || []).filter((e) => e.sexe === "F").length;
+    const total_garcons = (data?.eleves || []).filter((e) => e.sexe === "M").length;
+    const total_filles = (data?.eleves || []).filter((e) => e.sexe === "F").length;
     const garcons_percentage = total_eleves
       ? Math.round((total_garcons / total_eleves) * 100)
       : 0;
@@ -1713,7 +1719,7 @@ export function AppProvider({ children }) {
     const total_classes = (data?.classes || []).length;
     const total_cours = (data?.cours || []).length;
     const today = "2026-08-20";
-    const pointagesToday = (data.pointages || []).filter((p) => p.date === today);
+    const pointagesToday = (data?.pointages || []).filter((p) => p.date === today);
     const presentCount = pointagesToday.filter(
       (p) => p.statut === "present",
     ).length;
@@ -1729,7 +1735,7 @@ export function AppProvider({ children }) {
     const presenceRate = pointagesToday.length
       ? Math.round((presentCount / pointagesToday.length) * 100)
       : 0;
-    const total_recouvrement = (data.paiements || []).reduce(
+    const total_recouvrement = (data?.paiements || []).reduce(
       (sum, p) => sum + Number(p.montant_paye),
       0,
     );
@@ -1738,11 +1744,11 @@ export function AppProvider({ children }) {
       0,
     );
     const solde_caisse = total_recouvrement - total_depenses;
-    const total_incidents_actifs = (data.incidents || []).filter(
+    const total_incidents_actifs = (data?.incidents || []).filter(
       (i) => !i.date_cloture,
     ).length;
-    const unread_notifications = (data.notifications || []).filter((n) => !n.lu).length;
-    const unread_messages = (data.messages || []).filter((m) => !m.lu).length;
+    const unread_notifications = (data?.notifications || []).filter((n) => !n.lu).length;
+    const unread_messages = (data?.messages || []).filter((m) => !m.lu).length;
     return {
       total_eleves,
       total_garcons,
@@ -1769,14 +1775,14 @@ export function AppProvider({ children }) {
     const eleve = (data?.eleves || []).find((e) => e.id === Number(id));
     if (!eleve) return null;
     const classe = (data?.classes || []).find((c) => c.id === eleve.classe_id);
-    const pointages = (data.pointages || []).filter((p) => p.eleve_id === eleve.id);
+    const pointages = (data?.pointages || []).filter((p) => p.eleve_id === eleve.id);
     const paiements = (data?.paiements || [])
       .filter((p) => p.eleve_id === eleve.id)
       .map((p) => {
         const f = (data?.frais || []).find((fr) => fr.id === p.frais_id);
         return { ...p, frais_nom: f ? f.nom : "Frais Scolaires" };
       });
-    const incidents = (data.incidents || []).filter((i) => i.eleve_id === eleve.id);
+    const incidents = (data?.incidents || []).filter((i) => i.eleve_id === eleve.id);
     const resultats = (data?.resultats || [])
       .filter((r) => r.eleve_id === eleve.id)
       .map((r) => {
@@ -1913,6 +1919,15 @@ export function AppProvider({ children }) {
     getRoomStats,
     getPedagogieAlerts,
   };
+  
+  if (!data) {
+    return (
+      <div className="h-screen w-full flex flex-col items-center justify-center bg-[#0a192f] text-[#94C5FF]">
+        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p>Chargement des données...</p>
+      </div>
+    );
+  }
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
 export function useApp() {

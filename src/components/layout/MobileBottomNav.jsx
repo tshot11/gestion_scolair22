@@ -23,11 +23,11 @@ export function MobileBottomNav({ onOpenMenu }) {
       { id: "bibliotheque", label: "Livres", icon: BookOpen },
       { id: "more", label: "Menu", icon: Menu, action: onOpenMenu },
     ];
-  } else if (currentUser?.role_id === "parent") {
+  } else if (currentUser?.role_id === "parent" || currentUser?.role_id === "TUTEUR" || currentUser?.role === "TUTEUR" || currentUser?.role === "PARENT") {
     navItems = [
-      { id: "parents", label: "Mon Espace", icon: HeartHandshake },
-      { id: "bulletin", label: "Bulletin", icon: Award },
-      { id: "recu", label: "Quittances", icon: Wallet },
+      { id: "parents", label: "Mes Enfants", icon: Users },
+      { id: "bulletin", label: "Résultats", icon: Award },
+      { id: "recu", label: "Finances", icon: Wallet },
       { id: "more", label: "Menu", icon: Menu, action: onOpenMenu },
     ];
   } else if (currentUser?.role_id === "enseignant") {

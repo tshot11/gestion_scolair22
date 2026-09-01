@@ -38,6 +38,12 @@ export function MobileDrawerMenu({ isOpen, onClose }) {
     currentUser?.role === "ELEVE" ||
     currentUser?.role === "Élève";
 
+  const isParent =
+    currentUser?.role_id === "parent" ||
+    currentUser?.role_id === "TUTEUR" ||
+    currentUser?.role === "TUTEUR" ||
+    currentUser?.role === "PARENT";
+
   const studentMenuSections = [
     {
       category: "PORTAIL ÉLÈVE",
@@ -52,9 +58,33 @@ export function MobileDrawerMenu({ isOpen, onClose }) {
     },
   ];
 
-  const menuSections = isStudent
-    ? studentMenuSections
-    : [
+  const parentMenuSections = [
+    {
+      category: "ESPACE PARENT",
+      items: [
+        { id: "parents", label: "Mes Enfants", icon: Users, count: null },
+        { id: "bulletin", label: "Voir les résultats", icon: Award, count: null },
+        { id: "recu", label: "Frais & Paiements", icon: Wallet, count: null },
+        { id: "presences", label: "Historique Présences", icon: Fingerprint, count: null },
+        { id: "discipline", label: "Dossier Disciplinaire", icon: ShieldAlert, count: null },
+      ],
+    },
+    {
+      category: "COMMUNICATION",
+      items: [
+        { id: "communication", label: "Messagerie & Alertes", icon: MessageSquare, count: null },
+        { id: "visio", label: "Visioconférence", icon: Video, count: null },
+      ],
+    },
+  ];
+
+  let menuSections = [];
+  if (isStudent) {
+    menuSections = studentMenuSections;
+  } else if (isParent) {
+    menuSections = parentMenuSections;
+  } else {
+    menuSections = [
     {
       category: "PÉDAGOGIE",
       items: [
@@ -167,7 +197,10 @@ export function MobileDrawerMenu({ isOpen, onClose }) {
         },
       ],
     },
-  ]; /* Filter sections by permissions */
+  ];
+  }
+
+  /* Filter sections by permissions */
   const filteredSections = menuSections
     .map((sec) => ({
       ...sec,

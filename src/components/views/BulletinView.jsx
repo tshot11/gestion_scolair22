@@ -9,6 +9,13 @@ export function BulletinView() {
     (currentUser?.role_id === 'TUTEUR' ? currentUser.eleve_id : selectedEleveId) || 1
   );
 
+  const isParent = currentUser?.role_id === "parent" || currentUser?.role_id === "TUTEUR" || currentUser?.role === "TUTEUR" || currentUser?.role === "PARENT";
+  
+  let validStudents = data?.eleves || [];
+  if (isParent) {
+    validStudents = validStudents.filter((e) => e.email_tuteur === currentUser.email || e.id === currentUser.eleve_id);
+  }
+
   const eleve = getEleveDetail(currentStudentId);
 
   if (!eleve) {
@@ -43,7 +50,7 @@ export function BulletinView() {
             }}
             className="bg-[#12305A]/45 backdrop-blur-md border border-[#94C5FF]/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 font-semibold"
           >
-            {(data?.eleves || []).map((e) => (
+            {validStudents.map((e) => (
               <option key={e.id} value={e.id}>
                 {e.nom} {e.prenom} ({e.matricule})
               </option>

@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+const fs = require('fs');
+
+const content = `import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Clock, CheckCircle2, XCircle, Users, ArrowLeft, Calendar, FileText } from 'lucide-react';
 
@@ -10,7 +12,7 @@ export function AttendanceView() {
   const eleves = data?.eleves || [];
   const pointages = data?.pointages || [];
   
-  const isParentOrStudent = currentUser?.role_id === "parent" || currentUser?.role_id === "TUTEUR" || currentUser?.role === "TUTEUR" || currentUser?.role === "PARENT" || currentUser?.role_id === "eleve" || currentUser?.role === "ELEVE" || currentUser?.role === "Élève";
+  const isParentOrStudent = currentUser?.role_id === "parent" || currentUser?.role_id === "TUTEUR" || currentUser?.role_id === "eleve";
   
   if (isParentOrStudent) {
     const targetEleveId = selectedEleveId || currentUser?.eleve_id;
@@ -178,22 +180,22 @@ export function AttendanceView() {
               <div className="flex gap-2">
                 <button 
                   onClick={() => togglePointage && togglePointage(eleve.id, "present")}
-                  className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all ${
+                  className={\`w-9 h-9 rounded-full border flex items-center justify-center transition-all \${
                     present 
                       ? "bg-emerald-500 text-white border-emerald-400 shadow-lg shadow-emerald-500/20 scale-110" 
                       : "bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-emerald-500/20 hover:text-emerald-400 hover:border-emerald-500/30"
-                  }`} 
+                  }\`} 
                   title="Présent"
                 >
                   <CheckCircle2 className="w-4 h-4" />
                 </button>
                 <button 
                   onClick={() => togglePointage && togglePointage(eleve.id, "absent")}
-                  className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all ${
+                  className={\`w-9 h-9 rounded-full border flex items-center justify-center transition-all \${
                     absent 
                       ? "bg-rose-500 text-white border-rose-400 shadow-lg shadow-rose-500/20 scale-110" 
                       : "bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-rose-500/20 hover:text-rose-400 hover:border-rose-500/30"
-                  }`} 
+                  }\`} 
                   title="Absent"
                 >
                   <XCircle className="w-4 h-4" />
@@ -213,3 +215,7 @@ export function AttendanceView() {
     </div>
   );
 }
+`;
+
+fs.writeFileSync('src/components/views/AttendanceView.jsx', content);
+console.log("AttendanceView patched!");

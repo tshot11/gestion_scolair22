@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+const fs = require('fs');
+
+const content = `import React, { useState } from "react";
 import { useApp } from "../../context/AppContext";
 import {
   Award,
@@ -157,3 +159,7 @@ export function ParentsPortalView() {
     </div>
   );
 }
+`
+
+fs.writeFileSync('src/components/views/ParentsPortalView.jsx', content);
+console.log("Patched!");

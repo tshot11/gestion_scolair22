@@ -321,4 +321,119 @@ Question de l'utilisateur : ${message}
   }
 });
 
+
+// ==========================================
+// GENERIC CRUD API FOR ALL COLLECTIONS
+// ==========================================
+
+
+import * as models from './models.js';
+
+import { collection, getDocs, doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from './firebase.js';
+
+const getModel = (collectionName) => {
+
+  // Check if specifically defined in models.js
+  const map = {
+    utilisateurs: models.User,
+    eleves: models.Student,
+    paiements: models.Payment,
+    notifications: models.Alert,
+    correctionRequests: models.CorrectionRequest
+  };
+  if (map[collectionName]) return map[collectionName];
+  // Otherwise use generic MockModel wrapper
+  return new models.MockModel(collectionName);
+};
+
+router.get('/data/all', authenticate, async (req, res) => {
+  try {
+    const models = require('./models.js');
+    
+    
+    // We will just return a status, fetching all collections dynamically is too heavy.
+    // Instead, we seed if empty, and then let the frontend fetch what it needs.
+    res.json({ success: true, message: "Use /api/data/:collection to fetch data" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/data/:collection', authenticate, async (req, res) => {
+  try {
+    const model = getModel(req.params.collection);
+    const data = await model.findAll();
+    res.json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/data/:collection', authenticate, async (req, res) => {
+  try {
+    const model = getModel(req.params.collection);
+    const doc = await model.create(req.body);
+    res.json({ success: true, data: doc });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.put('/data/:collection/:id', authenticate, async (req, res) => {
+  try {
+    const model = getModel(req.params.collection);
+    const doc = await model.findByPk(req.params.id);
+    if (!doc) return res.status(404).json({ error: 'Not found' });
+    const updated = await doc.update(req.body);
+    res.json({ success: true, data: updated });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.delete('/data/:collection/:id', authenticate, async (req, res) => {
+  try {
+    const model = getModel(req.params.collection);
+    const doc = await model.findByPk(req.params.id);
+    if (!doc) return res.status(404).json({ error: 'Not found' });
+    await doc.destroy();
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
+// ==========================================
+// GENERIC STATE SYNC (For AppContext)
+// ==========================================
+router.get('/sync/state', async (req, res) => {
+  try {
+    
+    const docRef = doc(db, 'System', 'AppState');
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      res.json({ success: true, data: snap.data().state });
+    } else {
+      res.json({ success: true, data: null });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/sync/state', async (req, res) => {
+  try {
+    
+    const docRef = doc(db, 'System', 'AppState');
+    // Save as a stringified chunk to avoid Firestore deep nesting limits or key errors
+    await setDoc(docRef, { state: JSON.stringify(req.body) });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;

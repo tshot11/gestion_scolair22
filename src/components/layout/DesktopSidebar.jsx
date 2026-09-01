@@ -37,6 +37,12 @@ export function DesktopSidebar() {
     currentUser?.role === "ELEVE" ||
     currentUser?.role === "Élève";
 
+  const isParent =
+    currentUser?.role_id === "parent" ||
+    currentUser?.role_id === "TUTEUR" ||
+    currentUser?.role === "TUTEUR" ||
+    currentUser?.role === "PARENT";
+
   const studentSections = [
     {
       title: "PORTAIL ÉLÈVE",
@@ -51,9 +57,33 @@ export function DesktopSidebar() {
     },
   ];
 
-  const allSections = isStudent
-    ? studentSections
-    : [
+  const parentSections = [
+    {
+      title: "ESPACE PARENT",
+      items: [
+        { id: "parents", label: "Mes Enfants", icon: Users },
+        { id: "bulletin", label: "Voir les résultats", icon: Award },
+        { id: "recu", label: "Frais & Paiements", icon: Wallet },
+        { id: "presences", label: "Historique Présences", icon: Fingerprint },
+        { id: "discipline", label: "Dossier Disciplinaire", icon: ShieldAlert },
+      ]
+    },
+    {
+      title: "COMMUNICATION",
+      items: [
+        { id: "communication", label: "Messagerie & Alertes", icon: MessageSquare },
+        { id: "visio", label: "Visioconférence", icon: Video },
+      ]
+    }
+  ];
+
+  let allSections = [];
+  if (isStudent) {
+    allSections = studentSections;
+  } else if (isParent) {
+    allSections = parentSections;
+  } else {
+    allSections = [
     {
       title: "PÉDAGOGIE",
       items: [
@@ -128,7 +158,10 @@ export function DesktopSidebar() {
         { id: "parametres", label: "Paramètres École", icon: Settings },
       ],
     },
-  ]; /* Filter sections by user permissions */
+  ];
+  }
+
+  /* Filter sections by user permissions */
   const filteredSections = allSections
     .map((section) => ({
       ...section,
