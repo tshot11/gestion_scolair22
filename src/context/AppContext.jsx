@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { initialData } from "../data/initialData";
+import { db, doc, onSnapshot, setDoc } from "../firebase";
 const AppContext = createContext();
 const STORAGE_KEY = "GESTION_SCOLAIRE_RDC_V3";
 const AUTH_STORAGE_KEY =
@@ -198,6 +199,17 @@ export const SYSTEM_ROLES = {
 /* Permission & Role Checks */
 
 export function AppProvider({ children }) {
+  // Sync Active Meetings globally
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, "meetings", "active"), (docSnap) => {
+      if (docSnap.exists()) {
+         const list = docSnap.data().list || [];
+         setData(prev => prev ? { ...prev, activeMeetings: list } : { activeMeetings: list });
+      }
+    });
+    return () => unsub();
+  }, []);
+
   
   const [data, setData] = useState(null);
 
@@ -226,14 +238,14 @@ export function AppProvider({ children }) {
       .then(res => res.json())
       .then(result => {
         if (result.success && result.data) {
-          setData(JSON.parse(result.data));
+          setData(prev => ({...JSON.parse(result.data), activeMeetings: prev?.activeMeetings || []}));
         } else {
-          setData(initialData);
+          setData(prev => ({...initialData, activeMeetings: prev?.activeMeetings || []}));
         }
       })
       .catch(err => {
         console.error("Failed to load state", err);
-        setData(initialData);
+        setData(prev => ({...initialData, activeMeetings: prev?.activeMeetings || []}));
       });
   }, []);
 
@@ -1697,7 +1709,7 @@ export function AppProvider({ children }) {
     return newRequest;
   };
   const resetToDefaultData = () => {
-    setData(initialData);
+    setData(prev => ({...initialData, activeMeetings: prev?.activeMeetings || []}));
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(AUTH_STORAGE_KEY);
     localStorage.removeItem("auth_token");

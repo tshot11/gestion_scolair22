@@ -20,6 +20,9 @@ export function MobileHeader({ onOpenMenu }) {
     goBack,
     canGoBack,
   } = useApp();
+
+  const isParentOrStudent = currentUser?.role_id === "parent" || currentUser?.role_id === "TUTEUR" || currentUser?.role === "TUTEUR" || currentUser?.role === "PARENT" || currentUser?.role_id === "eleve" || currentUser?.role === "ELEVE" || currentUser?.role === "Élève";
+
   const getTitle = () => {
     switch (currentView) {
       case "dashboard":

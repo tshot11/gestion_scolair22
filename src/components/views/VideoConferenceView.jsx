@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useApp } from "../../context/AppContext";
+import { db, doc, setDoc } from "../../firebase";
 import {
   Video,
   Phone,
@@ -33,7 +34,7 @@ export function VideoConferenceView() {
     showToast(`Connexion à la salle ${title || meetingId}...`);
   };
 
-  const handleCreate = (e) => {
+  const handleCreate = async (e) => {
     e.preventDefault();
     if (!meetingTitle.trim()) {
        showToast("Veuillez entrer un titre pour la réunion.", "error");
@@ -49,27 +50,33 @@ export function VideoConferenceView() {
        hostName: currentUser?.first_name || currentUser?.role_id || "Professeur"
     };
     
+    const newList = [newMeeting, ...(data?.activeMeetings || [])];
+    
     setData(prev => ({
        ...prev,
-       activeMeetings: [newMeeting, ...(prev.activeMeetings || [])]
+       activeMeetings: newList
     }));
+    
+    await setDoc(doc(db, "meetings", "active"), { list: newList });
 
     setActiveMeeting(newMeeting);
     setInCall(true);
     showToast("Création de la salle de réunion...");
   };
 
-  const handleEndCall = () => {
+  const handleEndCall = async () => {
     if (jitsiApiRef.current) {
       jitsiApiRef.current.dispose();
       jitsiApiRef.current = null;
     }
     
-    if (!isParent && activeMeeting) {
+    if (activeMeeting && activeMeeting.hostId === currentUser?.id) {
+      const newList = (data?.activeMeetings || []).filter(m => m.id !== activeMeeting.id);
       setData(prev => ({
         ...prev,
-        activeMeetings: (prev.activeMeetings || []).filter(m => m.id !== activeMeeting.id)
+        activeMeetings: newList
       }));
+      await setDoc(doc(db, "meetings", "active"), { list: newList });
     }
     
     setActiveMeeting(null);
@@ -81,7 +88,7 @@ export function VideoConferenceView() {
     if (inCall && activeMeeting && jitsiContainer.current) {
       if (!window.JitsiMeetExternalAPI) {
         const script = document.createElement("script");
-        script.src = "https://meet.jit.si/external_api.js";
+        script.src = "https://meet.element.io/external_api.js";
         script.async = true;
         script.onload = () => initJitsi();
         document.body.appendChild(script);
@@ -94,7 +101,7 @@ export function VideoConferenceView() {
            jitsiApiRef.current.dispose();
         }
         
-        const domain = "meet.jit.si";
+        const domain = "meet.element.io";
         const options = {
             roomName: "GestionScolaireRDC_" + activeMeeting.id,
             width: "100%",
@@ -106,11 +113,17 @@ export function VideoConferenceView() {
             configOverwrite: {
                 startWithAudioMuted: false,
                 startWithVideoMuted: false,
-                prejoinPageEnabled: false
+                prejoinPageEnabled: false,
+                disableDeepLinking: true
             },
             interfaceConfigOverwrite: {
                 SHOW_JITSI_WATERMARK: false,
                 SHOW_WATERMARK_FOR_GUESTS: false,
+                SHOW_BRAND_WATERMARK: false,
+                BRAND_WATERMARK_LINK: '',
+                DEFAULT_LOGO_URL: '',
+                DEFAULT_WELCOME_PAGE_LOGO_URL: '',
+                HIDE_DEEP_LINKING_LOGO: true,
                 TOOLBAR_BUTTONS: [
                     'microphone', 'camera', 'desktop', 'fullscreen',
                     'fodeviceselection', 'hangup', 'profile', 'chat',
@@ -185,7 +198,7 @@ export function VideoConferenceView() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
         {/* Create Card (Admin/Teacher) */}
-        {!isParent && (
+        {true && (
           <div className="bg-[#12305A]/45 backdrop-blur-xl rounded-[24px] p-6 sm:p-8 border border-[#94C5FF]/15 shadow-2xl relative overflow-hidden group hover:border-[#94C5FF]/30 transition-all">
             <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/10 transition-all"></div>
             <div className="absolute bottom-0 right-0 p-8 opacity-5">
