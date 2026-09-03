@@ -10,7 +10,9 @@ import {
   ShieldCheck,
 } from "lucide-react";
 export function ReceiptView() {
-  const { selectedPaiementId, setCurrentView, data } = useApp();
+  const { selectedPaiementId, setCurrentView, data, currentUser } = useApp();
+  const isParentOrStudent = currentUser?.role_id === "parent" || currentUser?.role_id === "TUTEUR" || currentUser?.role === "TUTEUR" || currentUser?.role === "PARENT" || currentUser?.role_id === "eleve" || currentUser?.role === "ELEVE" || currentUser?.role === "Élève";
+
   const paiement =
     (data?.paiements || []).find((p) => p.id === Number(selectedPaiementId)) ||
     (data?.paiements || [])[0];
@@ -28,11 +30,11 @@ export function ReceiptView() {
       <div className="p-8 text-center"><p className="text-blue-300/70">
           Quittance introuvable.
         </p><button
-          onClick={() => setCurrentView("finance")}
+          onClick={() => setCurrentView(isParentOrStudent ? "parents" : "finance")}
           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-xl text-xs"
         >
           
-          Retour aux finances
+          Retour
         </button></div>
     );
   }
@@ -41,9 +43,9 @@ export function ReceiptView() {
       
       {/* Action Bar */}
       <div className="flex items-center justify-between no-print"><button
-          onClick={() => setCurrentView("finance")}
+          onClick={() => setCurrentView(isParentOrStudent ? "parents" : "finance")}
           className="inline-flex items-center gap-2 text-xs font-semibold text-blue-300 hover:text-white px-3 py-1.5 rounded-xl bg-[#12305A]/45 backdrop-blur-md border border-[#94C5FF]/15 transition"
-        ><ArrowLeft className="w-4 h-4" /><span>Retour aux finances</span></button><button
+        ><ArrowLeft className="w-4 h-4" /><span>Retour</span></button><button
           onClick={() => window.print()}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-600/30 transition active:scale-95"
         ><Printer className="w-4 h-4" /><span>Imprimer la Quittance</span></button></div>

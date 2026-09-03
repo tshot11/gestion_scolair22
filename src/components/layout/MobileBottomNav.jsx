@@ -27,7 +27,7 @@ export function MobileBottomNav({ onOpenMenu }) {
     navItems = [
       { id: "parents", label: "Mes Enfants", icon: Users },
       { id: "bulletin", label: "Résultats", icon: Award },
-      { id: "recu", label: "Finances", icon: Wallet },
+      { id: "finance", label: "Finances", icon: Wallet },
       { id: "more", label: "Menu", icon: Menu, action: onOpenMenu },
     ];
   } else if (currentUser?.role_id === "enseignant") {

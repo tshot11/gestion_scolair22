@@ -17,6 +17,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { AnimatedStudentCard } from "../ui";
+import { Video } from "lucide-react";
 
 export function ParentsPortalView() {
   const {
@@ -27,6 +28,9 @@ export function ParentsPortalView() {
     showToast,
     currentUser,
   } = useApp();
+
+  const activeMeetings = data?.activeMeetings || [];
+
 
   // Find all children belonging to this parent
   const parentChildren = (data?.eleves || []).filter(
@@ -113,7 +117,7 @@ export function ParentsPortalView() {
             <button
               onClick={() => {
                 setSelectedEleveId(eleve.id);
-                setCurrentView("recu");
+                setCurrentView("finance");
               }}
               className="bg-[#12305A]/45 backdrop-blur-md hover:bg-[#94C5FF]/10 border border-[#94C5FF]/15 p-4 rounded-2xl flex flex-col items-center justify-center gap-3 transition group shadow-sm"
             >

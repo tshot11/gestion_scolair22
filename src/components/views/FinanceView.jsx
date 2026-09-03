@@ -115,7 +115,7 @@ export function FinanceView() {
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/20 text-blue-400 text-xs font-bold">
                   <CheckCircle2 className="w-3.5 h-3.5" /> Validé
                 </span>
-                <button className="text-xs font-bold text-blue-300 hover:text-white flex items-center gap-1 transition-colors">
+                <button onClick={() => { setSelectedPaiementId(p.id); setCurrentView("recu"); }} className="text-xs font-bold text-blue-300 hover:text-white flex items-center gap-1 transition-colors">
                   <FileText className="w-3.5 h-3.5" /> Reçu
                 </button>
               </div>

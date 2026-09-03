@@ -63,7 +63,7 @@ export function DesktopSidebar() {
       items: [
         { id: "parents", label: "Mes Enfants", icon: Users },
         { id: "bulletin", label: "Voir les résultats", icon: Award },
-        { id: "recu", label: "Frais & Paiements", icon: Wallet },
+        { id: "finance", label: "Frais & Paiements", icon: Wallet },
         { id: "presences", label: "Historique Présences", icon: Fingerprint },
         { id: "discipline", label: "Dossier Disciplinaire", icon: ShieldAlert },
       ]

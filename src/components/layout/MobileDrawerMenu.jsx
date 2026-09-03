@@ -64,7 +64,7 @@ export function MobileDrawerMenu({ isOpen, onClose }) {
       items: [
         { id: "parents", label: "Mes Enfants", icon: Users, count: null },
         { id: "bulletin", label: "Voir les résultats", icon: Award, count: null },
-        { id: "recu", label: "Frais & Paiements", icon: Wallet, count: null },
+        { id: "finance", label: "Frais & Paiements", icon: Wallet, count: null },
         { id: "presences", label: "Historique Présences", icon: Fingerprint, count: null },
         { id: "discipline", label: "Dossier Disciplinaire", icon: ShieldAlert, count: null },
       ],

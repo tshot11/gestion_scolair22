@@ -90,13 +90,16 @@ export function MobileHeader({ onOpenMenu }) {
               {getTitle()}
             </h1></div></div>
         {/* Right: Quick Search & Notification Bell */}
-        <div className="flex items-center gap-1.5 shrink-0"><button
+        <div className="flex items-center gap-1.5 shrink-0">
+          {!isParentOrStudent && (
+          <button
             type="button"
             onClick={() => setIsCommandPaletteOpen(true)}
             className="w-9 h-9 rounded-xl bg-[#12305A]/45 A]/45 bg-[#12305A]/45 backdrop-blur-md backdrop-blur-md border border-[#94C5FF]/15 flex items-center justify-center text-slate-700  hover:text-white hover:bg-blue-500/20 transition active:scale-95"
             title="Recherche globale (Ctrl+K)"
             aria-label="Recherche"
-          ><Search className="w-4 h-4" /></button><button
+          ><Search className="w-4 h-4" /></button>
+          )}<button
             type="button"
             onClick={() => setCurrentView("communication")}
             className="relative w-9 h-9 rounded-xl bg-[#12305A]/45 A]/45 bg-[#12305A]/45 backdrop-blur-md backdrop-blur-md border border-[#94C5FF]/15 flex items-center justify-center text-slate-700  hover:text-white hover:bg-blue-500/20 transition active:scale-95"

@@ -1,4 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+const fs = require('fs');
+let content = fs.readFileSync('src/components/views/VideoConferenceView.jsx', 'utf8');
+
+const newContent = `import React, { useState, useEffect, useRef } from "react";
 import { useApp } from "../../context/AppContext";
 import {
   Video,
@@ -30,7 +33,7 @@ export function VideoConferenceView() {
   const handleJoin = (meetingId, title) => {
     setActiveMeeting({ id: meetingId, title: title || meetingId });
     setInCall(true);
-    showToast(`Connexion à la salle ${title || meetingId}...`);
+    showToast(\`Connexion à la salle \${title || meetingId}...\`);
   };
 
   const handleCreate = (e) => {
@@ -282,3 +285,6 @@ export function VideoConferenceView() {
     </div>
   );
 }
+`;
+fs.writeFileSync('src/components/views/VideoConferenceView.jsx', newContent);
+console.log("VideoConferenceView patched for Jitsi API!");
