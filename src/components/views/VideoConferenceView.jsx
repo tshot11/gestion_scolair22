@@ -88,7 +88,7 @@ export function VideoConferenceView() {
     if (inCall && activeMeeting && jitsiContainer.current) {
       if (!window.JitsiMeetExternalAPI) {
         const script = document.createElement("script");
-        script.src = "https://meet.element.io/external_api.js";
+        script.src = "https://framatalk.org/external_api.js";
         script.async = true;
         script.onload = () => initJitsi();
         document.body.appendChild(script);
@@ -101,7 +101,7 @@ export function VideoConferenceView() {
            jitsiApiRef.current.dispose();
         }
         
-        const domain = "meet.element.io";
+        const domain = "framatalk.org";
         const options = {
             roomName: "GestionScolaireRDC_" + activeMeeting.id,
             width: "100%",

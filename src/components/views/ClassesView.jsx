@@ -272,6 +272,7 @@ export function ClassesView() {
             <span>Nouvelle Salle</span>
           </button>
 
+          {currentUser?.role === 'ADMIN' && (
           <button
             onClick={handleOpenNewClass}
             className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-blue-500/25 transition"
@@ -279,6 +280,7 @@ export function ClassesView() {
             <Plus className="w-4 h-4" />
             <span>Créer une Classe</span>
           </button>
+  )}
         </div>
       </div>
 

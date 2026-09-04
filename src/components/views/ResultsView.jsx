@@ -3,11 +3,22 @@ import { useApp } from '../../context/AppContext';
 import { Award, Save, Search, CheckCircle2 } from 'lucide-react';
 
 export function ResultsView() {
-  const { data, saveResultat, showToast } = useApp();
+  const { data, saveResultat, showToast, currentUser } = useApp();
   const [selectedClass, setSelectedClass] = useState(data?.classes?.[0]?.id || 1);
   const [selectedType, setSelectedType] = useState('EXAMEN');
   const [selectedTrimestre, setSelectedTrimestre] = useState(1);
-  const [selectedCours, setSelectedCours] = useState(data?.cours?.[0]?.id || 1);
+  
+  let availableCours = data?.cours || [];
+  if (currentUser?.role === 'ENSEIGNANT') {
+     const teacher = (data?.enseignants || []).find(t => t.email === currentUser.email);
+     if (teacher) {
+         availableCours = availableCours.filter(c => c.enseignant_id === teacher.id);
+     } else {
+         availableCours = [];
+     }
+  }
+  const [selectedCours, setSelectedCours] = useState(availableCours[0]?.id || '');
+
   const [grades, setGrades] = useState({});
   const [saved, setSaved] = useState(false);
 

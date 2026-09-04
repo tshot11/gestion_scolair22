@@ -372,7 +372,12 @@ router.get('/data/:collection', authenticate, async (req, res) => {
 
 router.post('/data/:collection', authenticate, async (req, res) => {
   try {
-    const model = getModel(req.params.collection);
+    const coll = req.params.collection;
+    // ROLE ENFORCEMENT
+    if (['cours', 'classes', 'options', 'salles', 'enseignants'].includes(coll) && req.user.role !== 'ADMIN') {
+        return res.status(403).json({ error: "Action non autorisée. Seul l'administrateur peut modifier la structure académique." });
+    }
+    const model = getModel(coll);
     const doc = await model.create(req.body);
     res.json({ success: true, data: doc });
   } catch (error) {
@@ -382,7 +387,11 @@ router.post('/data/:collection', authenticate, async (req, res) => {
 
 router.put('/data/:collection/:id', authenticate, async (req, res) => {
   try {
-    const model = getModel(req.params.collection);
+    const coll = req.params.collection;
+    if (['cours', 'classes', 'options', 'salles', 'enseignants'].includes(coll) && req.user.role !== 'ADMIN') {
+        return res.status(403).json({ error: "Action non autorisée. Seul l'administrateur peut modifier la structure académique." });
+    }
+    const model = getModel(coll);
     const doc = await model.findByPk(req.params.id);
     if (!doc) return res.status(404).json({ error: 'Not found' });
     const updated = await doc.update(req.body);
@@ -394,7 +403,11 @@ router.put('/data/:collection/:id', authenticate, async (req, res) => {
 
 router.delete('/data/:collection/:id', authenticate, async (req, res) => {
   try {
-    const model = getModel(req.params.collection);
+    const coll = req.params.collection;
+    if (['cours', 'classes', 'options', 'salles', 'enseignants'].includes(coll) && req.user.role !== 'ADMIN') {
+        return res.status(403).json({ error: "Action non autorisée. Seul l'administrateur peut modifier la structure académique." });
+    }
+    const model = getModel(coll);
     const doc = await model.findByPk(req.params.id);
     if (!doc) return res.status(404).json({ error: 'Not found' });
     await doc.destroy();
@@ -424,12 +437,35 @@ router.get('/sync/state', async (req, res) => {
   }
 });
 
-router.post('/sync/state', async (req, res) => {
+router.post('/sync/state', authenticate, async (req, res) => {
   try {
-    
     const docRef = doc(db, 'System', 'AppState');
-    // Save as a stringified chunk to avoid Firestore deep nesting limits or key errors
-    await setDoc(docRef, { state: JSON.stringify(req.body) });
+    const snap = await getDoc(docRef);
+    let oldState = snap.exists() ? JSON.parse(snap.data().state) : {};
+    let newState = req.body;
+    
+    // ENFORCE ROLES ON SYNC
+    if (req.user.role !== 'ADMIN') {
+        // Teacher or Student cannot modify academic structure.
+        // Revert their attempts to modify these arrays:
+        newState.cours = oldState.cours || [];
+        newState.classes = oldState.classes || [];
+        newState.options = oldState.options || [];
+        newState.salles = oldState.salles || [];
+        newState.enseignants = oldState.enseignants || [];
+        newState.utilisateurs = oldState.utilisateurs || [];
+        newState.frais = oldState.frais || [];
+        
+        if (req.user.role === 'ELEVE') {
+            // Students can't modify results, payments, presence, discipline, etc.
+            newState.resultats = oldState.resultats || [];
+            newState.presences = oldState.presences || [];
+            newState.incidents = oldState.incidents || [];
+            newState.paiements = oldState.paiements || [];
+        }
+    }
+
+    await setDoc(docRef, { state: JSON.stringify(newState) });
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
